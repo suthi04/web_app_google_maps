@@ -1,0 +1,14 @@
+# ===== InsightReview — model dependencies (REAL MODE) =====
+# ติดตั้งชุดนี้เพิ่ม เมื่อต้องการใช้ WangchanBERTa วิเคราะห์อารมณ์จริง (โหลดโมเดล ~500MB)
+#   pip install -r requirements-model.txt
+#
+# หมายเหตุ: torch มีขนาดใหญ่ (~2GB) และโมเดลจะถูกดาวน์โหลดครั้งแรกที่รัน
+# ถ้าจะ fine-tune แนะนำทำบน Google Colab (มี GPU ฟรี) ไม่ใช่บนเครื่องส่วนตัว
+
+-r requirements.txt
+
+transformers>=4.40
+torch>=2.2
+sentencepiece>=0.2.0
+protobuf>=4.25
+matplotlib>=3.7      # วาดภาพ confusion matrix (eval/evaluate.py) — ไม่มีก็รันได้แต่ไม่ได้ภาพ

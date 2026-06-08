@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% set active = '' %}
+{% set ASPECTS = [('food','อาหาร'),('service','บริการ'),('ambience','บรรยากาศ')] %}
+{% set LEVEL_TH = {'improve':'ควรปรับปรุง','strength':'จุดแข็ง','neutral':'ปานกลาง','insufficient':'ข้อมูลน้อย'} %}
+{% block title %}{{ a.store_name }} — InsightReview{% endblock %}
+
+{% block topbar %}
+  <form class="search-box" method="post" action="{{ url_for('analyze') }}" id="analyzeForm">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>
+    <input type="text" name="url" placeholder="วิเคราะห์ร้านใหม่ — วาง URL ที่นี่">
+    <button class="btn btn-primary btn-pill" type="submit">Analyze
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </form>
+{% endblock %}
+
+{% block content %}
+<div class="dash-head">
+  <div>
+    <div class="eyebrow-label">Analysis overview</div>
+    <div class="store-name">{{ a.store_name }}</div>
+    <div class="meta-row">
+      <span class="meta-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="mono">{{ "{:,}".format(a.total_reviews) }}</span> รีวิวที่วิเคราะห์
+      </span>
+      <span class="chip-soft">engine · {{ a.engine }}</span>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="dropdown">
+      <button class="btn btn-ghost" id="exportBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v12M8 11l4 4 4-4M5 21h14" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Export
+      </button>
+      <div class="dropdown-menu" id="exportMenu">
+        <a class="mi" href="{{ url_for('export_reviews', aid=a.id) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h12l4 4v12H4z" stroke-linejoin="round"/><path d="M14 4v5h5" stroke-linejoin="round"/></svg>รีวิวทั้งหมด (CSV)</a>
+        <a class="mi" href="{{ url_for('export_summary', aid=a.id) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h12l4 4v12H4z" stroke-linejoin="round"/><path d="M8 13h8M8 17h5" stroke-linecap="round"/></svg>สรุปผล (CSV)</a>
+        <div class="sep"></div>
+        <a class="mi" href="{{ url_for('export_labeling', aid=a.id) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3 8-8" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9" stroke-linecap="round"/></svg>รีวิวสำหรับติด label (JSON)</a>
+      </div>
+    </div>
+    <button class="btn btn-ghost" id="saveBtn" data-id="{{ a.id }}" data-saved="{{ '1' if a.is_saved else '0' }}">
+      <svg viewBox="0 0 24 24" fill="{{ 'currentColor' if a.is_saved else 'none' }}" stroke="currentColor"><path d="M6 4h12v16l-6-4-6 4V4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span id="saveLabel">{{ 'บันทึกแล้ว' if a.is_saved else 'บันทึก' }}</span>
+    </button>
+  </div>
+</div>
+
+<!-- Metric cards -->
+<div class="metrics">
+  <div class="metric pos">
+    <div class="top">
+      <span class="tag"><span class="dot"></span>Positive</span>
+      <span class="count mono">{{ a.distribution.counts.positive }} รีวิว</span>
+    </div>
+    <div class="val mono">{{ a.distribution.pct.positive }}%</div>
+    <div class="track"><div class="fill" style="width:{{ a.distribution.pct.positive }}%"></div></div>
+  </div>
+  <div class="metric neu">
+    <div class="top">
+      <span class="tag"><span class="dot"></span>Neutral</span>
+      <span class="count mono">{{ a.distribution.counts.neutral }} รีวิว</span>
+    </div>
+    <div class="val mono">{{ a.distribution.pct.neutral }}%</div>
+    <div class="track"><div class="fill" style="width:{{ a.distribution.pct.neutral }}%"></div></div>
+  </div>
+  <div class="metric neg">
+    <div class="top">
+      <span class="tag"><span class="dot"></span>Negative</span>
+      <span class="count mono">{{ a.distribution.counts.negative }} รีวิว</span>
+    </div>
+    <div class="val mono">{{ a.distribution.pct.negative }}%</div>
+    <div class="track"><div class="fill" style="width:{{ a.distribution.pct.negative }}%"></div></div>
+  </div>
+</div>
+
+<!-- Lower grid -->
+<div class="lower">
+  <!-- Donut -->
+  <div class="panel">
+    <div class="panel-head"><div><h3>Sentiment distribution</h3></div></div>
+    <div class="donut" style="background:conic-gradient(var(--pos) 0 {{ a.distribution.pct.positive }}%, var(--neg) {{ a.distribution.pct.positive }}% {{ a.distribution.pct.positive + a.distribution.pct.negative }}%, var(--neu) {{ a.distribution.pct.positive + a.distribution.pct.negative }}% 100%)">
+      <div class="hole">
+        <span class="num mono">{{ "{:,}".format(a.total_reviews) }}</span>
+        <span class="lbl">reviews</span>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="item"><span class="nm"><span class="swatch" style="background:var(--pos)"></span>Positive</span><span class="n mono">{{ a.distribution.counts.positive }}</span></div>
+      <div class="item"><span class="nm"><span class="swatch" style="background:var(--neu)"></span>Neutral</span><span class="n mono">{{ a.distribution.counts.neutral }}</span></div>
+      <div class="item"><span class="nm"><span class="swatch" style="background:var(--neg)"></span>Negative</span><span class="n mono">{{ a.distribution.counts.negative }}</span></div>
+    </div>
+  </div>
+
+  <!-- Result panel -->
+  <div class="panel">
+    <div class="panel-head">
+      <div>
+        <h3>Analysis result</h3>
+        <div class="sub-h">รีวิวรายรายการ และคำสำคัญแยกตามหมวด</div>
+      </div>
+      <div class="tools">
+        <div class="seg">
+          <button class="tab active" data-tab="all">All</button>
+          <button class="tab" data-tab="keywords">Keywords</button>
+        </div>
+        <div class="dropdown">
+          <button class="icon-btn" id="filterBtn" title="กรองตามอารมณ์" aria-label="กรอง">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 5h18l-7 8v6l-4-2v-4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div class="dropdown-menu" id="filterMenu">
+            <button class="mi active" data-filter="all">ทั้งหมด</button>
+            <div class="sep"></div>
+            <button class="mi" data-filter="positive"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--pos)"></span>Positive</button>
+            <button class="mi" data-filter="neutral"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--neu)"></span>Neutral</button>
+            <button class="mi" data-filter="negative"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--neg)"></span>Negative</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- All -->
+    <div id="view-all" class="tbl-wrap">
+      <table class="reviews">
+        <thead><tr><th>Review</th><th class="r">Sentiment</th></tr></thead>
+        <tbody>
+          {% for r in a.reviews %}
+          <tr class="rev-row" data-sentiment="{{ r.sentiment }}">
+            <td>
+              {% if r.rating %}<span class="rating"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg> <span class="mono" style="font-size:11.5px;color:var(--neu-ink)">{{ r.rating }}.0</span></span>{% endif %}
+              <div class="review-text">{{ r.text }}</div>
+            </td>
+            <td class="sent-cell">
+              {% if r.sentiment == 'positive' %}<span class="badge pos"><span class="bdot"></span>Positive</span>
+              {% elif r.sentiment == 'negative' %}<span class="badge neg"><span class="bdot"></span>Negative</span>
+              {% else %}<span class="badge neu"><span class="bdot"></span>Neutral</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Keywords -->
+    <div id="view-keywords" style="display:none;margin-top:8px">
+      {% for key, label in ASPECTS %}
+      {% set kw = a.keywords[key] %}
+      {% set total_kw = kw.positive|length + kw.neutral|length + kw.negative|length %}
+      <div class="kw-aspect">
+        <div class="title">
+          <span class="ai">
+            {% if key=='food' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 10v11M18 3c-2 0-3 2-3 5s1 4 3 4v9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {% elif key=='service' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 4a3 3 0 0 1 0 6M21 21v-2a4 4 0 0 0-3-3.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endif %}
+          </span>
+          {{ label }}
+          <span class="cnt">{{ total_kw }} คำ</span>
+        </div>
+        <div class="chips">
+          {% for k in kw.positive %}<span class="chip pos" data-sentiment="positive"><span class="cdot"></span>{{ k.word }}</span>{% endfor %}
+          {% for k in kw.neutral %}<span class="chip neu" data-sentiment="neutral"><span class="cdot"></span>{{ k.word }}</span>{% endfor %}
+          {% for k in kw.negative %}<span class="chip neg" data-sentiment="negative"><span class="cdot"></span>{{ k.word }}</span>{% endfor %}
+          {% if total_kw == 0 %}<span class="kw-empty">ยังไม่พบคำสำคัญในหมวดนี้</span>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Insights -->
+<div class="panel" style="margin-top:14px">
+  <div class="panel-head">
+    <div>
+      <h3>ข้อสรุปเชิงปฏิบัติ</h3>
+      <div class="sub-h">Actionable insights — สิ่งที่ควรทำต่อ เรียงจากเรื่องด่วนก่อน</div>
+    </div>
+  </div>
+  <div class="insights-grid">
+    {% for ins in a.insights %}
+    <div class="insight {{ ins.level }}">
+      <div class="ic">
+        {% if ins.level=='improve' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        {% elif ins.level=='strength' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        {% elif ins.level=='neutral' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14" stroke-linecap="round"/></svg>
+        {% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01" stroke-linecap="round"/></svg>{% endif %}
+      </div>
+      <div>
+        <div class="a-name">{{ ins.aspect_th }} <span class="tagline">{{ LEVEL_TH[ins.level] }}</span></div>
+        <div class="msg">{{ ins.message }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script id="analysis-data" type="application/json">{{ a | tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

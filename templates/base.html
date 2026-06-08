@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}InsightReview{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="scrim" id="scrim"></div>
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="9" fill="#5b5bd6"/>
+          <circle cx="16" cy="16" r="7.5" stroke="#fff" stroke-width="2"/>
+          <circle cx="16" cy="16" r="2.4" fill="#fff"/>
+          <path d="M22 10l3.2-3.2" stroke="#c7c7f6" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="name">InsightReview</span>
+      </div>
+
+      <nav class="nav">
+        <div class="nav-group">
+          <div class="nav-label">เมนู</div>
+          <a href="{{ url_for('index') }}" class="{{ 'active' if active=='new' }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z" stroke-linejoin="round"/><path d="M18.5 14.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" stroke-linejoin="round"/></svg>
+            New analysis
+          </a>
+          <a href="{{ url_for('history') }}" class="{{ 'active' if active=='history' }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12a9 9 0 1 0 2.6-6.4M3 5v4h4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8v4.2l3 1.8" stroke-linecap="round"/></svg>
+            History
+          </a>
+          <a href="{{ url_for('saved') }}" class="{{ 'active' if active=='saved' }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 4h12v16l-6-4-6 4V4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Saved
+          </a>
+        </div>
+      </nav>
+
+      {% if demo_mode %}
+      <div class="demo-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>โหมด demo — ใช้ข้อมูลตัวอย่าง</span>
+      </div>
+      {% endif %}
+
+      <div class="nav-bottom">
+        <a href="{{ url_for('settings') }}" class="{{ 'active' if active=='settings' }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 12a7.4 7.4 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2l-.4-2.5h-3.2l-.4 2.5a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5a7.4 7.4 0 0 0 0 2.4l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2l.4 2.5h3.2l.4-2.5a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5a7.4 7.4 0 0 0 .1-1.2z" stroke-linejoin="round"/></svg>
+          Settings
+        </a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="hamburger" id="navToggle" aria-label="เปิดเมนู">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
+        </button>
+        {% block topbar %}{% endblock %}
+      </header>
+      <div class="content">{% block content %}{% endblock %}</div>
+    </main>
+  </div>
+
+  <!-- global UI: toast / loading / confirm -->
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="lt">กำลังวิเคราะห์รีวิว…</div>
+    <div class="ls">ดึงรีวิว → ทำความสะอาด → วิเคราะห์อารมณ์</div>
+  </div>
+
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="m-ic" id="confirmIc">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 11v5M14 11v5" stroke-linecap="round"/></svg>
+      </div>
+      <h3 id="confirmTitle">ยืนยันการลบ</h3>
+      <p id="confirmBody">รายการนี้จะถูกลบถาวร ต้องการดำเนินการต่อหรือไม่?</p>
+      <div class="m-actions">
+        <button class="btn btn-ghost" id="confirmCancel">ยกเลิก</button>
+        <button class="btn btn-danger" id="confirmOk">ลบ</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+  <script>
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in msgs %}
+        toast({{ msg|tojson }}, {{ (cat if cat in ['ok','err','info'] else 'info')|tojson }}, 4200);
+      {% endfor %}
+    {% endwith %}
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — InsightReview{% endblock %}
+
+{% block topbar %}
+  <div class="topbar-title">{{ title }}</div>
+{% endblock %}
+
+{% block content %}
+<div class="empty-state" style="min-height:calc(100vh - 160px)">
+  <div class="ill" style="background:var(--accent-soft);border-color:transparent">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01" stroke-linecap="round"/></svg>
+  </div>
+  <h4 style="font-size:34px;color:var(--ink);letter-spacing:-1px" class="mono">{{ code }}</h4>
+  <h4>{{ title }}</h4>
+  <p>{{ message }}</p>
+  <a class="btn btn-primary" href="{{ url_for('index') }}">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l9-7 9 7M5 10v10h14V10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    กลับหน้าแรก
+  </a>
+</div>
+{% endblock %}

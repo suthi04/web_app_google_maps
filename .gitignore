@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# App
+insightreview.db
+server.log
+.env
+data/settings.json
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

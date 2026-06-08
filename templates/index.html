@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% set active = 'new' %}
+{% block title %}InsightReview — วิเคราะห์รีวิวร้านอาหาร{% endblock %}
+
+{% block topbar %}
+  <div style="flex:1"></div>
+  {% if demo_mode %}
+  <span class="chip-soft"><span class="live-dot"></span> Demo mode</span>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="landing">
+  <span class="eyebrow">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z" stroke-linejoin="round"/></svg>
+    วิเคราะห์ด้วย WangchanBERTa
+  </span>
+
+  <h1>เปลี่ยนรีวิว Google Maps<br>ให้เป็นข้อมูลเชิงกลยุทธ์</h1>
+  <p class="sub">วางลิงก์ร้านอาหารจาก Google Maps แล้วให้ระบบสรุปอารมณ์ลูกค้า แยกตามอาหาร บริการ และบรรยากาศ พร้อมข้อเสนอแนะที่นำไปใช้ได้จริง</p>
+
+  <form class="search-box" method="post" action="{{ url_for('analyze') }}" id="analyzeForm">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>
+    <input type="text" name="url" id="urlInput" placeholder="https://maps.google.com/...">
+    <button class="btn btn-primary btn-pill" type="submit">
+      Analyze
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </form>
+
+  {% if demo_mode %}
+  <div class="examples">
+    <button class="ex-chip" data-url="https://maps.google.com/?cid=demo-restaurant">ลองข้อมูลตัวอย่าง →</button>
+  </div>
+  <p class="demo-hint">โหมด demo: ไม่ต้องใส่ URL ก็กด Analyze ได้ ระบบจะใช้รีวิวตัวอย่าง 30 รายการ และวิเคราะห์อารมณ์แบบพจนานุกรมคำ (lexicon) — ใส่ Apify token ใน .env เพื่อใช้ข้อมูลจริง</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // เติม URL ตัวอย่างเมื่อคลิกชิป
+  document.querySelectorAll(".ex-chip").forEach(c =>
+    c.addEventListener("click", () => { document.getElementById("urlInput").value = c.dataset.url; })
+  );
+  // แสดง loading overlay ตอนเริ่มวิเคราะห์ (การวิเคราะห์จริงใช้เวลา)
+  document.getElementById("analyzeForm").addEventListener("submit", () => showLoading(true));
+</script>
+{% endblock %}

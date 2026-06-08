@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% set active = 'settings' %}
+{% block title %}ตั้งค่า — InsightReview{% endblock %}
+
+{% block topbar %}
+  <div class="topbar-title">ตั้งค่า</div>
+  <div style="flex:1"></div>
+{% endblock %}
+
+{% block content %}
+<div class="settings">
+  <div class="page-head">
+    <div>
+      <div class="page-title">ตั้งค่า</div>
+      <div class="page-sub">ปรับวิธีวิเคราะห์ให้เหมาะกับงานของคุณ มีผลทันทีกับการวิเคราะห์ครั้งถัดไป</div>
+    </div>
+  </div>
+
+  <form method="post" action="{{ url_for('settings') }}" class="set-form">
+
+    <!-- การวิเคราะห์อารมณ์ -->
+    <div class="panel set-panel">
+      <div class="set-sec-head">
+        <h3>เครื่องมือวิเคราะห์อารมณ์</h3>
+        <p>เลือกเครื่องมือที่ใช้จำแนกอารมณ์รีวิว</p>
+      </div>
+
+      <div class="radio-cards">
+        <label class="radio-card {{ 'sel' if s.use_model }}">
+          <input type="radio" name="engine" value="model" {{ 'checked' if s.use_model }}>
+          <div class="rc-body">
+            <div class="rc-title">WangchanBERTa <span class="rc-tag rec">แม่นยำกว่า</span></div>
+            <div class="rc-desc">โมเดล AI ภาษาไทย เข้าใจบริบทประโยค เหมาะกับผลลัพธ์ที่ต้องการความแม่นยำ (ครั้งแรกใช้เวลาโหลดสักครู่)</div>
+          </div>
+        </label>
+        <label class="radio-card {{ 'sel' if not s.use_model }}">
+          <input type="radio" name="engine" value="lexicon" {{ 'checked' if not s.use_model }}>
+          <div class="rc-body">
+            <div class="rc-title">Lexicon <span class="rc-tag">เร็วกว่า</span></div>
+            <div class="rc-desc">นับคำเชิงบวก/ลบจากพจนานุกรม ประมวลผลเร็ว เหมาะกับการดูภาพรวมแบบรวดเร็ว</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- การดึงรีวิว -->
+    <div class="panel set-panel">
+      <div class="set-sec-head">
+        <h3>ความลึกของการวิเคราะห์</h3>
+        <p>เลือกว่าจะดึงรีวิวมาวิเคราะห์กี่รายการต่อหนึ่งร้าน</p>
+      </div>
+
+      <div class="field">
+        <label for="max_reviews">จำนวนรีวิวต่อการวิเคราะห์</label>
+        <input type="number" id="max_reviews" name="max_reviews"
+               min="{{ min_reviews }}" max="{{ max_cap }}" step="10" value="{{ s.max_reviews }}">
+        <div class="field-help">เลือกได้ {{ min_reviews }}–{{ max_cap }} รายการ — ยิ่งมากยิ่งครอบคลุมแต่ใช้เวลานานขึ้น</div>
+      </div>
+    </div>
+
+    <div class="set-actions">
+      <button type="submit" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12l5 5L20 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        บันทึกการตั้งค่า
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // ไฮไลต์การ์ดที่ถูกเลือก
+  document.querySelectorAll('.radio-card input').forEach(r => {
+    r.addEventListener('change', () => {
+      document.querySelectorAll('.radio-card').forEach(c =>
+        c.classList.toggle('sel', c.querySelector('input').checked));
+    });
+  });
+</script>
+{% endblock %}
