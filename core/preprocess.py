@@ -14,6 +14,8 @@ preprocess.py
 """
 import re
 
+from core import clause, negation
+
 # พยายาม import PyThaiNLP — ถ้าไม่มีก็ใช้ fallback
 try:
     from pythainlp.tokenize import word_tokenize as _th_tokenize
@@ -76,19 +78,49 @@ def remove_stopwords(tokens: list) -> list:
 
 
 def preprocess_review(text: str) -> dict:
-    """
-    เตรียมรีวิว 1 รายการ -> คืนทั้งข้อความสะอาดและ tokens
-    {"clean": str, "tokens": [str, ...]}
+    """Prepare one review/clause string.
+
+    Returns clean text + three token views:
+      tokens       : negation-merged, stopword-removed (sentiment backstop, fallback)
+      tokens_base  : stopword-removed, no negation merge (topics)
+      raw_tokens   : full tokenization, NO stopword removal (extraction)
     """
     cleaned = clean_text(text)
-    tokens = remove_stopwords(tokenize(cleaned))
-    return {"clean": cleaned, "tokens": tokens}
+    raw = tokenize(cleaned)
+    tokens = remove_stopwords(negation.apply_negation(raw))
+    tokens_base = remove_stopwords(raw)
+    return {
+        "clean": cleaned,
+        "tokens": tokens,
+        "tokens_base": tokens_base,
+        "raw_tokens": raw,
+    }
+
+
+def _prepare_clauses(text: str) -> list:
+    """Tokenize the whole cleaned review once, split on marker *tokens*, then build
+    per-clause token views. Avoids double-tokenization and the substring split bug."""
+    cleaned = clean_text(text)
+    raw = tokenize(cleaned)
+    clauses = []
+    for raw_clause in clause.split_clause_tokens(raw):
+        if not raw_clause:
+            continue
+        clauses.append({
+            "clean": "".join(raw_clause),
+            "tokens": remove_stopwords(negation.apply_negation(raw_clause)),
+            "tokens_base": remove_stopwords(raw_clause),
+            "raw_tokens": raw_clause,
+        })
+    return clauses
 
 
 def filter_and_prepare(reviews: list) -> list:
     """
     รับรีวิวดิบ -> คัดเฉพาะไทย + เตรียมข้อมูล + ตัดซ้ำ
-    คืน list ของ dict ที่มี key: text, rating, review_date, clean, tokens
+    คืน list ของ dict ที่มี key:
+      text, rating, review_date, clean, tokens, tokens_base, clauses
+    โดย clauses = อนุประโยคที่ผ่าน preprocess แล้ว (ใช้ทำ aspect-level sentiment)
     """
     seen = set()
     prepared = []
@@ -102,12 +134,22 @@ def filter_and_prepare(reviews: list) -> list:
         pp = preprocess_review(text)
         if not pp["clean"]:
             continue
+        clauses = _prepare_clauses(text)
+        if not clauses:                  # guard: never lose a review
+            clauses = [{
+                "clean": pp["clean"],
+                "tokens": pp["tokens"],
+                "tokens_base": pp["tokens_base"],
+                "raw_tokens": pp["raw_tokens"],
+            }]
         prepared.append({
             "text": text,
             "rating": r.get("rating"),
             "review_date": r.get("review_date"),
             "clean": pp["clean"],
             "tokens": pp["tokens"],
+            "tokens_base": pp["tokens_base"],
+            "clauses": clauses,
         })
     return prepared
 
