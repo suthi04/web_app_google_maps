@@ -1,0 +1,66 @@
+"""
+tests/test_clause.py
+====================
+ทดสอบการแบ่งรีวิวเป็นอนุประโยค (clause) ตามคำเชื่อมแสดงความขัดแย้ง
+เพื่อให้แต่ละอนุประโยคผูกอารมณ์กับหมวดของตัวเองได้ (aspect-level ที่ถูกต้อง)
+"""
+import os
+import sys
+import unittest
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core import clause
+
+
+class TestSplitClauses(unittest.TestCase):
+    def test_splits_on_tae(self):
+        self.assertEqual(
+            clause.split_clauses("อาหารอร่อย แต่บริการช้า"),
+            ["อาหารอร่อย", "บริการช้า"],
+        )
+
+    def test_splits_on_taewa(self):
+        self.assertEqual(
+            clause.split_clauses("รสชาติดี แต่ว่าแพงไป"),
+            ["รสชาติดี", "แพงไป"],
+        )
+
+    def test_no_marker_returns_single_clause(self):
+        self.assertEqual(
+            clause.split_clauses("อาหารอร่อยมาก รสชาติกลมกล่อม"),
+            ["อาหารอร่อยมาก รสชาติกลมกล่อม"],
+        )
+
+    def test_empty_text_returns_empty_list(self):
+        self.assertEqual(clause.split_clauses(""), [])
+
+    def test_strips_and_drops_blank_fragments(self):
+        self.assertEqual(
+            clause.split_clauses("อร่อยดี แต่  แต่ช้า"),
+            ["อร่อยดี", "ช้า"],
+        )
+
+
+class TestSplitClauseTokens(unittest.TestCase):
+    def test_splits_on_marker_token_only(self):
+        from core.clause import split_clause_tokens
+        toks = ["อาหาร", "อร่อย", "แต่", "บริการ", "ช้า"]
+        self.assertEqual(
+            split_clause_tokens(toks),
+            [["อาหาร", "อร่อย"], ["บริการ", "ช้า"]],
+        )
+
+    def test_does_not_split_word_containing_marker(self):
+        from core.clause import split_clause_tokens
+        # "ตกแต่ง" is one token; must NOT be split even though it contains "แต่"
+        toks = ["ร้าน", "ตกแต่ง", "สวย"]
+        self.assertEqual(split_clause_tokens(toks), [["ร้าน", "ตกแต่ง", "สวย"]])
+
+    def test_empty_returns_empty(self):
+        from core.clause import split_clause_tokens
+        self.assertEqual(split_clause_tokens([]), [])
+
+
+if __name__ == "__main__":
+    unittest.main()
