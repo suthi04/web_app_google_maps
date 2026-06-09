@@ -104,6 +104,7 @@ DESCRIPTOR_ASPECT_HINTS = {
     "อร่อย": "food", "จืด": "food", "เค็ม": "food", "หวาน": "food", "เปรี้ยว": "food",
     "เผ็ด": "food", "สด": "food", "หอม": "food", "เข้มข้น": "food", "จัดจ้าน": "food",
     "นุ่ม": "food", "กรอบ": "food", "ละมุน": "food", "ฟิน": "food", "เด็ด": "food",
+    "เยอะ": "food", "น้อย": "food",   # portion (ปริมาณเยอะ); head-noun routing overrides คนเยอะ
     # service-bound descriptors
     "รวดเร็ว": "service", "ช้า": "service", "ใส่ใจ": "service", "ยิ้มแย้ม": "service",
     "หยาบคาย": "service", "เป็นกันเอง": "service", "ใจดี": "service", "สุภาพ": "service",
