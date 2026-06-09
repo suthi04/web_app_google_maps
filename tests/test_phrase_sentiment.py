@@ -26,6 +26,21 @@ class TestPhraseSentiment(unittest.TestCase):
                     clause={"clean": "คนเยอะแต่บริการแย่", "tokens": ["คนเยอะ", "บริการแย่"]})
         self.assertEqual(sentiment.classify_phrase(ph), "negative")
 
+    def test_clear_polarity_overrides_clause_majority(self):
+        # "ราคาแพง" (ลบชัดเจน) ในอนุประโยคที่บวกเป็นส่วนใหญ่ ต้องยังเป็น negative
+        clause = {"clean": "อาหารอร่อยรสชาติดีราคาแพง",
+                  "tokens": ["อาหาร", "อร่อย", "รสชาติ", "ดี", "ราคา", "แพง"]}
+        ph = Phrase(surface="ราคา แพง", head_noun="ราคา",
+                    descriptor_tokens=["แพง"], clause=clause)
+        self.assertEqual(sentiment.classify_phrase(ph), "negative")
+
+    def test_negation_flips_to_positive(self):
+        # "ราคาไม่แพง" -> positive แม้บริบทจะปนลบ (negation พลิกขั้ว)
+        ph = Phrase(surface="ราคา ไม่ แพง", head_noun="ราคา",
+                    descriptor_tokens=["ไม่", "แพง"],
+                    clause={"clean": "ราคาไม่แพงแต่บริการแย่", "tokens": ["ราคาไม่แพง", "บริการแย่"]})
+        self.assertEqual(sentiment.classify_phrase(ph), "positive")
+
 
 if __name__ == "__main__":
     unittest.main()

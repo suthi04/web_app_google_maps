@@ -125,14 +125,24 @@ def engine_name() -> str:
 
 
 def classify_phrase(phrase) -> str:
-    """Stage 6 — sentiment for one phrase occurrence, decided IN CONTEXT
-    (its source clause), independent of extraction.
+    """Stage 6 — sentiment for one phrase occurrence, independent of extraction.
 
-    Model on : WangchanBERTa on the source clause text.
-    Model off: negation-aware lexicon over the clause tokens (backstop); falls back
-               to the phrase's own descriptor polarity, else neutral.
+    A phrase with a CLEAR polarity of its own (negation-aware) keeps that polarity —
+    so "ราคาแพง" stays negative even inside a mostly-positive clause, and "ราคาไม่แพง"
+    stays positive. Only phrases with NO inherent polarity (e.g. คนเยอะ) are decided
+    from the source-clause CONTEXT (WangchanBERTa when on; lexicon when off).
     """
     global _model_status
+
+    # 1) clear own polarity wins (joined so negation flips correctly: ไม่อร่อย -> neg)
+    if phrase.descriptor_tokens:
+        own = word_polarity("".join(phrase.descriptor_tokens))
+        if own > 0:
+            return "positive"
+        if own < 0:
+            return "negative"
+
+    # 2) ambiguous phrase -> decide from clause context
     clause = phrase.clause or {}
     if config.get_use_model():
         try:
@@ -141,9 +151,4 @@ def classify_phrase(phrase) -> str:
             if _model_status != "failed":
                 _model_status = "failed"
                 print(f"[sentiment] WangchanBERTa unavailable, using lexicon: {e}")
-    # backstop: clause context first, then the phrase descriptor
-    tokens = clause.get("tokens") or phrase.descriptor_tokens
-    label = _predict_lexicon(tokens)
-    if label == "neutral" and phrase.descriptor_tokens:
-        return _predict_lexicon(phrase.descriptor_tokens)
-    return label
+    return _predict_lexicon(clause.get("tokens") or phrase.descriptor_tokens)
