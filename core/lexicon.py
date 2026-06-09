@@ -115,6 +115,11 @@ DESCRIPTOR_ASPECT_HINTS = {
     "น่านั่ง": "atmosphere", "กว้าง": "atmosphere", "แคบ": "atmosphere",
 }
 
+# Self-contained descriptor words that read naturally ALONE — do NOT synthesize a
+# head noun for these (keep "คึกคัก", not "บรรยากาศคึกคัก"). Compounds (เย็นสบาย) are
+# already kept as-is by the compound rule; this set is for single-token vibe words.
+NO_SYNTH_DESCRIPTORS = {"คึกคัก"}
+
 INTENSIFIERS = {"มาก", "มากๆ", "สุดๆ", "จริง", "จริงๆ", "เลย", "ๆ", "ที่สุด", "นิดหน่อย"}
 FILLERS = {"คือ", "ที่", "อะ", "นะ", "ก็"}
 META_VERBS = {"ชอบ", "แนะนำ", "บอก", "คิดว่า", "รู้สึก"}

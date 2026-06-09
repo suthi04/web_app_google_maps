@@ -25,10 +25,17 @@ class TestCanonical(unittest.TestCase):
                    aspect="food", aspect_conf="high")
         self.assertEqual(canonical.canonicalize(p).canonical, "อาหารอร่อย")
 
-    def test_hinted_single_descriptor_not_synthesized(self):
+    def test_self_contained_descriptor_not_synthesized(self):
+        # คึกคัก reads naturally alone (in NO_SYNTH_DESCRIPTORS) -> not "บรรยากาศคึกคัก"
         p = Phrase(surface="คึกคัก", descriptor_tokens=["คึกคัก"], pattern="P7",
                    aspect="atmosphere", aspect_conf="high")
         self.assertEqual(canonical.canonicalize(p).canonical, "คึกคัก")
+
+    def test_service_bare_descriptor_synthesized(self):
+        # ช้า is NOT self-contained -> synthesize head noun so it is not bare noise
+        p = Phrase(surface="ช้า", descriptor_tokens=["ช้า"], pattern="P7",
+                   aspect="service", aspect_conf="high")
+        self.assertEqual(canonical.canonicalize(p).canonical, "บริการช้า")
 
     def test_idiom_uses_canonical_map(self):
         p = Phrase(surface="ริมน้ำ", pattern="idiom")
