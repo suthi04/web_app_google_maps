@@ -36,6 +36,13 @@ class TestGrammar(unittest.TestCase):
         self.assertEqual(out[0].descriptor_tokens, ["อร่อย"])
         self.assertEqual(out[0].pattern, "P7")
 
+    def test_b1b_standalone_negator_descriptor(self):
+        # noun-less ไม่+ประทับใจ -> negated descriptor, keeps the negation
+        out = extract._match_grammar(["ไม่", "ประทับใจ"], [False, False], {})
+        self.assertEqual(out[0].descriptor_tokens, ["ไม่", "ประทับใจ"])
+        self.assertEqual(out[0].pattern, "P7")
+        self.assertIsNone(out[0].head_noun)
+
     def test_bare_noun_not_emitted(self):
         out = extract._match_grammar(["อาหาร"], [False], {})
         self.assertEqual(out, [])

@@ -99,6 +99,16 @@ def _match_grammar(raw, used, clause):
             i += 2
             continue
 
+        # B1b standalone negator + descriptor (noun-less): ไม่+ประทับใจ -> "ไม่ประทับใจ".
+        # Keeps the negation instead of dropping "ไม่" and synthesizing a misleading
+        # positive-looking phrase (e.g. "อาหารประทับใจ") onto a negative clause.
+        if is_neg(a) and b is not None and not used[i + 1] and is_desc(b):
+            out.append(Phrase(surface=f"{a} {b}", head_noun=None,
+                              descriptor_tokens=[a, b], pattern="P7", clause=clause))
+            used[i] = used[i + 1] = True
+            i += 2
+            continue
+
         # B2 noun-led: NOUN (NEG)? descriptor-run
         if is_noun(a):
             j = i + 1
