@@ -1,113 +1,55 @@
 """
 keywords.py
 ===========
-สกัดคำสำคัญ (keyword) ของร้าน แยกตามหมวด (aspect) และอารมณ์ (sentiment)
+"ลูกค้าพูดถึงบ่อย" (Most Discussed Topics) — นับความถี่ของ "คำนามหัวหมวด"
+ที่ลูกค้าเอ่ยถึง แยกตามหมวด (อาหาร/บริการ/บรรยากาศ) โดยไม่ผูกกับอารมณ์
 
-ปัญหาเดิม (แก้แล้ว):
-    รีวิว 1 รายการที่พูดถึงหลายหมวด (เช่น "อาหารอร่อยแต่บริการช้า") เคยเอา token
-    ทั้งหมดยัดเข้า "ทุกหมวด" ที่รีวิวนั้นแตะ -> คำว่า "บริการ" ไปโผล่ในหมวดอาหาร,
-    คำว่า "อร่อย" ไปโผล่ในบริการ = แยกมั่ว
+หมายเหตุ: การสกัด "วลีคำสำคัญเชิงความเห็น" (opinion phrases) ย้ายไปอยู่ที่
+core/phrases/ แล้ว (ดู core/pipeline.py:_phrase_pipeline) ไฟล์นี้จึงเหลือเฉพาะ
+ส่วน "หัวข้อที่ถูกพูดถึงบ่อย" ซึ่งใช้เพื่อการสำรวจเท่านั้น — ไม่นำไปคำนวณ insight
+หรือสรุปอารมณ์
 
-วิธีใหม่ (lexicon attribution):
-    แบ่ง token เข้าหมวดตามความหมายของตัวคำเอง ไม่ใช่ตามรีวิว
-      1) ถ้า token เป็นคำเฉพาะหมวด (อยู่ในพจนานุกรม ASPECT_LEXICON)
-         -> เข้าเฉพาะหมวดของมันเท่านั้น  (พนักงาน->บริการ, แอร์->บรรยากาศ)
-      2) ถ้า token เป็นคำกลาง/คำอารมณ์ (อร่อย, แย่, แพง — ไม่ผูกหมวด)
-         -> ใส่ให้ก็ต่อเมื่อรีวิวนั้นพูดถึง "หมวดเดียว" (ไม่กำกวม)
-            ถ้ารีวิวพูดหลายหมวด = ข้าม (กันปนข้ามหมวด)
-
-จัดอันดับด้วย TF-IDF (score = ความถี่ x idf) เพื่อดึงคำเด่นเฉพาะร้าน
-ไม่พึ่ง sklearn (คำนวณเองด้วย math.log)
-
-ฟังก์ชันหลัก: extract_keywords(reviews) -> dict ซ้อน aspect -> sentiment -> [keywords]
+คืน: {"food": [{"word","count"}...], "service": [...], "ambience": [...]}
 """
-import math
 from collections import Counter
 
+from core import lexicon
 from core.lexicon import ASPECT_LEXICON
 
-# คำทั่วไป/คำหน้าที่ ที่ไม่มีความหมายพอจะเป็น keyword (เสริมจาก stopword ของ PyThaiNLP)
-_IGNORE = {
-    "ร้าน", "มาก", "ไป", "เลย", "นะ", "ค่ะ", "ครับ", "จ้า", "ๆ", "และ", "ที่",
-    "มี", "ของ", "เป็น", "ก็", "อยู่", "มา", "แบบ", "คือ", "ได้", "ให้", "กับ",
-    "อันนี้", "อะ", "ด้วย", "แต่", "หน่อย", "นี้", "นั้น", "เรา", "เขา", "ทาน",
-    "กิน", "ค่อนข้าง", "นิด", "พอ", "จะ", "ไม่", "ว่า", "ถ้า", "ตอน",
-    # คำขยะที่เคยหลุดมาเป็น keyword
-    "ทำ", "หน้า", "รอบ", "แทบ", "ได้ยิน", "หา", "ติด", "พอใจ", "กลางๆ",
-    "สั่งอาหาร", "สั่ง", "ทักท้วง", "เฉยๆ", "อีก", "ขึ้น", "ลง", "ใช้", "ครั้ง",
-    "หลาย", "เยอะ", "น้อย", "ทุก", "บาง", "เคย", "ยัง", "แล้ว", "เอา", "เห็น",
-}
+TOPICS_TOP_N = 8       # หัวข้อสูงสุดต่อหมวด
+TOPICS_MIN_COUNT = 2   # ต้องถูกพูดถึงอย่างน้อยกี่ครั้งจึงนับว่า "บ่อย"
 
-MIN_LEN = 2          # คำต้องยาวอย่างน้อยกี่ตัวอักษร
-TOP_N = 8            # เก็บกี่ keyword ต่อกลุ่ม
-
-# reverse map: token -> เซ็ตของหมวดที่คำนั้นสังกัด (สร้างจากพจนานุกรม)
-_TOKEN_ASPECT = {}
-for _asp, _words in ASPECT_LEXICON.items():
-    for _w in _words:
-        _TOKEN_ASPECT.setdefault(_w, set()).add(_asp)
+# ชื่อหมวดภายใน (food/service/atmosphere) -> คีย์ที่ dashboard ใช้ (food/service/ambience)
+_ASPECT_KEY = {"food": "food", "service": "service", "atmosphere": "ambience"}
 
 
-def _is_good_token(tok: str) -> bool:
-    return len(tok) >= MIN_LEN and tok not in _IGNORE and not tok.isnumeric()
-
-
-def _compute_idf(reviews: list) -> dict:
-    """idf จากคลังรีวิวของร้านนี้ (document = 1 รีวิว)"""
-    n = len(reviews) or 1
-    df = Counter()
+def _iter_clauses(reviews):
+    """คืนอนุประโยคทั้งหมด (document = 1 อนุประโยค) — fallback เป็นทั้งรีวิวถ้าไม่มี clauses"""
     for r in reviews:
-        seen = {t for t in r.get("tokens", []) if _is_good_token(t)}
-        df.update(seen)
-    return {t: math.log((n + 1) / (c + 1)) + 1.0 for t, c in df.items()}
+        clauses = r.get("clauses")
+        if clauses:
+            for c in clauses:
+                yield c
+        else:
+            yield r
 
 
-def extract_keywords(reviews: list) -> dict:
+def extract_topics(reviews: list) -> dict:
+    """นับ "คำนามหัวหมวด" (พนักงาน, แอร์, ที่จอดรถ ...) ที่ลูกค้าเอ่ยถึง แยกตามหมวด
+
+    ใช้พจนานุกรมคำนามหัวหมวด (lexicon.NOUN_TO_ASPECT) เป็นแหล่งความจริงเดียว —
+    คำบรรยายเชิงอารมณ์ (อร่อย/ดี) ไม่ใช่คำนามหัวหมวดจึงไม่ถูกนับเป็นหัวข้อ
     """
-    คืนโครงสร้าง:
-    {
-      "food":    {"positive": [...], "neutral": [...], "negative": [...]},
-      "service": {...},
-      "ambience":{...}
-    }
-    แต่ละ list = [{"word": str, "count": int}, ...] เรียงตามคะแนน TF-IDF จากมากไปน้อย
-    """
-    idf = _compute_idf(reviews)
-    aspects = set(ASPECT_LEXICON.keys())
-    buckets = {
-        a: {"positive": Counter(), "neutral": Counter(), "negative": Counter()}
-        for a in ASPECT_LEXICON
-    }
-
-    for r in reviews:
-        sent = r.get("sentiment", "neutral")
-        review_aspects = [a for a in r.get("aspects", []) if a in aspects]
-        if not review_aspects:
-            continue
-        single = review_aspects[0] if len(review_aspects) == 1 else None
-
-        for t in r.get("tokens", []):
-            if not _is_good_token(t):
-                continue
-            own = _TOKEN_ASPECT.get(t, set()) & aspects
-            if own:
-                # คำเฉพาะหมวด -> เข้าเฉพาะหมวดของมัน (ที่รีวิวนี้พูดถึง)
-                for a in own:
-                    if a in review_aspects:
-                        buckets[a][sent][t] += 1
-            elif single:
-                # คำกลาง/คำอารมณ์ -> ใส่ได้เฉพาะเมื่อรีวิวพูดถึงหมวดเดียว (ไม่กำกวม)
-                buckets[single][sent][t] += 1
-            # else: คำกลางในรีวิวหลายหมวด -> ข้าม (กันปนข้ามหมวด)
+    counters = {a: Counter() for a in ASPECT_LEXICON}
+    for c in _iter_clauses(reviews):
+        for t in c.get("tokens_base", c.get("tokens", [])):
+            a = _ASPECT_KEY.get(lexicon.NOUN_TO_ASPECT.get(t))
+            if a in counters:
+                counters[a][t] += 1
 
     result = {}
-    for a, by_sent in buckets.items():
-        result[a] = {}
-        for sent, counter in by_sent.items():
-            scored = [
-                (word, count, count * idf.get(word, 1.0))
-                for word, count in counter.items()
-            ]
-            scored.sort(key=lambda x: (x[2], x[1]), reverse=True)
-            result[a][sent] = [{"word": w, "count": c} for w, c, _ in scored[:TOP_N]]
+    for a, counter in counters.items():
+        items = [(t, n) for t, n in counter.items() if n >= TOPICS_MIN_COUNT]
+        items.sort(key=lambda x: x[1], reverse=True)
+        result[a] = [{"word": t, "count": n} for t, n in items[:TOPICS_TOP_N]]
     return result
