@@ -39,6 +39,12 @@ class TestLexiconMaps(unittest.TestCase):
         for w in ("อร่อย", "จัดจ้าน", "เข้มข้น", "ถึงเครื่อง"):
             self.assertNotIn(w, lexicon.MEMBER_TO_CONCEPT)
 
+    def test_common_slang_descriptors_present(self):
+        from core.lexicon import DESCRIPTOR_ASPECT_HINTS, SENTIMENT_WORDS
+        # food slang that customers actually use
+        self.assertEqual(DESCRIPTOR_ASPECT_HINTS.get("แซ่บ"), "food")
+        self.assertIn("แซ่บ", SENTIMENT_WORDS["positive"])
+
 
 if __name__ == "__main__":
     unittest.main()
