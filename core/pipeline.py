@@ -10,8 +10,9 @@ pipeline.py
 
 ฟังก์ชันหลัก: run_analysis(url, max_reviews) -> dict ผลลัพธ์
 """
+import config
 from core import scraper, preprocess, sentiment, aspect, keywords, insights
-from core.phrases import extract, quality, canonical, synonyms, aggregate
+from core.phrases import extract, quality, canonical, synonyms, aggregate, llm_extract
 
 # internal aspect value -> dashboard contract key
 _ASPECT_KEY = {"food": "food", "service": "service", "atmosphere": "ambience"}
@@ -41,7 +42,13 @@ def _rule_phrase_pipeline(reviews: list) -> dict:
 
 
 def _phrase_pipeline(reviews: list) -> dict:
-    """Engine dispatch lives here in Phase 2; for now always rule-based."""
+    """Dispatch to the configured engine. The LLM engine is opt-in and falls back to
+    the rule engine when no API key is available or the API call fails."""
+    if config.get_extract_engine() == "llm" and llm_extract.available():
+        try:
+            return llm_extract.extract_all(reviews)
+        except Exception as e:
+            print(f"[phrases] LLM engine failed, falling back to rule-based: {e}")
     return _rule_phrase_pipeline(reviews)
 
 
@@ -78,6 +85,8 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
     distribution = _sentiment_distribution(reviews)
     aspect_summary = aspect.aspect_sentiment_summary(reviews)
     kw = _phrase_pipeline(reviews)
+    extract_engine = ("llm" if config.get_extract_engine() == "llm" and llm_extract.available()
+                      else "rule")
     topics = keywords.extract_topics(reviews)          # "ลูกค้าพูดถึงบ่อย" (แยกจาก insight)
     actionable = insights.generate_insights(aspect_summary, kw)
 
@@ -87,6 +96,7 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
         "source_url": raw["source_url"],
         "total_reviews": len(reviews),
         "engine": sentiment.engine_name(),
+        "extract_engine": extract_engine,
         "distribution": distribution,        # %, counts
         "aspect_summary": aspect_summary,     # นับอารมณ์ราย aspect
         "keywords": kw,                       # keyword ราย aspect/sentiment
