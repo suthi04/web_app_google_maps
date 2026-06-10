@@ -10,6 +10,8 @@ class Phrase:
     descriptor_tokens: list = field(default_factory=list)  # cleaned descriptor tokens
     pattern: str = ""                             # "P1".."P7" | "idiom" | "fallback"
     canonical: str = ""                           # stage 3 output ("อาหารอร่อย")
+    display: str = ""                             # natural readable phrase (intensifiers kept)
+    agg_key: str = ""                             # normalized grouping key (counting only)
     concept: str = ""                             # stage 4 concept key (== canonical if ungrouped)
     label: str = ""                               # display label
     aspect: str | None = None                     # food | service | atmosphere

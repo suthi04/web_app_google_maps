@@ -17,6 +17,12 @@ class TestPhraseModel(unittest.TestCase):
         a.descriptor_tokens.append("อร่อย")
         self.assertEqual(b.descriptor_tokens, [])  # no shared mutable default
 
+    def test_display_and_agg_key_default_empty(self):
+        from core.phrases.model import Phrase
+        p = Phrase(surface="x")
+        self.assertEqual(p.display, "")
+        self.assertEqual(p.agg_key, "")
+
 
 if __name__ == "__main__":
     unittest.main()
