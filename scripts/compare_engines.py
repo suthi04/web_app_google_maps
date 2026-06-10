@@ -1,7 +1,7 @@
-"""Compare the rule-based and Claude (LLM) extraction engines on the same reviews.
+"""Compare the rule-based and Gemini (LLM) extraction engines on the same reviews.
 
 Rule-based always runs (offline). The LLM half runs only with run_llm=True AND a
-configured ANTHROPIC_API_KEY; otherwise it is reported as skipped. This is the
+configured GEMINI_API_KEY; otherwise it is reported as skipped. This is the
 evidence for the rule-vs-LLM comparison in the write-up.
 
 CLI:  python -m scripts.compare_engines [--llm]
@@ -59,7 +59,7 @@ def _load_reviews() -> list:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--llm", action="store_true", help="also run the Claude engine")
+    ap.add_argument("--llm", action="store_true", help="also run the Gemini engine")
     args = ap.parse_args()
     report = compare(_load_reviews(), run_llm=args.llm)
     print(json.dumps(report, ensure_ascii=False, indent=2))
