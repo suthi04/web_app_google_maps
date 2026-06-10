@@ -10,6 +10,7 @@ config.py
   (ถ้าไม่ตั้ง -> รันโหมด demo ได้ทันที ใช้ข้อมูลตัวอย่าง + lexicon)
 """
 import os
+import secrets
 
 # ---- พาธ ----
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -50,9 +51,34 @@ MODEL_NAME = os.environ.get(
 MODEL_REVISION = os.environ.get("MODEL_REVISION", "finetuned@wisesight_sentiment")
 
 # ---- Flask ----
-DEBUG = os.environ.get("FLASK_DEBUG", "1") == "1"
+# DEBUG ปิดเป็นค่าเริ่มต้น (เปิดด้วย FLASK_DEBUG=1 ตอนพัฒนาเท่านั้น)
+# เหตุผลความปลอดภัย: debug=True เปิด Werkzeug debugger ซึ่งรันโค้ดได้จากเบราว์เซอร์
+# (เท่ากับ RCE ถ้าแอปเข้าถึงได้จากภายนอก) จึงห้ามเปิดในเครื่องที่คนอื่นเข้าถึงได้
+DEBUG = os.environ.get("FLASK_DEBUG", "0") == "1"
 PORT = int(os.environ.get("PORT", "5000"))
-SECRET_KEY = os.environ.get("SECRET_KEY", "insightreview-dev-secret-change-in-prod")
+
+# SECRET_KEY: ใช้ค่าจาก env ถ้ามี (เซสชันคงที่ข้ามการรีสตาร์ท)
+# ถ้าไม่ตั้ง -> สุ่มคีย์แข็งแรงต่อโปรเซส แทนคีย์ตายตัวที่เดาได้
+# (แอปนี้ไม่มีระบบล็อกอิน เซสชันใช้แค่ flash message การสุ่มต่อโปรเซสจึงไม่กระทบผู้ใช้)
+def resolve_secret_key(env_value: str):
+    """Return (key, used_random). A blank env value yields a strong per-process
+    random key (good enough for this app's flash-only sessions) but the caller
+    should warn: under multiple workers each process gets a different key, so set
+    SECRET_KEY in production for stable sessions."""
+    env_value = (env_value or "").strip()
+    if env_value:
+        return env_value, False
+    return secrets.token_hex(32), True
+
+
+SECRET_KEY, _SECRET_KEY_IS_RANDOM = resolve_secret_key(os.environ.get("SECRET_KEY", ""))
+if _SECRET_KEY_IS_RANDOM:
+    try:
+        print("[config] ⚠️  SECRET_KEY not set — using a random per-process key. "
+              "Set SECRET_KEY in production (multi-worker sessions break otherwise).")
+    except UnicodeEncodeError:
+        print("[config] WARNING: SECRET_KEY not set - using a random per-process key. "
+              "Set SECRET_KEY in production (multi-worker sessions break otherwise).")
 
 
 # ---------------------------------------------------------------------------
