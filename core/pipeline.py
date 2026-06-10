@@ -41,15 +41,19 @@ def _rule_phrase_pipeline(reviews: list) -> dict:
     return aggregate.build(collected)
 
 
-def _phrase_pipeline(reviews: list) -> dict:
-    """Dispatch to the configured engine. The LLM engine is opt-in and falls back to
-    the rule engine when no API key is available or the API call fails."""
+def _phrase_pipeline(reviews: list):
+    """Dispatch to the configured engine and report which engine ACTUALLY ran.
+
+    Returns (contract, engine_used). engine_used is "rule" even when the LLM engine
+    was selected but unavailable or its call failed (e.g. quota/429) — so the result
+    label never claims an engine that didn't actually produce the phrases.
+    """
     if config.get_extract_engine() == "llm" and llm_extract.available():
         try:
-            return llm_extract.extract_all(reviews)
+            return llm_extract.extract_all(reviews), "llm"
         except Exception as e:
             print(f"[phrases] LLM engine failed, falling back to rule-based: {e}")
-    return _rule_phrase_pipeline(reviews)
+    return _rule_phrase_pipeline(reviews), "rule"
 
 
 def _percentages(counts: dict, total: int) -> dict:
@@ -97,9 +101,7 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
     # 5) สรุป + สกัด keyword + insight
     distribution = _sentiment_distribution(reviews)
     aspect_summary = aspect.aspect_sentiment_summary(reviews)
-    kw = _phrase_pipeline(reviews)
-    extract_engine = ("llm" if config.get_extract_engine() == "llm" and llm_extract.available()
-                      else "rule")
+    kw, extract_engine = _phrase_pipeline(reviews)   # engine_used = ตัวที่ทำงานจริง
     actionable = insights.generate_insights(aspect_summary, kw)
 
     # 6) ประกอบผลลัพธ์

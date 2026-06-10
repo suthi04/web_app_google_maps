@@ -25,5 +25,5 @@ class TestPipelineIsolation(unittest.TestCase):
             return real_extract(clause)
 
         with mock.patch.object(extract, "extract", side_effect=boom):
-            out = pipeline._phrase_pipeline([bad, good])   # must not raise
+            out, _ = pipeline._phrase_pipeline([bad, good])   # must not raise
         self.assertIn("food", out)   # good review still produced output
