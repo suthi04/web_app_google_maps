@@ -52,19 +52,31 @@ def _phrase_pipeline(reviews: list) -> dict:
     return _rule_phrase_pipeline(reviews)
 
 
+def _percentages(counts: dict, total: int) -> dict:
+    """ปัดเป็นเปอร์เซ็นต์จำนวนเต็มที่ "รวมกันได้ 100 เสมอ" (largest-remainder method)
+
+    การปัดแต่ละค่าแยกกันด้วย round() อาจให้ผลรวม 99 หรือ 101 (เช่น 33+33+33)
+    วิธีนี้ปัดลงก่อนแล้วแจกเศษที่เหลือให้ค่าที่มีเศษทศนิยมมากสุด จึงรวมเป็น 100 พอดี
+    เมื่อ total <= 0 (ไม่มีรีวิว) คืน 0 ทั้งหมด
+    """
+    if total <= 0:
+        return {k: 0 for k in counts}
+    exact = {k: counts[k] / total * 100 for k in counts}
+    pct = {k: int(exact[k]) for k in counts}          # floor
+    remainder = 100 - sum(pct.values())               # 0..2
+    for k in sorted(counts, key=lambda k: exact[k] - pct[k], reverse=True)[:remainder]:
+        pct[k] += 1
+    return pct
+
+
 def _sentiment_distribution(reviews: list) -> dict:
     dist = {"positive": 0, "neutral": 0, "negative": 0}
     for r in reviews:
         dist[r["sentiment"]] += 1
-    total = len(reviews) or 1
     return {
         "counts": dist,
         "total": len(reviews),
-        "pct": {
-            "positive": round(dist["positive"] / total * 100),
-            "neutral": round(dist["neutral"] / total * 100),
-            "negative": round(dist["negative"] / total * 100),
-        },
+        "pct": _percentages(dist, len(reviews)),
     }
 
 

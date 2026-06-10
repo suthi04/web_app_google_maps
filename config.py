@@ -38,7 +38,7 @@ _load_dotenv()
 # ---- Apify (การดึงรีวิว) ----
 APIFY_TOKEN = os.environ.get("APIFY_TOKEN", "").strip()
 APIFY_TIMEOUT = int(os.environ.get("APIFY_TIMEOUT", "300"))   # วินาที
-MAX_REVIEWS = int(os.environ.get("MAX_REVIEWS", "300"))       # ดึงต่อร้านกี่รีวิว
+MAX_REVIEWS = int(os.environ.get("MAX_REVIEWS", "100"))       # ดึงต่อร้านกี่รีวิว (ตรงกับ .env.example)
 
 
 # ---- โมเดลวิเคราะห์อารมณ์ ----

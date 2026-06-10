@@ -256,13 +256,16 @@ insightreview/
 เจอหน้า 500 ดิบ ๆ เมื่อ Apify/โมเดลขัดข้อง
 
 > ความปลอดภัย: Flask debug ปิดเป็นค่าเริ่มต้น (เปิดด้วย `FLASK_DEBUG=1` เฉพาะตอนพัฒนา);
-> `SECRET_KEY` อ่านจาก env ถ้ามี ไม่งั้นสุ่มต่อโปรเซส
+> `SECRET_KEY` อ่านจาก env ถ้ามี ไม่งั้นสุ่มต่อโปรเซส คำสั่ง SQL ใช้ parameterized query
+> และ Jinja2 escape อัตโนมัติ (กัน SQL injection / XSS) ระบบ **จงใจไม่มี login/CSRF token**
+> เพราะออกแบบให้รันเฉพาะเครื่อง/ผู้ดูแลคนเดียว — หากจะ deploy สาธารณะ ควรเพิ่ม
+> authentication, CSRF protection และ rate limiting ก่อน
 
 ---
 
 ## 🧪 การทดสอบ
 
-มีชุดทดสอบ **108 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
+มีชุดทดสอบ **138 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
 
 ```bash
 python -m unittest discover -s tests          # รันทั้งหมด
