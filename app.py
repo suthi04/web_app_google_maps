@@ -150,6 +150,10 @@ def settings():
 def save_settings():
     changes = {"use_model": request.form.get("engine") == "model"}
 
+    engine = request.form.get("extract_engine")
+    if engine in ("rule", "llm"):
+        changes["extract_engine"] = engine
+
     # จำนวนรีวิว: รับค่าแล้วให้ config บีบเข้าเพดาน [MIN_REVIEWS, MAX_REVIEWS_CAP] เอง
     try:
         changes["max_reviews"] = int(request.form.get("max_reviews", ""))
