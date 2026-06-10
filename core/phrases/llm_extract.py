@@ -1,7 +1,7 @@
-"""Optional Claude (LLM) extraction engine — an alternative to the rule-based phrase
-pipeline. Sends reviews to Claude and asks for structured opinion phrases
+"""Optional Gemini (LLM) extraction engine — an alternative to the rule-based phrase
+pipeline. Sends reviews to Google Gemini and asks for structured opinion phrases
 (phrase + aspect + sentiment), then maps them into the SAME dashboard contract as
-core/phrases/aggregate.build. Imports `anthropic` lazily so the app still runs
+core/phrases/aggregate.build. Imports google.genai lazily so the app still runs
 without it; callers fall back to the rule engine when available() is False.
 """
 import json
@@ -9,8 +9,6 @@ import json
 import config
 from core.phrases.model import Phrase
 from core.phrases import aggregate
-
-_MAX_TOKENS = 4000
 
 # LLM aspect labels -> dashboard contract keys
 _ASPECT_KEY = {"food": "food", "service": "service",
@@ -25,6 +23,7 @@ _SYSTEM = (
     "Price/value belongs to food. Do not invent phrases not supported by the text."
 )
 
+# Gemini response schema (OpenAPI-3 subset: NO additionalProperties; enums + required ok)
 _SCHEMA = {
     "type": "object",
     "properties": {
@@ -46,34 +45,31 @@ _SCHEMA = {
                                               "enum": ["positive", "neutral", "negative"]},
                             },
                             "required": ["phrase", "aspect", "sentiment"],
-                            "additionalProperties": False,
                         },
                     },
                 },
                 "required": ["index", "phrases"],
-                "additionalProperties": False,
             },
         }
     },
     "required": ["reviews"],
-    "additionalProperties": False,
 }
 
 
 def available() -> bool:
-    """True only if the SDK is importable AND an API key is configured."""
-    if not config.get_anthropic_api_key():
+    """True only if an API key is configured AND the google-genai SDK is importable."""
+    if not config.get_gemini_api_key():
         return False
     try:
-        import anthropic  # noqa: F401
+        from google import genai  # noqa: F401
     except Exception:
         return False
     return True
 
 
 def _client():
-    import anthropic
-    return anthropic.Anthropic()
+    from google import genai
+    return genai.Client(api_key=config.get_gemini_api_key())
 
 
 def _to_contract(payload: dict) -> dict:
@@ -107,16 +103,18 @@ def _build_prompt(reviews: list) -> str:
 
 
 def extract_all(reviews: list) -> dict:
-    """Call Claude once for the batch and return the dashboard contract. Raises on
+    """Call Gemini once for the batch and return the dashboard contract. Raises on
     API/parse failure; callers (pipeline) catch and fall back to the rule engine."""
     client = _client()
-    resp = client.messages.create(
-        model=config.ANTHROPIC_MODEL,
-        max_tokens=_MAX_TOKENS,
-        system=_SYSTEM,
-        messages=[{"role": "user", "content": _build_prompt(reviews)}],
-        output_config={"format": {"type": "json_schema", "schema": _SCHEMA}},
+    gen_config = {
+        "system_instruction": _SYSTEM,
+        "response_mime_type": "application/json",
+        "response_schema": _SCHEMA,
+    }
+    resp = client.models.generate_content(
+        model=config.GEMINI_MODEL,
+        contents=_build_prompt(reviews),
+        config=gen_config,
     )
-    text = next((b.text for b in resp.content if getattr(b, "type", "") == "text"), "")
-    payload = json.loads(text)
+    payload = json.loads(resp.text)
     return _to_contract(payload)
