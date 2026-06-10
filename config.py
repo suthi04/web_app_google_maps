@@ -55,6 +55,10 @@ MODEL_REVISION = os.environ.get("MODEL_REVISION", "finetuned@wisesight_sentiment
 # get_anthropic_api_key() เพราะ key อาจถูกตั้ง/แก้หลัง import ในบางบริบท (เช่นเทสต์)
 ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-opus-4-8").strip()
 
+# ---- Google Gemini (เครื่องยนต์สกัดวลี LLM — ทางเลือก opt-in, ฟรีจาก AI Studio) ----
+# โมเดลอ่านตอน import; API key อ่านสดผ่าน get_gemini_api_key() (เผื่อ patch ใน test)
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash").strip()
+
 # ---- Flask ----
 # DEBUG ปิดเป็นค่าเริ่มต้น (เปิดด้วย FLASK_DEBUG=1 ตอนพัฒนาเท่านั้น)
 # เหตุผลความปลอดภัย: debug=True เปิด Werkzeug debugger ซึ่งรันโค้ดได้จากเบราว์เซอร์
@@ -172,3 +176,8 @@ def get_extract_engine() -> str:
 def get_anthropic_api_key() -> str:
     """API key ของ Claude (อ่านสดจาก env) — ว่าง = เครื่องยนต์ LLM ปิด/ไม่พร้อมใช้"""
     return os.environ.get("ANTHROPIC_API_KEY", "").strip()
+
+
+def get_gemini_api_key() -> str:
+    """API key ของ Gemini (อ่านสดจาก env) — ว่าง = เครื่องยนต์ LLM ปิด/ไม่พร้อมใช้"""
+    return os.environ.get("GEMINI_API_KEY", "").strip()
