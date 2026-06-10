@@ -35,6 +35,13 @@
       chip.style.display =
         value === "all" || chip.dataset.sentiment === value ? "" : "none";
     });
+    // ซ่อนกลุ่มคำสำคัญที่ไม่เหลือ chip หลังกรอง (กันหัวข้อกลุ่มลอยว่าง)
+    document.querySelectorAll(".kw-group").forEach((g) => {
+      const anyVisible = [...g.querySelectorAll(".chip")].some(
+        (c) => c.style.display !== "none"
+      );
+      g.style.display = anyVisible ? "" : "none";
+    });
   }
   filterMenu.querySelectorAll(".mi").forEach((b) => {
     b.addEventListener("click", () => {

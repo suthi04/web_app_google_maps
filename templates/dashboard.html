@@ -155,14 +155,47 @@
             {% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endif %}
           </span>
           {{ label }}
-          <span class="cnt">{{ total_kw }} คำ</span>
+          <span class="cnt">{{ total_kw }} วลี</span>
         </div>
-        <div class="chips">
-          {% for k in kw.positive %}<span class="chip pos" data-sentiment="positive"><span class="cdot"></span>{{ k.word }}</span>{% endfor %}
-          {% for k in kw.neutral %}<span class="chip neu" data-sentiment="neutral"><span class="cdot"></span>{{ k.word }}</span>{% endfor %}
-          {% for k in kw.negative %}<span class="chip neg" data-sentiment="negative"><span class="cdot"></span>{{ k.word }}</span>{% endfor %}
-          {% if total_kw == 0 %}<span class="kw-empty">ยังไม่พบคำสำคัญในหมวดนี้</span>{% endif %}
+
+        {% if kw.positive %}
+        <div class="kw-group">
+          <div class="kw-glabel up">จุดที่ลูกค้าชม</div>
+          <div class="chips">
+            {% for k in kw.positive %}<span class="chip pos" data-sentiment="positive"><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.count }}</i></span>{% endfor %}
+          </div>
         </div>
+        {% endif %}
+
+        {% if kw.negative %}
+        <div class="kw-group">
+          <div class="kw-glabel down">จุดที่ควรปรับปรุง</div>
+          <div class="chips">
+            {% for k in kw.negative %}<span class="chip neg" data-sentiment="negative"><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.count }}</i></span>{% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if kw.neutral %}
+        <div class="kw-group">
+          <div class="kw-glabel">กล่าวถึงทั่วไป</div>
+          <div class="chips">
+            {% for k in kw.neutral %}<span class="chip neu" data-sentiment="neutral"><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.count }}</i></span>{% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% set topics = (a.topics or {}).get(key, []) %}
+        {% if topics %}
+        <div class="kw-group kw-topics">
+          <div class="kw-glabel muted">ลูกค้าพูดถึงบ่อย</div>
+          <div class="chips">
+            {% for t in topics %}<span class="chip topic"><span class="cdot"></span>{{ t.word }}<i class="kc">{{ t.count }}</i></span>{% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if total_kw == 0 and not topics %}<span class="kw-empty">ยังไม่พบคำสำคัญในหมวดนี้</span>{% endif %}
       </div>
       {% endfor %}
     </div>
