@@ -220,7 +220,8 @@ insightreview/
 
 | คีย์ | ความหมาย |
 |---|---|
-| `store_name`, `source_url`, `total_reviews` | ข้อมูลร้าน + จำนวนรีวิวที่วิเคราะห์ |
+| `store_name`, `source_url`, `total_reviews` | ข้อมูลร้าน + จำนวนรีวิว**ที่วิเคราะห์จริง** (รีวิวไทยหลังคัดกรอง) |
+| `fetched_reviews` | จำนวนรีวิว**ที่ดึงมาทั้งหมด** (ก่อนคัดภาษาไทย) — ใช้แสดงความโปร่งใสบนแดชบอร์ด "X จาก Y" |
 | `engine` | เครื่องมือที่ใช้จริง (`lexicon (พจนานุกรมคำ)` / `WangchanBERTa`) |
 | `distribution` | สัดส่วนอารมณ์รวม (counts + % บวก/กลาง/ลบ) |
 | `aspect_summary` | นับอารมณ์ราย aspect (ระดับอนุประโยค) |
@@ -259,7 +260,7 @@ insightreview/
 
 ## 🧪 การทดสอบ
 
-มีชุดทดสอบ **133 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
+มีชุดทดสอบ **134 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
 
 ```bash
 python -m unittest discover -s tests          # รันทั้งหมด

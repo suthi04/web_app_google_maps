@@ -24,6 +24,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span class="mono">{{ "{:,}".format(a.total_reviews) }}</span> รีวิวที่วิเคราะห์
       </span>
+      {% if a.fetched_reviews and a.fetched_reviews > a.total_reviews %}
+      <span class="chip-soft" title="ดึงมา {{ a.fetched_reviews }} รีวิว แต่วิเคราะห์เฉพาะรีวิวภาษาไทย (รีวิวภาษาอื่น/ซ้ำ ถูกคัดออก)">
+        จาก <span class="mono">{{ "{:,}".format(a.fetched_reviews) }}</span> ที่ดึงมา · เฉพาะภาษาไทย
+      </span>
+      {% endif %}
       <span class="chip-soft">engine · {{ a.engine }}</span>
     </div>
   </div>

@@ -29,6 +29,13 @@ class TestPipelineSmoke(unittest.TestCase):
         self.assertGreater(self.result["total_reviews"], 0)
         self.assertEqual(self.result["engine"], "lexicon (พจนานุกรมคำ)")
 
+    def test_reports_fetched_count_for_transparency(self):
+        # fetched_reviews = ที่ดึงมา (ก่อนคัดไทย); total_reviews = ที่วิเคราะห์จริง
+        # ต้องมีเสมอ และ fetched >= analyzed (การคัดกรองทำให้ลดลงได้ ไม่เพิ่ม)
+        self.assertIn("fetched_reviews", self.result)
+        self.assertGreaterEqual(
+            self.result["fetched_reviews"], self.result["total_reviews"])
+
     def test_distribution_percentages_sum_to_100(self):
         pct = self.result["distribution"]["pct"]
         self.assertEqual(pct["positive"] + pct["neutral"] + pct["negative"], 100)

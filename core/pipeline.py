@@ -83,6 +83,7 @@ def _sentiment_distribution(reviews: list) -> dict:
 def run_analysis(url: str, max_reviews: int = None) -> dict:
     # 1) ดึงรีวิว (Apify หรือ demo)
     raw = scraper.fetch_reviews(url, max_reviews)
+    fetched = len(raw["reviews"])          # ที่ดึงมา (ก่อนคัดไทย) — ใช้แสดงความโปร่งใส
 
     # 2) คัดไทย + ทำความสะอาด + ตัดคำ
     reviews = preprocess.filter_and_prepare(raw["reviews"])
@@ -105,7 +106,8 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
     return {
         "store_name": raw["store_name"],
         "source_url": raw["source_url"],
-        "total_reviews": len(reviews),
+        "total_reviews": len(reviews),       # ที่วิเคราะห์จริง (รีวิวไทยหลังคัดกรอง)
+        "fetched_reviews": fetched,          # ที่ดึงมาทั้งหมด (รวมภาษาอื่น/ซ้ำ ที่ถูกคัดออก)
         "engine": sentiment.engine_name(),
         "extract_engine": extract_engine,
         "distribution": distribution,        # %, counts
