@@ -21,6 +21,13 @@ def _join(tokens: list, drop_intensifiers: bool) -> str:
     return "".join(out)
 
 
+def _surface_display(p) -> str:
+    """Natural display from the matched span: keep intensifiers + word order,
+    drop only fillers. (extract.py already excludes intensifiers from
+    descriptor_tokens, so surface is the only place they survive.)"""
+    return "".join(t for t in p.surface.split() if t not in FILLERS)
+
+
 def canonicalize(p):
     if p.pattern == "idiom":
         p.canonical = IDIOMS[p.surface]["canonical"]
@@ -28,11 +35,10 @@ def canonicalize(p):
         return p
 
     key_desc = _join(p.descriptor_tokens, drop_intensifiers=True)    # merge key
-    disp_desc = _join(p.descriptor_tokens, drop_intensifiers=False)  # shown to user
 
     if p.head_noun:                                   # bound phrase -> head + descriptor
         p.canonical = p.head_noun + key_desc
-        p.display = p.head_noun + disp_desc
+        p.display = _surface_display(p)
         return p
 
     # standalone descriptor:
@@ -43,14 +49,14 @@ def canonicalize(p):
     is_self_contained = any(t in NO_SYNTH_DESCRIPTORS for t in p.descriptor_tokens)
     if is_compound or is_self_contained:
         p.canonical = key_desc
-        p.display = disp_desc
+        p.display = _surface_display(p)
         return p
 
     if p.aspect_conf == "high" and p.aspect in ASPECT_HEAD_NOUN:
         head = ASPECT_HEAD_NOUN[p.aspect]
         p.canonical = head + key_desc
-        p.display = head + disp_desc
+        p.display = head + _surface_display(p)
     else:
         p.canonical = key_desc
-        p.display = disp_desc
+        p.display = _surface_display(p)
     return p

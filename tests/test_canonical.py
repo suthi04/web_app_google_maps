@@ -73,6 +73,37 @@ class TestCanonical(unittest.TestCase):
         self.assertEqual(p.canonical, "อาหารอร่อย")
         self.assertEqual(p.display, "อาหารอร่อย")
 
+    def test_display_from_surface_keeps_trailing_intensifier(self):
+        from core.phrases.model import Phrase
+        from core.phrases.canonical import canonicalize
+        # extract.py drops มาก from descriptor_tokens but keeps it in surface
+        p = Phrase(surface="บริการ ดี มาก", head_noun="บริการ",
+                   descriptor_tokens=["ดี"], pattern="P1")
+        canonicalize(p)
+        self.assertEqual(p.display, "บริการดีมาก")   # intensifier kept
+        self.assertEqual(p.canonical, "บริการดี")     # merge key still stripped
+
+    def test_display_from_surface_real_extract_path(self):
+        from core.phrases.extract import extract
+        from core.phrases.canonical import canonicalize
+        clause = {"raw_tokens": ["บริการ", "ดี", "มาก"]}
+        phrases = extract(clause)
+        self.assertTrue(phrases, "expected at least one phrase")
+        for p in phrases:
+            canonicalize(p)
+        displays = [p.display for p in phrases]
+        self.assertIn("บริการดีมาก", displays)
+
+    def test_bare_descriptor_with_intensifier_synthesizes_and_keeps_it(self):
+        from core.phrases.model import Phrase
+        from core.phrases.canonical import canonicalize
+        # bare descriptor "อร่อย มาก": descriptor_tokens=["อร่อย"], surface keeps มาก
+        p = Phrase(surface="อร่อย มาก", descriptor_tokens=["อร่อย"], pattern="P7",
+                   aspect="food", aspect_conf="high")
+        canonicalize(p)
+        self.assertEqual(p.canonical, "อาหารอร่อย")        # key: head + stripped desc
+        self.assertEqual(p.display, "อาหารอร่อยมาก")        # display: head + surface
+
 
 if __name__ == "__main__":
     unittest.main()
