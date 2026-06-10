@@ -50,6 +50,11 @@ MODEL_NAME = os.environ.get(
 # revision ที่ fine-tune มาแล้ว: wisesight_sentiment (4 คลาส) — เราแมป question -> neutral
 MODEL_REVISION = os.environ.get("MODEL_REVISION", "finetuned@wisesight_sentiment")
 
+# ---- Anthropic (เครื่องยนต์สกัดวลี Claude — ทางเลือก opt-in) ----
+# โมเดลอ่านตอน import (เหมือน MODEL_NAME); ส่วน API key อ่านสดทุกครั้งผ่าน
+# get_anthropic_api_key() เพราะ key อาจถูกตั้ง/แก้หลัง import ในบางบริบท (เช่นเทสต์)
+ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-opus-4-8").strip()
+
 # ---- Flask ----
 # DEBUG ปิดเป็นค่าเริ่มต้น (เปิดด้วย FLASK_DEBUG=1 ตอนพัฒนาเท่านั้น)
 # เหตุผลความปลอดภัย: debug=True เปิด Werkzeug debugger ซึ่งรันโค้ดได้จากเบราว์เซอร์
@@ -162,3 +167,8 @@ def get_use_model() -> bool:
 
 def get_extract_engine() -> str:
     return get_settings()["extract_engine"]
+
+
+def get_anthropic_api_key() -> str:
+    """API key ของ Claude (อ่านสดจาก env) — ว่าง = เครื่องยนต์ LLM ปิด/ไม่พร้อมใช้"""
+    return os.environ.get("ANTHROPIC_API_KEY", "").strip()

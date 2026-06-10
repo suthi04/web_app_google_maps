@@ -265,7 +265,7 @@ insightreview/
 
 ## 🧪 การทดสอบ
 
-มีชุดทดสอบ **138 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
+มีชุดทดสอบ **133 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
 
 ```bash
 python -m unittest discover -s tests          # รันทั้งหมด

@@ -5,12 +5,11 @@ core/phrases/aggregate.build. Imports `anthropic` lazily so the app still runs
 without it; callers fall back to the rule engine when available() is False.
 """
 import json
-import os
 
+import config
 from core.phrases.model import Phrase
 from core.phrases import aggregate
 
-MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-opus-4-8")
 _MAX_TOKENS = 4000
 
 # LLM aspect labels -> dashboard contract keys
@@ -63,7 +62,7 @@ _SCHEMA = {
 
 def available() -> bool:
     """True only if the SDK is importable AND an API key is configured."""
-    if not os.environ.get("ANTHROPIC_API_KEY", "").strip():
+    if not config.get_anthropic_api_key():
         return False
     try:
         import anthropic  # noqa: F401
@@ -112,7 +111,7 @@ def extract_all(reviews: list) -> dict:
     API/parse failure; callers (pipeline) catch and fall back to the rule engine."""
     client = _client()
     resp = client.messages.create(
-        model=MODEL,
+        model=config.ANTHROPIC_MODEL,
         max_tokens=_MAX_TOKENS,
         system=_SYSTEM,
         messages=[{"role": "user", "content": _build_prompt(reviews)}],

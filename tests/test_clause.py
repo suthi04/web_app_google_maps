@@ -10,38 +10,6 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core import clause
-
-
-class TestSplitClauses(unittest.TestCase):
-    def test_splits_on_tae(self):
-        self.assertEqual(
-            clause.split_clauses("อาหารอร่อย แต่บริการช้า"),
-            ["อาหารอร่อย", "บริการช้า"],
-        )
-
-    def test_splits_on_taewa(self):
-        self.assertEqual(
-            clause.split_clauses("รสชาติดี แต่ว่าแพงไป"),
-            ["รสชาติดี", "แพงไป"],
-        )
-
-    def test_no_marker_returns_single_clause(self):
-        self.assertEqual(
-            clause.split_clauses("อาหารอร่อยมาก รสชาติกลมกล่อม"),
-            ["อาหารอร่อยมาก รสชาติกลมกล่อม"],
-        )
-
-    def test_empty_text_returns_empty_list(self):
-        self.assertEqual(clause.split_clauses(""), [])
-
-    def test_strips_and_drops_blank_fragments(self):
-        self.assertEqual(
-            clause.split_clauses("อร่อยดี แต่  แต่ช้า"),
-            ["อร่อยดี", "ช้า"],
-        )
-
-
 class TestSplitClauseTokens(unittest.TestCase):
     def test_splits_on_marker_token_only(self):
         from core.clause import split_clause_tokens

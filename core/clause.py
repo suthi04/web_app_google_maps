@@ -12,23 +12,8 @@ clause.py
 ออกแบบให้ "อนุรักษ์นิยม": แบ่งเฉพาะคำเชื่อมขัดแย้งที่ชัดเจน (แต่ / แต่ว่า /
 อย่างไรก็ตาม) ไม่แตะ "และ/แล้ว/ส่วน" ที่กำกวมเกินไป เพื่อกันการแบ่งผิด
 
-ฟังก์ชันหลัก: split_clauses(text) -> list[str]
+ฟังก์ชันหลัก: split_clause_tokens(tokens) -> list[list[str]]
 """
-import re
-
-# คำเชื่อมขัดแย้ง (เรียงยาวก่อนสั้น เพื่อให้ "แต่ว่า" ถูกตัดก่อน "แต่")
-_MARKERS = ["แต่ว่า", "อย่างไรก็ตาม", "แต่"]
-_SPLIT_RE = re.compile("|".join(re.escape(m) for m in _MARKERS))
-
-
-def split_clauses(text: str) -> list:
-    """แบ่งข้อความเป็นอนุประโยค คืน list ที่ตัดช่องว่างหัวท้ายและทิ้งชิ้นว่างแล้ว"""
-    if not text or not text.strip():
-        return []
-    parts = _SPLIT_RE.split(text)
-    clauses = [p.strip() for p in parts if p and p.strip()]
-    return clauses or [text.strip()]
-
 
 # Marker tokens (token-level split — avoids the substring bug that mangled "ตกแต่ง")
 _MARKER_TOKENS = {"แต่", "แต่ว่า", "อย่างไรก็ตาม"}

@@ -5,6 +5,15 @@
 **Branch:** `feat/review-insight-phrase-extraction`
 **Author:** suthi04 (with Claude)
 
+> **หมายเหตุการนำไปใช้จริง (อัปเดต 2026-06-10):** สถาปัตยกรรมในเอกสารนี้ถูกนำไปใช้
+> เกือบทั้งหมด **ยกเว้น Stage 1 (การสกัด)** — ระหว่าง implement พบว่า POS tagging
+> ของ PyThaiNLP ติดป้ายคำแสดงความเห็นไทยผิดบ่อย จึง **ยกเลิก `core/postag.py` และ
+> chunk grammar ที่อิง POS** แล้วเปลี่ยนไปใช้ **ไวยากรณ์เชิงพจนานุกรมล้วน**
+> (ดู `core/phrases/extract.py` และ README หัวข้อ "วิธีการสกัดวลีความเห็น")
+> ส่วน Stage 2–7, aspect 4 ชั้น, synonym aggregation และ sentiment ตรงกับโค้ดจริง
+> การต่อยอด/ปรับ constraint เพิ่มเติม (display vs agg_key, เครื่องยนต์ Claude)
+> อยู่ใน [2026-06-10-hybrid-keyword-extraction-design.md](2026-06-10-hybrid-keyword-extraction-design.md)
+
 ---
 
 ## 1. Problem & Goal
