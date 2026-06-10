@@ -40,6 +40,28 @@ class TestAggregate(unittest.TestCase):
         out = aggregate.build(phrases)
         self.assertEqual(out["food"]["positive"], [])
 
+    def _mk(self, aspect, sentiment, agg_key, display, label=None):
+        from core.phrases.model import Phrase
+        p = Phrase(surface=display)
+        p.aspect, p.sentiment = aspect, sentiment
+        p.agg_key, p.display = agg_key, display
+        p.label = label or display
+        return p
+
+    def test_repeats_merge_into_one_count(self):
+        from core.phrases.aggregate import build
+        phrases = [
+            self._mk("service", "negative", "รอนาน", "รอนาน"),
+            self._mk("service", "negative", "รอนาน", "รออาหารนาน"),
+            self._mk("service", "negative", "รอนาน", "รอนาน"),
+        ]
+        out = build(phrases)
+        neg = out["service"]["negative"]
+        self.assertEqual(len(neg), 1)
+        self.assertEqual(neg[0]["count"], 3)
+        # label = most frequent display ("รอนาน" appears 2x vs "รออาหารนาน" 1x)
+        self.assertEqual(neg[0]["word"], "รอนาน")
+
 
 if __name__ == "__main__":
     unittest.main()
