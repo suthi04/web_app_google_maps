@@ -41,6 +41,17 @@ class TestPhraseSentiment(unittest.TestCase):
                     clause={"clean": "ราคาไม่แพงแต่บริการแย่", "tokens": ["ราคาไม่แพง", "บริการแย่"]})
         self.assertEqual(sentiment.classify_phrase(ph), "positive")
 
+    def test_ambiguous_phrase_reuses_clause_sentiment_no_model_call(self):
+        from unittest import mock
+        from core import sentiment
+        from core.phrases.model import Phrase
+        # ambiguous phrase: no own polarity -> would normally hit context/model
+        p = Phrase(surface="คนเยอะ", descriptor_tokens=["คนเยอะ"])
+        p.clause = {"clean": "คนเยอะ", "tokens": ["คนเยอะ"], "sentiment": "negative"}
+        with mock.patch.object(sentiment, "_predict_model",
+                               side_effect=AssertionError("model must not be called")):
+            self.assertEqual(sentiment.classify_phrase(p), "negative")
+
 
 if __name__ == "__main__":
     unittest.main()

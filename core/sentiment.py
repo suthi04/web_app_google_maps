@@ -142,8 +142,14 @@ def classify_phrase(phrase) -> str:
         if own < 0:
             return "negative"
 
-    # 2) ambiguous phrase -> decide from clause context
+    # 2) ambiguous phrase -> reuse the clause sentiment already computed in
+    #    analyze_all (avoids a second, redundant model inference per phrase)
     clause = phrase.clause or {}
+    cached = clause.get("sentiment")
+    if cached in ("positive", "neutral", "negative"):
+        return cached
+
+    # 2b) no cached clause sentiment (e.g. clause-less phrase) -> compute now
     if config.get_use_model():
         try:
             return _predict_model(clause.get("clean", phrase.surface))
