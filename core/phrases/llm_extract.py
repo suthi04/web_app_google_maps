@@ -15,12 +15,19 @@ _ASPECT_KEY = {"food": "food", "service": "service",
                "ambience": "ambience", "atmosphere": "ambience"}
 _SENTS = {"positive", "neutral", "negative"}
 
+# วลีที่ยาวเกินนี้ถือว่าเป็น "ทั้งประโยค" ที่หลุดมา ไม่ใช่วลีความเห็นกระชับ -> ตัดทิ้ง
+# (วลีไทยที่ดีมักสั้น เช่น "อาหารอร่อยมาก", "บริการช้า"; ประโยคเต็มมักยาวกว่ามาก)
+_MAX_PHRASE_CHARS = 40
+
 _SYSTEM = (
     "You extract opinion phrases from Thai restaurant reviews for a dashboard. "
     "For each review, return the concrete opinion phrases a customer expressed, in "
     "the customer's own wording (keep intensifiers like มาก). Classify each phrase "
     "into aspect food|service|ambience and sentiment positive|neutral|negative. "
-    "Price/value belongs to food. Do not invent phrases not supported by the text."
+    "Price/value belongs to food. Do not invent phrases not supported by the text. "
+    "Keep each phrase SHORT — a few words only (e.g. 'อาหารอร่อยมาก', 'บริการช้า'); "
+    "never return a whole sentence. If a review states several opinions, split them "
+    "into separate short phrases instead of one long phrase."
 )
 
 # Gemini response schema (OpenAPI-3 subset: NO additionalProperties; enums + required ok)
@@ -80,6 +87,8 @@ def _to_contract(payload: dict) -> dict:
             sentiment = item.get("sentiment")
             text = (item.get("phrase") or "").strip()
             if not aspect or sentiment not in _SENTS or not text:
+                continue
+            if len(text) > _MAX_PHRASE_CHARS:        # ทั้งประโยคหลุดมา -> ข้าม
                 continue
             p = Phrase(surface=text)
             p.aspect, p.sentiment = aspect, sentiment

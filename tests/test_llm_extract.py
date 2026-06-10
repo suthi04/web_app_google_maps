@@ -33,6 +33,21 @@ class TestLLMExtract(unittest.TestCase):
         self.assertEqual(neg[0]["word"], "รอนาน")
         self.assertEqual(neg[0]["count"], 2)   # merged across the two reviews
 
+    def test_long_sentences_are_dropped(self):
+        """Gemini sometimes leaks a whole sentence instead of a concise phrase —
+        guard against it so the dashboard chips stay short."""
+        long_sentence = ("วันนี้พามาทานข้าวกับครอบครัวอาหารอร่อยทุกอย่าง"
+                         "บริการก็ดีมากๆบรรยากาศร้านดีนั่งสบายมาก")
+        self.assertGreater(len(long_sentence), llm_extract._MAX_PHRASE_CHARS)
+        payload = {"reviews": [{"index": 0, "phrases": [
+            {"phrase": "อาหารอร่อยมาก", "aspect": "food", "sentiment": "positive"},
+            {"phrase": long_sentence, "aspect": "food", "sentiment": "positive"},
+        ]}]}
+        contract = llm_extract._to_contract(payload)
+        words = [it["word"] for it in contract["food"]["positive"]]
+        self.assertIn("อาหารอร่อยมาก", words)
+        self.assertNotIn(long_sentence, words)
+
     def test_extract_all_uses_client_and_returns_contract(self):
         import json
         payload = {"reviews": [{"index": 0, "phrases": [
