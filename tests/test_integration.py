@@ -69,14 +69,6 @@ class TestPipelineSmoke(unittest.TestCase):
         for asp in kw.values():
             self.assertEqual(set(asp), {"positive", "neutral", "negative"})
 
-    def test_topics_present_and_shaped(self):
-        topics = self.result["topics"]
-        self.assertEqual(set(topics), {"food", "service", "ambience"})
-        for lst in topics.values():
-            for item in lst:
-                self.assertIn("word", item)
-                self.assertIn("count", item)
-
 
 if __name__ == "__main__":
     unittest.main()

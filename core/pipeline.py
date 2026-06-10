@@ -11,7 +11,7 @@ pipeline.py
 ฟังก์ชันหลัก: run_analysis(url, max_reviews) -> dict ผลลัพธ์
 """
 import config
-from core import scraper, preprocess, sentiment, aspect, keywords, insights
+from core import scraper, preprocess, sentiment, aspect, insights
 from core.phrases import extract, quality, canonical, synonyms, aggregate, llm_extract
 
 # internal aspect value -> dashboard contract key
@@ -99,7 +99,6 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
     kw = _phrase_pipeline(reviews)
     extract_engine = ("llm" if config.get_extract_engine() == "llm" and llm_extract.available()
                       else "rule")
-    topics = keywords.extract_topics(reviews)          # "ลูกค้าพูดถึงบ่อย" (แยกจาก insight)
     actionable = insights.generate_insights(aspect_summary, kw)
 
     # 6) ประกอบผลลัพธ์
@@ -112,7 +111,6 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
         "distribution": distribution,        # %, counts
         "aspect_summary": aspect_summary,     # นับอารมณ์ราย aspect
         "keywords": kw,                       # keyword ราย aspect/sentiment
-        "topics": topics,                     # หัวข้อที่พูดถึงบ่อย (สำรวจเท่านั้น)
         "insights": actionable,               # ข้อสรุปเชิงปฏิบัติ
         "reviews": [                          # ตารางรีวิว (All)
             {

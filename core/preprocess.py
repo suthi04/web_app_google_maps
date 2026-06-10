@@ -82,7 +82,7 @@ def preprocess_review(text: str) -> dict:
 
     Returns clean text + three token views:
       tokens       : negation-merged, stopword-removed (sentiment backstop, fallback)
-      tokens_base  : stopword-removed, no negation merge (topics)
+      tokens_base  : stopword-removed, no negation merge (aspect detection)
       raw_tokens   : full tokenization, NO stopword removal (extraction)
     """
     cleaned = clean_text(text)
