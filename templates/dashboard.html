@@ -29,8 +29,6 @@
         จาก <span class="mono">{{ "{:,}".format(a.fetched_reviews) }}</span> ที่ดึงมา · เฉพาะภาษาไทย
       </span>
       {% endif %}
-      <span class="chip-soft">อารมณ์ · {{ a.engine }}</span>
-      {% if a.extract_engine %}<span class="chip-soft" title="เครื่องยนต์ที่ใช้สกัดวลีความเห็นของผลนี้">วลี · {{ 'Gemini (LLM)' if a.extract_engine == 'llm' else 'rule-based' }}</span>{% endif %}
     </div>
   </div>
   <div class="actions">
