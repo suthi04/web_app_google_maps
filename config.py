@@ -52,7 +52,9 @@ MODEL_REVISION = os.environ.get("MODEL_REVISION", "finetuned@wisesight_sentiment
 
 # ---- Google Gemini (เครื่องยนต์สกัดวลี LLM — ทางเลือก opt-in, ฟรีจาก AI Studio) ----
 # โมเดลอ่านตอน import; API key อ่านสดผ่าน get_gemini_api_key() (เผื่อ patch ใน test)
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash").strip()
+# ค่าเริ่มต้นเป็น flash-lite เพราะ free tier ใช้ได้จริง (โควต้า/วัน สูงกว่า gemini-2.5-flash
+# ที่ฟรีจำกัดแค่ ~20 ครั้ง/วัน) — ตั้ง GEMINI_MODEL=gemini-2.5-flash เองได้ถ้ามีโควต้า/จ่ายเงิน
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash-lite").strip()
 
 # ---- Flask ----
 # DEBUG ปิดเป็นค่าเริ่มต้น (เปิดด้วย FLASK_DEBUG=1 ตอนพัฒนาเท่านั้น)
