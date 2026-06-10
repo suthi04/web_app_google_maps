@@ -145,8 +145,11 @@
     <!-- Keywords -->
     <div id="view-keywords" style="display:none;margin-top:8px">
       {% for key, label in ASPECTS %}
-      {% set kw = a.keywords[key] %}
-      {% set total_kw = kw.positive|length + kw.neutral|length + kw.negative|length %}
+      {% set kw = (a.keywords or {}).get(key) or {} %}
+      {% set kw_pos = kw.get('positive', []) %}
+      {% set kw_neg = kw.get('negative', []) %}
+      {% set kw_neu = kw.get('neutral', []) %}
+      {% set total_kw = kw_pos|length + kw_neu|length + kw_neg|length %}
       <div class="kw-aspect">
         <div class="title">
           <span class="ai">
@@ -158,29 +161,29 @@
           <span class="cnt">{{ total_kw }} วลี</span>
         </div>
 
-        {% if kw.positive %}
+        {% if kw_pos %}
         <div class="kw-group">
           <div class="kw-glabel up">จุดที่ลูกค้าชม</div>
           <div class="chips">
-            {% for k in kw.positive %}<span class="chip pos" data-sentiment="positive"><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.count }}</i></span>{% endfor %}
+            {% for k in kw_pos %}<span class="chip pos" data-sentiment="positive"><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.count }}</i></span>{% endfor %}
           </div>
         </div>
         {% endif %}
 
-        {% if kw.negative %}
+        {% if kw_neg %}
         <div class="kw-group">
           <div class="kw-glabel down">จุดที่ควรปรับปรุง</div>
           <div class="chips">
-            {% for k in kw.negative %}<span class="chip neg" data-sentiment="negative"><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.count }}</i></span>{% endfor %}
+            {% for k in kw_neg %}<span class="chip neg" data-sentiment="negative"><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.count }}</i></span>{% endfor %}
           </div>
         </div>
         {% endif %}
 
-        {% if kw.neutral %}
+        {% if kw_neu %}
         <div class="kw-group">
           <div class="kw-glabel">กล่าวถึงทั่วไป</div>
           <div class="chips">
-            {% for k in kw.neutral %}<span class="chip neu" data-sentiment="neutral"><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.count }}</i></span>{% endfor %}
+            {% for k in kw_neu %}<span class="chip neu" data-sentiment="neutral"><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.count }}</i></span>{% endfor %}
           </div>
         </div>
         {% endif %}

@@ -14,7 +14,7 @@ class Phrase:
     agg_key: str = ""                             # normalized grouping key (counting only)
     concept: str = ""                             # stage 4 concept key (== canonical if ungrouped)
     label: str = ""                               # display label
-    aspect: str | None = None                     # food | service | atmosphere
+    aspect: str | None = None                     # internal: food|service|atmosphere; mapped to ambience for the dashboard
     aspect_conf: str = "low"                      # "high" | "medium" | "low"
     sentiment: str | None = None                  # positive | neutral | negative (stage 6)
     clause: dict = field(default_factory=dict)    # source clause for context sentiment
