@@ -17,23 +17,32 @@ from core.phrases import extract, quality, canonical, synonyms, aggregate
 _ASPECT_KEY = {"food": "food", "service": "service", "atmosphere": "ambience"}
 
 
-def _phrase_pipeline(reviews: list) -> dict:
+def _rule_phrase_pipeline(reviews: list) -> dict:
     collected = []
     for r in reviews:
-        for clause in r.get("clauses", []):
-            clause_aspects = aspect.detect_clause_aspects(clause)
-            for p in quality.filter_phrases(extract.extract(clause), clause_aspects):
-                canonical.canonicalize(p)
-                synonyms.aggregate(p)
-                if p.aspect is None:                       # not preset by earlier stage
-                    a, conf = aspect.route_aspect(p, clause_aspects)
-                    p.aspect, p.aspect_conf = a, conf
-                if p.aspect is None:
-                    continue
-                p.aspect = _ASPECT_KEY.get(p.aspect, p.aspect)
-                p.sentiment = sentiment.classify_phrase(p)
-                collected.append(p)
+        try:
+            for clause in r.get("clauses", []):
+                clause_aspects = aspect.detect_clause_aspects(clause)
+                for p in quality.filter_phrases(extract.extract(clause), clause_aspects):
+                    canonical.canonicalize(p)
+                    synonyms.aggregate(p)
+                    if p.aspect is None:                   # not preset by earlier stage
+                        a, conf = aspect.route_aspect(p, clause_aspects)
+                        p.aspect, p.aspect_conf = a, conf
+                    if p.aspect is None:
+                        continue
+                    p.aspect = _ASPECT_KEY.get(p.aspect, p.aspect)
+                    p.sentiment = sentiment.classify_phrase(p)
+                    collected.append(p)
+        except Exception as e:                             # never let one review 500 the run
+            print(f"[phrases] skipped a review due to: {e}")
+            continue
     return aggregate.build(collected)
+
+
+def _phrase_pipeline(reviews: list) -> dict:
+    """Engine dispatch lives here in Phase 2; for now always rule-based."""
+    return _rule_phrase_pipeline(reviews)
 
 
 def _sentiment_distribution(reviews: list) -> dict:
