@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>รายงานตรวจสอบความสอดคล้อง วิทยานิพนธ์ ↔ Source Code</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'TH Sarabun New','Sarabun','Leelawadee UI','Tahoma','Angsana New',sans-serif;
+         font-size: 14.5px; line-height: 1.5; color: #1a1a1a; }
+  h1 { font-size: 23px; color:#0b3d91; margin:0 0 4px; }
+  h2 { font-size: 18px; color:#0b3d91; border-bottom:2px solid #0b3d91; padding-bottom:3px;
+       margin:18px 0 8px; page-break-after: avoid; }
+  h3 { font-size: 15.5px; color:#222; margin:12px 0 5px; }
+  .sub { color:#555; font-size:12.5px; margin-bottom:10px; }
+  .score { font-size:40px; font-weight:bold; color:#b30000; text-align:center; margin:6px 0; }
+  table { border-collapse: collapse; width:100%; margin:8px 0; font-size:12px; }
+  th, td { border:1px solid #bbb; padding:4px 6px; vertical-align:top; text-align:left; }
+  th { background:#0b3d91; color:#fff; }
+  tr:nth-child(even) td { background:#f3f6fc; }
+  code { background:#eef; padding:0 3px; border-radius:3px; font-size:12px; }
+  .crit { color:#b30000; font-weight:bold; }
+  .imp  { color:#c47f00; font-weight:bold; }
+  .min  { color:#666; }
+  ul, ol { margin:5px 0 8px 18px; padding:0; }
+  li { margin:2px 0; }
+  .box { border:1px solid #cdd6e6; background:#f7f9ff; border-radius:6px; padding:8px 12px; margin:8px 0; }
+  .kpi { display:inline-block; border:1px solid #0b3d91; border-radius:6px; padding:4px 10px; margin:3px; font-size:12px; }
+  .footer { margin-top:14px; font-size:11px; color:#777; border-top:1px solid #ccc; padding-top:6px; }
+  .nobreak { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<h1>รายงานตรวจสอบความสอดคล้อง: วิทยานิพนธ์ ↔ Source Code</h1>
+<div class="sub">โครงงาน <b>InsightReview</b> — เว็บแอปเปลี่ยนรีวิวร้านอาหารจาก Google Maps ให้กลายเป็นกลยุทธ์ทางธุรกิจ
+&nbsp;|&nbsp; มุมมอง: Research Reviewer / Software Engineer / NLP-ML Engineer / System Analyst / Thesis Examiner
+&nbsp;|&nbsp; วันที่ตรวจ: 12 มิ.ย. 2569</div>
+
+<h2>1. บทสรุปผู้บริหาร (Executive Summary)</h2>
+<p>ระบบที่พัฒนาจริง <b>ทำงานได้และมีคุณภาพวิศวกรรมสูงกว่าที่เล่มบรรยายไว้มาก</b> — มี pipeline ครบ
+(scrape → คัดไทย → clean → tokenize → sentiment → aspect → phrase extraction → insights → dashboard),
+มีชุดทดสอบ 28 ไฟล์/~135 เทสต์, มีโมดูลประเมินผลเชิงปริมาณ และ WangchanBERTa ใช้งานได้จริง (รายงานผล 88.3% accuracy)</p>
+<p>ปัญหาหลักไม่ใช่โค้ดบกพร่อง แต่คือ <b>“เล่มวิจัยกับโค้ดเล่าคนละเรื่องกันบางส่วน”</b>:</p>
+<ol>
+  <li><span class="crit">[Critical]</span> เล่มอ้างว่า <b>fine-tune WangchanBERTa ด้วยข้อมูลรีวิวร้านอาหาร</b> (หน้า 23) — โค้ดไม่มีการ fine-tune ใด ๆ ใช้ checkpoint สำเร็จรูป <code>finetuned@wisesight_sentiment</code> แบบ off-the-shelf</li>
+  <li><span class="crit">[Critical]</span> หัวใจของระบบจริงคือ <b>การสกัด opinion phrase เชิงพจนานุกรม + Gemini LLM + การจัดหมวด 4 ชั้น + insights</b> — ทั้งหมดนี้ไม่ปรากฏในเล่ม</li>
+  <li><span class="crit">[Critical]</span> เล่มไม่เอ่ยถึง <b>Gemini/LLM</b> แม้แต่คำเดียว ทั้งที่เป็น 1 ใน 2 extraction engine</li>
+  <li><span class="imp">[Important]</span> ค่าเริ่มต้นของระบบคือ <b>lexicon ไม่ใช่ WangchanBERTa</b> (<code>USE_MODEL=0</code>, <code>extract_engine="rule"</code>) ขัดกับการที่เล่มชู WangchanBERTa เป็นพระเอก</li>
+  <li><span class="crit">[Critical]</span> บทที่ 4 (ผลการวิจัย) และบทที่ 5 ยังเป็น <b>template เปล่า</b> ทั้งที่ <code>eval/report.txt</code> มีผลพร้อมใช้แล้ว</li>
+  <li><span class="min">[Minor]</span> เล่มระบุจัดเก็บเป็น CSV — โค้ดใช้ <b>SQLite</b> (<code>insightreview.db</code>) + export CSV</li>
+</ol>
+<div class="box"><b>สรุป:</b> งานวิศวกรรมแข็งแรง แต่เอกสารวิจัย <b>“ต่ำกว่าความจริง”</b> ในส่วนที่เป็นนวัตกรรมจริง และ
+<b>“เกินความจริง”</b> ในเรื่อง fine-tuning — ทั้งสองทิศทางคือความเสี่ยงในห้องสอบ</div>
+
+<h2>2. คะแนนความสอดคล้อง (Consistency Score)</h2>
+<div class="score">63 / 100</div>
+<table class="nobreak">
+<tr><th>มิติ</th><th>คะแนน</th><th>เหตุผล</th></tr>
+<tr><td>Data pipeline (scrape→clean→token)</td><td>90</td><td>ตรงเล่มเกือบทั้งหมด</td></tr>
+<tr><td>Sentiment method</td><td>55</td><td>WangchanBERTa มีจริง แต่ default เป็น lexicon + อ้าง fine-tune ที่ไม่มี</td></tr>
+<tr><td>Methodology documentation</td><td>35</td><td>ส่วนนวัตกรรมจริง (phrase/aspect/LLM/insights) ไม่อยู่ในเล่ม</td></tr>
+<tr><td>Results (บทที่ 4)</td><td>20</td><td>เล่มว่าง ทั้งที่โค้ดผลิตผลได้</td></tr>
+<tr><td>Framework / Tech scope</td><td>75</td><td>Flask/Apify/HTML-CSS ตรง; CSV↔SQLite + JS ไม่ตรง</td></tr>
+<tr><td>Architecture quality (โค้ดล้วน)</td><td>88</td><td>แยกชั้นดี เทสต์เยอะ fallback ครบ</td></tr>
+</table>
+
+<h2>3. ตารางช่องว่าง วิจัย–โค้ด (Research–Code Gap Table)</h2>
+<table>
+<tr><th>#</th><th>Research Claim (เล่ม)</th><th>Actual Code</th><th>Match</th><th>Severity</th><th>Recommendation</th></tr>
+<tr><td>1</td><td>Fine-tune WangchanBERTa ด้วยรีวิวร้านอาหาร (น.23)</td><td>ไม่มี fine-tune; ใช้ <code>finetuned@wisesight_sentiment</code> สำเร็จรูป</td><td>❌</td><td class="crit">Critical</td><td>แก้เล่มเป็น “ใช้ pre-finetuned/transfer” หรือ fine-tune จริง</td></tr>
+<tr><td>2</td><td>WangchanBERTa เป็นวิธีหลัก</td><td>Default = lexicon (<code>USE_MODEL=0</code>)</td><td>⚠️</td><td class="crit">Critical</td><td>ระบุ lexicon=baseline, WangchanBERTa=โหมดวิจัย; รายงานทั้งคู่</td></tr>
+<tr><td>3</td><td>(ไม่มีในเล่ม)</td><td><b>Gemini LLM extraction engine</b> (<code>llm_extract.py</code>)</td><td>❌</td><td class="crit">Critical</td><td>เพิ่ม methodology + cost/privacy/fallback</td></tr>
+<tr><td>4</td><td>“Keyword Extraction” (รูป 1.1)</td><td><b>Opinion-phrase extraction</b> เชิงไวยากรณ์ (P1–P7, idiom/MWE, negation)</td><td>❌</td><td class="crit">Critical</td><td>เขียนบทที่ 3 ใหม่ — เป็น contribution หลัก</td></tr>
+<tr><td>5</td><td>จำแนกอารมณ์ 3 คลาส</td><td>ตรง + <b>clause-level + aspect-level sentiment</b></td><td>⚠️</td><td class="imp">Important</td><td>เพิ่มอธิบาย clause split + ABSA-lite</td></tr>
+<tr><td>6</td><td>(ไม่มีในเล่ม)</td><td><b>จัดหมวด 4 ชั้น</b> food/service/ambience (<code>route_aspect</code>)</td><td>❌</td><td class="imp">Important</td><td>UI mockup แสดงหมวดแล้ว แต่วิธีไม่ถูกอธิบาย</td></tr>
+<tr><td>7</td><td>(ไม่มีในเล่ม)</td><td><b>Actionable insights</b> rule-based (<code>insights.py</code>)</td><td>❌</td><td class="imp">Important</td><td>จุดเชื่อมสู่ objective “decision support”</td></tr>
+<tr><td>8</td><td>จัดเก็บเป็น CSV (น.9)</td><td><b>SQLite</b> + CSV export</td><td>❌</td><td class="min">Minor</td><td>แก้ขอบเขตเป็น SQLite (+CSV export)</td></tr>
+<tr><td>9</td><td>Python/Flask/HTML/CSS</td><td>+ <b>JavaScript</b></td><td>⚠️</td><td class="min">Minor</td><td>เพิ่ม JavaScript ในขอบเขต</td></tr>
+<tr><td>10</td><td>คัดเฉพาะรีวิวไทย</td><td>ตรง — <code>is_thai()</code> threshold 0.2</td><td>✅</td><td>OK</td><td>ระบุ threshold ในเล่ม</td></tr>
+<tr><td>11</td><td>Character Normalization (น.20)</td><td>ตรง — <code>_REPEAT_RE</code></td><td>✅</td><td>OK</td><td>—</td></tr>
+<tr><td>12</td><td>Stopwords Removal</td><td>ตรง — PyThaiNLP</td><td>✅</td><td>OK</td><td>โมเดลรับ raw text (ถูกต้อง)</td></tr>
+<tr><td>13</td><td>Apify scraper</td><td>ตรงเป๊ะ — <code>compass/google-maps-reviews-scraper</code></td><td>✅</td><td>OK</td><td>—</td></tr>
+<tr><td>14</td><td>บทที่ 4 ผลการทดลอง</td><td>เปล่า; แต่ report.txt มีผล (Acc 88.3%, MacroF1 0.879, Kappa 0.825)</td><td>⚠️</td><td class="crit">Critical</td><td>เติมบทที่ 4 จากผลที่มี</td></tr>
+<tr><td>15</td><td>ชุดข้อมูล = รีวิวจริง</td><td>demo 30; eval 60 (balance 20/20/20)</td><td>⚠️</td><td class="imp">Important</td><td>ระบุที่มา/จำนวน/การ label</td></tr>
+</table>
+
+<h2>4. Architecture Review</h2>
+<div class="box" style="font-family:monospace;font-size:11px;line-height:1.35">
+URL → scraper(Apify/demo) → preprocess(thai/clean/token/clause) → sentiment(WangchanBERTa | lexicon)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;→ aspect(4-tier) → phrase pipeline(rule | Gemini) → aggregate → insights → SQLite → Flask/Jinja dashboard
+</div>
+<table class="nobreak">
+<tr><th>ด้าน</th><th>คะแนน</th><th>หมายเหตุ</th></tr>
+<tr><td>Module structure</td><td>9/10</td><td>แยก core/ ชัด, single source of truth (<code>word_polarity</code>, <code>lexicon.py</code>)</td></tr>
+<tr><td>Data flow</td><td>8/10</td><td>dict สัญญาเดียวไหลทั้ง pipeline; clause-level เป็นจุดเด่น</td></tr>
+<tr><td>Pipeline design</td><td>9/10</td><td>deterministic, อธิบายได้, overlap suppression</td></tr>
+<tr><td>Error handling / resilience</td><td>9/10</td><td>fallback ทุกชั้น (model→lexicon, LLM→rule); รายงานสถานะจริง</td></tr>
+<tr><td>Scalability</td><td>5/10</td><td>โมเดล CPU singleton ช้า; Apify sync; ไม่มี queue/async</td></tr>
+<tr><td>Maintainability</td><td>9/10</td><td>คอมเมนต์ไทยละเอียด, เทสต์เยอะ, config รวมศูนย์</td></tr>
+<tr><td>Security</td><td>7/10</td><td>parameterized SQL, Jinja escape, debug ปิด default; จงใจไม่มี auth/CSRF</td></tr>
+</table>
+<p><b>โดยรวม Architecture: 8.5/10</b> — คุณภาพเกินมาตรฐานปริญญาตรี จุดอ่อนเดียวคือโค้ดดีกว่าที่เล่มสื่อ</p>
+
+<h2>5. NLP / ML Review</h2>
+<table class="nobreak">
+<tr><th>ขั้นตอน</th><th>สถานะในโค้ด</th><th>ตรงบทที่ 3?</th></tr>
+<tr><td>Data Collection</td><td>Apify, field mapping, dedup</td><td>✅</td></tr>
+<tr><td>Data Cleaning</td><td>URL/emoji/special/ยืดเสียง/lowercase</td><td>✅</td></tr>
+<tr><td>Preprocessing</td><td>newmm + stopwords + <b>negation merge + clause split</b></td><td>⚠️ บางส่วนไม่อยู่ในเล่ม</td></tr>
+<tr><td>Feature Extraction</td><td>lexicon grammar (P1–P7) หรือ Gemini JSON-schema</td><td>❌ ไม่อยู่ในเล่ม</td></tr>
+<tr><td>Model</td><td>WangchanBERTa (opt-in) / lexicon (default)</td><td>⚠️ default ผิดจากที่ชู</td></tr>
+<tr><td>Fine-tuning</td><td><b>ไม่มี</b></td><td>❌ ขัดเล่ม น.23</td></tr>
+<tr><td>Evaluation</td><td>Acc/Prec/Rec/F1/Macro/Weighted/Confusion/Kappa</td><td>⚠️ ไม่อยู่ในบท 3, บท 4 ว่าง</td></tr>
+<tr><td>Error Analysis</td><td>ไม่มีเชิงระบบ</td><td>❌ ควรเพิ่ม</td></tr>
+</table>
+<p><b>ประเด็น ML ที่ต้องระวัง:</b></p>
+<ul>
+  <li><b>ชุดประเมิน balance เทียม 20/20/20</b> → ตัวเลข 88.3% อาจดูดีเกินสภาพใช้งานจริง</li>
+  <li><b>Neutral recall = 0.70 (ต่ำสุด)</b> — กลาง→บวก 4, กลาง→ลบ 2; คลาส neutral อ่อนสุด</li>
+  <li><b>lexicon ≠ WangchanBERTa</b> — ถ้าสาธิตโหมด default ตัวเลขจะคนละชุดกับ report</li>
+  <li><b>phrase extraction ไม่มี gold set ราย phrase</b> → contribution หลักไม่มีหลักฐานเชิงปริมาณ</li>
+</ul>
+
+<h2>6. Business Analyst Perspective</h2>
+<table class="nobreak">
+<tr><th>องค์ประกอบ (เล่ม)</th><th>เชื่อมโยงกับระบบ?</th></tr>
+<tr><td>Problem: รีวิวเยอะ/ไม่มีโครงสร้าง/ภาษาไทยซับซ้อน</td><td>✅ ระบบแก้ตรงจุด (clause/negation/phrase)</td></tr>
+<tr><td>Objective 1: จำแนกอารมณ์</td><td>✅ sentiment 3 คลาส</td></tr>
+<tr><td>Objective 2: แดชบอร์ดสนับสนุนการตัดสินใจ</td><td>✅ dashboard + <code>insights.py</code> (เกินคาด)</td></tr>
+<tr><td>Scope: เก็บ CSV</td><td>❌ จริงใช้ SQLite</td></tr>
+<tr><td>Outcome: เจ้าของร้านใช้วางกลยุทธ์</td><td>✅ insights ราย aspect ตอบ “กลยุทธ์” ในชื่อเรื่อง</td></tr>
+</table>
+<p><b>ข้อสังเกต:</b> ระบบตอบ objective ได้เกินที่เขียน โดยเฉพาะ <code>insights.py</code> ที่แปลง % เป็นคำแนะนำเชิงปฏิบัติ
+แต่เล่มกลับไม่ได้เครดิตส่วนนี้ — ขายของต่ำกว่ามูลค่า</p>
+
+<h2>7. ความเสี่ยงเชิงวิชาการ (Academic Risks)</h2>
+<ol>
+  <li class="crit">อ้าง fine-tune แต่ไม่มีในโค้ด → ขอดู training script แล้วไม่มี = เสียความน่าเชื่อถือทั้งเล่ม</li>
+  <li class="crit">บทที่ 4–5 ว่าง = ไม่ผ่านเกณฑ์เนื้อหา</li>
+  <li class="crit">Gemini/LLM ไม่อยู่ในเล่ม → กรรมการเปิดโค้ดเจอ = หาว่าปิดบัง</li>
+  <li class="imp">default lexicon vs ชู WangchanBERTa → สาธิตสดได้ผลคนละชุด</li>
+  <li class="imp">contribution หลัก (phrase) ไม่มี quantitative evaluation</li>
+  <li class="imp">ชุดประเมิน balance เทียม → ตัวเลขสวยเกินจริง</li>
+  <li class="min">ไม่มี error analysis / neutral อ่อน</li>
+  <li class="min">CSV↔SQLite, JavaScript ตกหล่นจากขอบเขต</li>
+</ol>
+
+<h2>8. คำถามที่กรรมการน่าจะถาม (Committee Questions)</h2>
+<h3>เรื่องโมเดล</h3>
+<ol>
+<li>fine-tune WangchanBERTa ด้วยรีวิวจริงไหม? ขอดู training code/loss curve</li>
+<li><code>finetuned@wisesight_sentiment</code> ฝึกจากโซเชียลมีเดีย ทำไมใช้กับรีวิวร้านอาหารได้?</li>
+<li>ทำไม default เป็น lexicon? ตัวเลขในเล่มมาจากโหมดไหน?</li>
+<li>lexicon กับ WangchanBERTa ผลต่างกันเท่าไร?</li>
+<li>คลาส neutral recall แค่ 0.70 เพราะอะไร?</li>
+</ol>
+<h3>เรื่องชุดข้อมูล</h3>
+<ol start="6">
+<li>60 รีวิว label จากไหน ใคร label วัด inter-annotator agreement ไหม?</li>
+<li>ทำไม balance 20/20/20 พอดี? สะท้อนรีวิวจริงไหม?</li>
+<li>60 ตัวอย่างพอสรุปทางสถิติไหม?</li>
+</ol>
+<h3>เรื่อง phrase extraction / Gemini</h3>
+<ol start="9">
+<li>“Keyword Extraction” จริง ๆ คือ phrase extraction ใช่ไหม ทำไมไม่อธิบาย?</li>
+<li>Gemini คืออะไร อยู่ตรงไหนของ methodology?</li>
+<li>ส่งรีวิวให้ Google มีประเด็น privacy ไหม?</li>
+<li>ค่าใช้จ่าย Gemini เท่าไร quota หมดทำงานยังไง?</li>
+<li>phrase extraction วัดความแม่นยำอย่างไร?</li>
+<li>ทำไมเลือกไวยากรณ์พจนานุกรมแทน POS tagging?</li>
+</ol>
+<h3>เรื่องระบบ/หมวด/เอกสาร</h3>
+<ol start="15">
+<li>หมวด food/service/ambience จัดด้วยวิธีอะไร (4 ชั้น) ทำไมไม่อยู่ในบท 3?</li>
+<li>clause splitting ทำไมแบ่งเฉพาะ “แต่”? พลาดเคสไหน?</li>
+<li>negation รองรับแค่คำขั้วติดกัน 1 คำ จัดการ “ไม่อร่อยเท่าไหร่” ยังไง?</li>
+<li>insights ใช้ threshold 0.65/0.30/5 — ที่มาของเลขเหล่านี้?</li>
+<li>เล่มว่าเก็บ CSV แต่โค้ดใช้ SQLite — อันไหนถูก?</li>
+<li>บทที่ 4/5 จะเติมอะไร เมื่อไร?</li>
+<li>ทำไม Tokenization สะกดผิดเป็น “Takenization” (น.20)?</li>
+<li>ระบบรองรับกี่ผู้ใช้พร้อมกัน? โมเดล CPU 1 รีวิวใช้เวลาเท่าไร?</li>
+</ol>
+
+<h2>9. แผนปรับปรุงจัดลำดับความสำคัญ (Prioritized Action Plan)</h2>
+<h3 class="crit">🔴 CRITICAL — ต้องแก้ก่อนส่งเล่ม</h3>
+<ol>
+<li><b>ตัดสินใจเรื่อง fine-tuning:</b> ทำจริงบน Colab หรือแก้เล่มให้ตรง = “ใช้ pre-finetuned checkpoint (transfer learning) ไม่ได้ fine-tune เพิ่ม”</li>
+<li><b>เติมบทที่ 4</b> จาก <code>eval/report.txt</code> + screenshot dashboard + ระบุว่ารายงานจากโหมด WangchanBERTa</li>
+<li><b>เพิ่ม methodology จริง</b> ในบท 3: phrase extraction, negation, clause split, aspect 4-tier, insights</li>
+<li><b>เพิ่มหัวข้อ Gemini engine</b> + เปรียบเทียบ rule vs LLM (<code>scripts/compare_engines.py</code>) + fallback/cost/privacy</li>
+<li><b>เติมบทที่ 5</b> (สรุป/ข้อจำกัด/ข้อเสนอแนะ) — ดึงจาก Limitations ใน README ได้</li>
+</ol>
+<h3 class="imp">🟠 IMPORTANT — ควรแก้</h3>
+<ol start="6">
+<li>ระบุบทบาท lexicon (baseline) vs WangchanBERTa (วิจัย) ให้ชัด</li>
+<li>อธิบายที่มา/วิธี label ของ 60 รีวิว + เพิ่มจำนวนถ้าได้</li>
+<li>เพิ่ม error analysis (neutral) + อภิปราย balance เทียม</li>
+<li>เพิ่ม quantitative eval ของ phrase/aspect</li>
+<li>แก้ขอบเขต: CSV→SQLite(+CSV export), เพิ่ม JavaScript</li>
+</ol>
+<h3 class="min">🟡 OPTIONAL — เพิ่มความสมบูรณ์</h3>
+<ol start="11">
+<li>แก้คำสะกด: Takenization→Tokenization, Unstructure→Unstructured, Pre-trainnng→Pre-training, Lowik→Lowphansirikul</li>
+<li>แก้ field “Error! Reference source not found.” (น.13–15)</li>
+<li>เพิ่ม sequence/architecture diagram ของ pipeline จริง</li>
+<li>รายงานเวลาประมวลผลจริง (latency) ต่อ 1 การวิเคราะห์</li>
+</ol>
+
+<div class="box"><b>บรรทัดสุดท้าย:</b> โค้ดพร้อมสอบ — เล่มยังไม่พร้อม งานเร่งด่วนคือ “เขียนเล่มให้ตรงกับระบบที่ทำได้ดีอยู่แล้ว”
+ถ้าแก้ครบ 5 ข้อ Critical คะแนนความสอดคล้องจะขยับจาก 63 ขึ้นระดับ 90+ ได้ เพราะตัวระบบรองรับเกือบทุกคำกล่าวอ้างอยู่แล้ว
+ยกเว้นเรื่อง fine-tuning ที่ต้องเลือกระหว่าง “ทำจริง” กับ “แก้คำพูด”</div>
+
+<div class="footer">เอกสารนี้สร้างโดยการตรวจสอบ source code จริงในโปรเจกต์ <code>d:\Me\insightreview</code> (branch feat/review-insight-phrase-extraction)
+เทียบกับไฟล์วิทยานิพนธ์ UT-Thai-CSIT(JR).pdf — ทุกข้อสรุปอ้างอิงไฟล์จริง ไม่มีการสมมุติข้อมูล</div>
+
+</body>
+</html>

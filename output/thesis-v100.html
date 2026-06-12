@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>วิทยานิพนธ์ฉบับสมบูรณ์ — InsightReview</title>
+<style>
+  @page { size: A4; margin: 22mm 20mm 20mm 28mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'TH Sarabun New','Sarabun','Leelawadee UI','Tahoma','Angsana New',sans-serif;
+         font-size: 16px; line-height: 1.55; color:#111; text-align: justify; }
+  h1.chapter { font-size: 22px; text-align:center; margin:0 0 4px; }
+  .chapter-no { font-size: 20px; text-align:center; font-weight:bold; }
+  h2 { font-size: 18px; margin:16px 0 6px; page-break-after: avoid; }
+  h3 { font-size: 16.5px; margin:12px 0 4px; page-break-after: avoid; }
+  h4 { font-size: 16px; margin:9px 0 3px; page-break-after: avoid; }
+  p { margin:5px 0; text-indent: 2.2em; }
+  p.noind, li p { text-indent: 0; }
+  ul, ol { margin:5px 0 8px 26px; }
+  li { margin:2px 0; text-align: justify; }
+  code { font-family: Consolas,monospace; background:#f0f0f5; padding:0 3px; border-radius:3px; font-size:13px; }
+  table { border-collapse:collapse; width:100%; margin:8px 0; font-size:13.5px; }
+  th,td { border:1px solid #888; padding:4px 7px; vertical-align:top; }
+  th { background:#e8edf7; text-align:center; }
+  td.c, th.c { text-align:center; }
+  .cap { text-align:center; font-size:14.5px; margin:4px 0 14px; }
+  .cap b { font-weight:bold; }
+  .pagebreak { page-break-before: always; }
+  .center { text-align:center; }
+  .titlepage { text-align:center; height: 250mm; display:flex; flex-direction:column; justify-content:center; }
+  .titlepage .t1 { font-size:22px; font-weight:bold; line-height:1.5; margin-bottom:6px; }
+  .titlepage .t2 { font-size:18px; margin:30px 0 4px; }
+  .box { border:1px solid #b9c4dc; background:#f6f9ff; border-radius:6px; padding:7px 12px; margin:9px 0; }
+  .box p { text-indent:0; }
+  .fig { border:1px dashed #999; background:#fafafa; padding:10px; text-align:center;
+         font-family: Consolas,monospace; font-size:12.5px; line-height:1.4; white-space:pre; margin:8px 0; }
+  .abstract-label { font-weight:bold; }
+  .meta td { border:none; padding:1px 6px; font-size:15.5px; vertical-align:top; }
+  .meta td.k { font-weight:bold; white-space:nowrap; width:130px; }
+  .small { font-size:13.5px; }
+  .nobreak { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<!-- ============== TITLE PAGE ============== -->
+<div class="titlepage">
+  <div class="t1">เว็บแอปเปลี่ยนรีวิวร้านอาหารจาก Google Maps ให้กลายเป็น “กลยุทธ์” ทางธุรกิจ</div>
+  <div class="t1" style="font-size:18px;font-weight:normal">Web Application Transforming Google Maps Restaurant Reviews into Actionable Business Strategy</div>
+  <div style="margin-top:60px;font-size:17px">
+    กิตติยา มีจิตอันสง่า<br>สุธินันท์ พันทะสา
+  </div>
+  <div style="margin-top:70px;font-size:16px;line-height:1.5">
+    วิทยานิพนธ์ระดับปริญญาตรีนี้เป็นส่วนหนึ่งของการศึกษาตามหลักสูตร<br>
+    ปริญญาวิทยาศาสตรบัณฑิต สาขาวิชาเทคโนโลยีสารสนเทศ<br>
+    ภาคเรียนที่ 1 ปีการศึกษา 2569<br>
+    ลิขสิทธิ์เป็นของคณะวิทยาศาสตร์ มหาวิทยาลัยนเรศวร
+  </div>
+  <div style="margin-top:40px;font-size:13px;color:#a00">[ฉบับปรับปรุงให้สอดคล้องกับระบบที่พัฒนาจริง — Version 1.0 (สมบูรณ์)]</div>
+</div>
+
+<!-- ============== ABSTRACT TH ============== -->
+<div class="pagebreak"></div>
+<table class="meta">
+<tr><td class="k">ชื่อเรื่อง</td><td>เว็บแอปเปลี่ยนรีวิวร้านอาหารจาก Google Maps ให้กลายเป็น “กลยุทธ์” ทางธุรกิจ</td></tr>
+<tr><td class="k">ผู้วิจัย</td><td>นางสาวกิตติยา มีจิตอันสง่า รหัสนิสิต 66310554<br>นายสุธินันท์ พันทะสา รหัสนิสิต 66315368</td></tr>
+<tr><td class="k">อาจารย์ที่ปรึกษา</td><td>รองศาสตราจารย์ ดร.จรัสศรี รุ่งรัตนาอุบล</td></tr>
+<tr><td class="k">ประเภทสารนิพนธ์</td><td>วิทยานิพนธ์ระดับปริญญาตรี วท.บ. เทคโนโลยีสารสนเทศ คณะวิทยาศาสตร์ มหาวิทยาลัยนเรศวร</td></tr>
+<tr><td class="k">คำสำคัญ</td><td>Google Maps, รีวิวร้านอาหาร, การวิเคราะห์ความคิดเห็น, การสกัดวลีความเห็น, การวิเคราะห์ความรู้สึกเชิงหมวด, WangchanBERTa, แดชบอร์ด, การสนับสนุนการตัดสินใจ</td></tr>
+</table>
+<h2 class="center" style="text-align:center">บทคัดย่อ</h2>
+<p>รีวิวร้านอาหารบน Google Maps เป็นข้อความไม่มีโครงสร้าง (unstructured text) จำนวนมากที่สะท้อนประสบการณ์จริงของลูกค้า
+แต่การอ่านและสรุปด้วยมือทำได้ยากและใช้เวลานาน โดยเฉพาะภาษาไทยที่มีคำสแลง การยืดเสียง และการปฏิเสธที่ทำให้ความหมายกลับด้าน
+งานวิจัยนี้จึงพัฒนาเว็บแอปพลิเคชัน <b>InsightReview</b> ที่รับ URL ร้านอาหาร แล้วดำเนินการตามไปป์ไลน์อัตโนมัติ คือ
+(1) ดึงรีวิวผ่านแพลตฟอร์ม Apify (2) คัดเฉพาะรีวิวภาษาไทยและทำความสะอาดข้อความ (3) จำแนกอารมณ์เป็นเชิงบวก/กลาง/ลบ
+ด้วยแบบจำลองภาษาไทย WangchanBERTa (โหมดวิจัย) หรือพจนานุกรมคำขั้ว (lexicon, โหมดเริ่มต้น/baseline)
+(4) สกัด “วลีความเห็น” (opinion phrases) เช่น <i>อาหารอร่อย, ราคาไม่แพง, รอนาน, ติดริมน้ำ</i> แล้วจัดหมวดเป็น
+อาหาร/บริการ/บรรยากาศ และตีอารมณ์รายวลี และ (5) สรุปเป็นข้อเสนอแนะเชิงปฏิบัติพร้อมแสดงผลบนแดชบอร์ด</p>
+<p>จุดเด่นของระบบคือการสกัด “วลี” ที่นำไปใช้ตัดสินใจได้จริงแทนการนับ “คำเดี่ยว” โดยใช้กระบวนการระดับอนุประโยค
+(clause-level) ร่วมกับการจัดการคำปฏิเสธ ทำให้ผูกอารมณ์เข้ากับหมวดได้ตรงขึ้น ผลการประเมินการจำแนกอารมณ์ของ
+WangchanBERTa เทียบกับชุดทดสอบที่ติดป้ายกำกับด้วยมือจำนวน 60 รายการ ได้ค่าความถูกต้อง (Accuracy) ร้อยละ 88.3,
+Macro-F1 เท่ากับ 0.879 และ Cohen’s Kappa เท่ากับ 0.825 ซึ่งอยู่ในระดับสอดคล้องสูง ระบบจึงสามารถช่วยให้ผู้ประกอบการ
+มองเห็นจุดแข็งและจุดที่ควรปรับปรุงของร้านได้อย่างเป็นรูปธรรม และช่วยผู้บริโภคสรุปความเห็นได้รวดเร็วขึ้น</p>
+
+<!-- ============== ABSTRACT EN ============== -->
+<div class="pagebreak"></div>
+<table class="meta">
+<tr><td class="k">Title</td><td>Web Application Transforming Google Maps Restaurant Reviews into Actionable Business Strategy</td></tr>
+<tr><td class="k">Authors</td><td>Kittiya Meejitansanga (66310554), Suthinan Phanthasa (66315368)</td></tr>
+<tr><td class="k">Advisor</td><td>Assoc. Prof. Dr. Jaratsri Rungrattanaubol</td></tr>
+<tr><td class="k">Keywords</td><td>Google Maps, Restaurant Reviews, Sentiment Analysis, Opinion Phrase Extraction, Aspect-Based Sentiment, WangchanBERTa, Dashboard, Decision Support</td></tr>
+</table>
+<h2 class="center" style="text-align:center">Abstract</h2>
+<p class="noind">Restaurant reviews on Google Maps form a large body of unstructured text that reflects real customer experience,
+yet reading and summarising them manually is slow — especially for Thai, with its slang, character elongation, and
+negation that flips meaning. This research develops <b>InsightReview</b>, a web application that takes a restaurant URL and
+runs an automated pipeline: (1) scrape reviews via Apify; (2) keep Thai-language reviews and clean the text;
+(3) classify sentiment into positive/neutral/negative using the Thai language model WangchanBERTa (research mode) or a
+polarity lexicon (baseline/default mode); (4) extract <i>opinion phrases</i> (e.g. <i>food is delicious, not expensive,
+long wait, riverside</i>), assign them to aspects (food/service/ambience) and a per-phrase sentiment; and (5) produce
+actionable recommendations on a dashboard.</p>
+<p class="noind">The key contribution is extracting decision-useful <i>phrases</i> rather than single keywords, using clause-level
+processing together with negation handling so that sentiment is bound to the correct aspect. Evaluated against a
+hand-labelled test set of 60 reviews, WangchanBERTa achieves 88.3% accuracy, a Macro-F1 of 0.879, and Cohen’s Kappa of
+0.825 (substantial agreement). The system thus helps restaurant owners concretely see strengths and weaknesses, and helps
+consumers summarise opinions faster.</p>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 1 -->
+<!-- ============================================================ -->
+<div class="pagebreak"></div>
+<div class="chapter-no">บทที่ 1</div>
+<h1 class="chapter">บทนำ</h1>
+
+<h2>1.1 ความเป็นมาและความสำคัญของปัญหา</h2>
+<p>ปัจจุบันผู้บริโภคนิยมใช้ข้อมูลรีวิวออนไลน์ประกอบการตัดสินใจเลือกใช้บริการ งานวิจัยหลายชิ้นชี้ว่ารีวิวออนไลน์มีอิทธิพล
+อย่างมีนัยสำคัญต่อการตัดสินใจของผู้บริโภคและความสำเร็จของธุรกิจ (Chevalier &amp; Mayzlin, 2006) หนึ่งในแพลตฟอร์มที่ได้รับ
+ความนิยมคือ Google Maps ซึ่งเปิดให้ผู้ใช้ให้คะแนนและแสดงความคิดเห็นเกี่ยวกับร้านอาหารได้อย่างอิสระ</p>
+<p>ในมุมของผู้ประกอบการ ความคิดเห็นจากลูกค้าสะท้อนคุณภาพอาหาร การบริการ และบรรยากาศของร้าน จึงสามารถใช้เป็น
+ข้อมูลเชิงลึกเพื่อปรับปรุงการดำเนินงานและกำหนดกลยุทธ์ทางธุรกิจ (Liu, 2012) อย่างไรก็ตาม รีวิวบนแพลตฟอร์มออนไลน์มัก
+มีจำนวนมากและเป็นข้อความไม่มีโครงสร้าง (unstructured data) ทำให้วิเคราะห์ด้วยวิธีทั่วไปได้ยาก ยิ่งภาษาไทยมีลักษณะ
+ซับซ้อน เช่น คำสแลง การเขียนคำยืดเสียง (“อร่อยมากกก”) และการปฏิเสธที่พลิกความหมาย (“ไม่อร่อย”) หากไม่ประมวลผล
+อย่างเป็นระบบ ผลวิเคราะห์อาจคลาดเคลื่อนได้</p>
+<p>เทคนิคการประมวลผลภาษาธรรมชาติ (NLP) และการเรียนรู้ของเครื่อง ถูกนำมาใช้วิเคราะห์ความคิดเห็นอย่างแพร่หลาย
+(Jurafsky &amp; Martin, 2020) โดยเฉพาะแบบจำลองภาษาตระกูล Transformer เช่น BERT (Devlin et al., 2019) สำหรับ
+ภาษาไทยมีการพัฒนา WangchanBERTa ที่ฝึกด้วยคลังข้อความไทยขนาดใหญ่ ทำให้เข้าใจบริบทภาษาไทยได้ดี
+(Lowphansirikul et al., 2021)</p>
+<p>อย่างไรก็ตาม การบอกเพียงว่ารีวิว “บวกกี่เปอร์เซ็นต์” ยังไม่เพียงพอต่อการตัดสินใจ ผู้ประกอบการต้องการทราบว่า
+“ด้านใด” เป็นจุดแข็งหรือจุดอ่อน และลูกค้าพูดถึงเรื่องนั้น “ด้วยถ้อยคำใด” งานวิจัยนี้จึงพัฒนาเว็บแอปพลิเคชันที่ไม่เพียง
+จำแนกอารมณ์ แต่ <b>สกัด “วลีความเห็น” (opinion phrase) ที่นำไปใช้ได้จริง</b> เช่น <i>อาหารอร่อย, ราคาไม่แพง, รอนาน,
+บริการรวดเร็ว, ติดริมน้ำ</i> แล้วจัดหมวด (อาหาร/บริการ/บรรยากาศ) พร้อมตีอารมณ์รายวลี และสรุปเป็นข้อเสนอแนะเชิง
+ปฏิบัติบนแดชบอร์ด เพื่อสนับสนุนการวางกลยุทธ์ของธุรกิจร้านอาหาร</p>
+
+<h2>1.2 วัตถุประสงค์ของการวิจัย</h2>
+<ol>
+  <li>เพื่อประยุกต์ใช้เทคนิค NLP ในการจำแนกอารมณ์และ<b>สกัดวลีความเห็นเชิงหมวด</b>จากรีวิวร้านอาหารบน Google Maps</li>
+  <li>เพื่อพัฒนาเว็บแอปพลิเคชันแสดงผลการวิเคราะห์ในรูปแบบแดชบอร์ดพร้อมข้อเสนอแนะเชิงปฏิบัติ เพื่อสนับสนุนการตัดสินใจ</li>
+</ol>
+
+<h2>1.3 ขอบเขตของงานวิจัย</h2>
+<h4>1) ขอบเขตด้านข้อมูล</h4>
+<ul class="noind">
+  <li>ใช้เฉพาะรีวิวแบบข้อความ (text review) ที่เป็นภาษาไทยเท่านั้น รีวิวภาษาอื่นจะถูกคัดออก</li>
+  <li>รีวิวที่นำมาวิเคราะห์เป็นรีวิวล่าสุดไปจนถึงจำนวนที่กำหนด (ค่าตั้งต้น 100 รายการ/ร้าน, ปรับได้)</li>
+  <li>มีการคัดกรองรีวิวซ้ำและรีวิวที่ไม่ใช่ภาษาไทยก่อนนำมาวิเคราะห์</li>
+</ul>
+<h4>2) ขอบเขตด้านเทคโนโลยี</h4>
+<ul class="noind">
+  <li>พัฒนาด้วยภาษา Python ร่วมกับเฟรมเวิร์ก <b>Flask</b> (ฝั่งเซิร์ฟเวอร์) และ <b>HTML/CSS/JavaScript</b> (ฝั่งแสดงผล)</li>
+  <li>ดึงรีวิวจาก Google Maps ผ่านแพลตฟอร์ม <b>Apify</b> (actor <code>compass/google-maps-reviews-scraper</code>)</li>
+  <li>จัดเก็บผลการวิเคราะห์ลงฐานข้อมูล <b>SQLite</b> และรองรับการส่งออกเป็น CSV/JSON</li>
+  <li>จำแนกอารมณ์ด้วยแบบจำลองไทย <b>WangchanBERTa</b> (โหมดวิจัย) หรือ <b>พจนานุกรมคำขั้ว (lexicon)</b> (โหมดเริ่มต้น)</li>
+  <li>สกัดวลีความเห็นได้ 2 เครื่องยนต์: <b>Rule-based</b> (ไวยากรณ์เชิงพจนานุกรม) และ <b>Gemini (LLM)</b> แบบเลือกใช้</li>
+  <li>แสดงผลในรูปแบบแดชบอร์ดด้วยกราฟ/แผนภูมิและข้อเสนอแนะเชิงปฏิบัติ</li>
+</ul>
+<h4>3) ขอบเขตด้านผู้ใช้งาน</h4>
+<ul class="noind"><li>เจ้าของร้านอาหาร</li><li>ผู้บริโภคทั่วไป</li></ul>
+<h4>4) ขอบเขตด้านระบบและการทำงาน</h4>
+<ul class="noind">
+  <li>ผู้ใช้กรอก URL ร้านอาหาร → ระบบรวบรวมรีวิว → เตรียม/คัดกรองข้อมูล → จำแนกอารมณ์ → สกัดวลีและจัดหมวด → สรุปและแสดงผลแดชบอร์ด</li>
+  <li>มีหน้าประวัติ (History), รายการโปรด (Save), หน้าตั้งค่า (Settings) และการส่งออกข้อมูล</li>
+</ul>
+
+<h2>1.4 กรอบแนวความคิดในการวิจัย</h2>
+<p>กระบวนการทำงานของระบบแสดงดังรูป 1.1 เริ่มจากผู้ใช้กรอก URL จากนั้นระบบดึงรีวิว คัดเฉพาะภาษาไทยและทำความสะอาด
+ตัดคำและแบ่งอนุประโยค จำแนกอารมณ์ สกัดวลีความเห็นและจัดหมวด ตีอารมณ์รายวลี รวมผลและสร้างข้อเสนอแนะ
+แล้วแสดงบนแดชบอร์ด</p>
+<div class="fig">INPUT                 PROCESS                                              OUTPUT
+┌──────────┐   ┌───────────────────────────────────────────┐   ┌────────────────────┐
+│ URL ร้าน │ → │ 1. Data Acquisition (Apify)               │ → │ แดชบอร์ด:          │
+│ จาก       │   │ 2. คัดไทย + Cleaning + Normalize          │   │  - การ์ดอารมณ์ บวก/ │
+│ Google   │   │ 3. Tokenization + Clause Segmentation     │   │    กลาง/ลบ + Donut │
+│ Maps     │   │ 4. Sentiment (WangchanBERTa | lexicon)    │   │  - วลีความเห็น ×     │
+│          │   │ 5. Opinion Phrase Extraction (rule | LLM) │   │    หมวด × อารมณ์    │
+│          │   │ 6. Aspect (food/service/ambience, 4-tier) │   │  - ข้อเสนอแนะเชิง   │
+│          │   │ 7. Aggregate + Actionable Insights        │   │    ปฏิบัติ + ตาราง  │
+└──────────┘   └───────────────────────────────────────────┘   └────────────────────┘</div>
+<div class="cap"><b>รูป 1.1</b> กรอบแนวความคิดในการวิจัย (ปรับให้ตรงกับไปป์ไลน์ที่พัฒนาจริง)</div>
+
+<h2>1.5 คำสำคัญของการวิจัย</h2>
+<ul class="noind">
+  <li><b>การวิเคราะห์ความคิดเห็น (Sentiment Analysis):</b> การใช้ NLP จำแนกข้อความเป็นเชิงบวก/ลบ/กลาง</li>
+  <li><b>วลีความเห็น (Opinion Phrase):</b> หน่วยข้อความสั้นที่สื่อความเห็นและนำไปใช้ตัดสินใจได้ เช่น “ราคาไม่แพง” “รอนาน”</li>
+  <li><b>การวิเคราะห์ความรู้สึกเชิงหมวด (Aspect-Based Sentiment):</b> การผูกอารมณ์เข้ากับหมวด อาหาร/บริการ/บรรยากาศ</li>
+  <li><b>แดชบอร์ด (Dashboard):</b> เครื่องมือแสดงผลข้อมูลแบบรวมศูนย์ในรูปกราฟ/ตาราง เพื่อความเข้าใจที่รวดเร็ว</li>
+  <li><b>การสนับสนุนการตัดสินใจ (Decision Support):</b> การนำผลวิเคราะห์ไปประกอบการวางแผนและตัดสินใจเชิงธุรกิจ</li>
+</ul>
+
+<h2>1.6 ประโยชน์ที่คาดว่าจะได้รับ</h2>
+<ol>
+  <li>สรุปและแสดงผลการวิเคราะห์รีวิวบน Google Maps ผ่านแดชบอร์ดที่เข้าใจง่าย</li>
+  <li>สนับสนุนการตัดสินใจของเจ้าของร้านในการปรับปรุงสินค้าและบริการจากความเห็นลูกค้า</li>
+  <li>ช่วยเจ้าของร้านใช้ความเห็นลูกค้าวางกลยุทธ์ผ่านข้อเสนอแนะเชิงปฏิบัติราย “ด้าน”</li>
+  <li>ช่วยผู้บริโภคสรุปรีวิวเพื่อเลือกร้านได้สะดวกขึ้น</li>
+  <li>เป็นแนวทางประยุกต์ใช้ NLP และแบบจำลองภาษาไทยกับงานวิเคราะห์รีวิวออนไลน์</li>
+</ol>
+
+<h2>1.7 เครื่องมือที่ใช้ในการพัฒนา</h2>
+<ul class="noind">
+  <li>คอมพิวเตอร์: HP Victus 15, CPU Intel Core i5-12500H, RAM 16 GB, Windows 11 (64-bit)</li>
+  <li>ภาษา/เฟรมเวิร์ก: Python, Flask, HTML, CSS, JavaScript; เครื่องมือพัฒนา Visual Studio Code</li>
+  <li>ไลบรารีหลัก: PyThaiNLP (ตัดคำ/คำหยุด/normalize), transformers + torch (WangchanBERTa), requests (เรียก API), google-genai (Gemini, ทางเลือก)</li>
+  <li>การดึงข้อมูล: แพลตฟอร์ม Apify; ฐานข้อมูล: SQLite</li>
+</ul>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 2 -->
+<!-- ============================================================ -->
+<div class="pagebreak"></div>
+<div class="chapter-no">บทที่ 2</div>
+<h1 class="chapter">ทฤษฎีและงานวิจัยที่เกี่ยวข้อง</h1>
+
+<h2>2.1 ทฤษฎีที่เกี่ยวข้อง</h2>
+
+<h3>2.1.1 การดึงข้อมูลจาก Google Maps ด้วย Apify</h3>
+<p>Google Maps เป็นแพลตฟอร์มแผนที่ออนไลน์ที่ให้ผู้ใช้ค้นหาสถานที่ ให้คะแนน และแสดงความคิดเห็น โดยรีวิวร้านอาหาร
+มีทั้งคะแนน (rating) และข้อความอิสระ (text review) ซึ่งเป็นข้อมูลไม่มีโครงสร้าง จึงต้องผ่านกระบวนการดึงข้อมูล
+(data extraction) งานวิจัยนี้ใช้ <b>Apify</b> โมดูล <code>compass/google-maps-reviews-scraper</code> ซึ่งให้บริการ
+web scraping โดยผู้ใช้กำหนด URL ร้าน จำนวนรีวิวสูงสุด การเรียงลำดับ (newest/most relevant/ranking) และภาษา
+ระบบจะจำลองเบราว์เซอร์ กวาดข้อมูล แล้วส่งออกเป็น JSON/CSV ที่มีฟิลด์สำคัญ เช่น ข้อความรีวิว จำนวนดาว และวันที่</p>
+
+<h3>2.1.2 การประมวลผลภาษาธรรมชาติและการเตรียมข้อความ</h3>
+<p>NLP เป็นสาขาของปัญญาประดิษฐ์ที่มุ่งให้คอมพิวเตอร์เข้าใจและวิเคราะห์ภาษามนุษย์ (IBM, 2023) เนื่องจากรีวิวเป็น
+ข้อความไม่มีโครงสร้างและมักมีสัญลักษณ์พิเศษ อีโมจิ และภาษาไม่เป็นทางการ จึงต้องผ่านการเตรียมข้อความ (text
+preprocessing) ก่อน ได้แก่ (1) ทำความสะอาด ลบ URL/อีโมจิ/อักขระพิเศษ (2) แปลงตัวอักษรอังกฤษเป็นตัวพิมพ์เล็ก
+(3) จัดการคำยืดเสียง (character normalization เช่น “อร่อยมากกก” → “อร่อยมาก”) (4) ตัดคำภาษาไทย (tokenization)
+เนื่องจากภาษาไทยไม่มีการเว้นวรรคระหว่างคำ และ (5) ลบคำหยุด (stopwords removal)</p>
+
+<h3>2.1.3 แบบจำลอง WangchanBERTa และการวิเคราะห์ความรู้สึก</h3>
+<p>การวิเคราะห์ความรู้สึก (sentiment analysis) มุ่งจำแนกทิศทางอารมณ์ของข้อความเป็นเชิงบวก/ลบ/กลาง (AWS, 2023)
+WangchanBERTa เป็นแบบจำลองภาษาไทยขนาดใหญ่ที่พัฒนาบนสถาปัตยกรรม RoBERTa ผ่านการฝึกล่วงหน้า (pre-training)
+ด้วยเทคนิค Masked Language Modeling บนคลังข้อความไทยขนาดใหญ่ ทำให้เข้าใจบริบทภาษาไทยได้ลึก
+(Lowphansirikul et al., 2021) ตารางที่ 2.1 เปรียบเทียบโมเดลจำแนกอารมณ์</p>
+<table class="nobreak">
+<tr><th>โมเดล</th><th>ประเภท</th><th>ข้อดี</th><th>ข้อจำกัด</th><th class="c">เหมาะกับไทย</th></tr>
+<tr><td>Naive Bayes</td><td>ML</td><td>เร็ว ใช้ง่าย</td><td>ไม่เข้าใจบริบท</td><td class="c">ต่ำ</td></tr>
+<tr><td>SVM</td><td>ML</td><td>แม่นกว่าพื้นฐาน</td><td>ไม่เข้าใจลำดับ/บริบท</td><td class="c">ปานกลาง</td></tr>
+<tr><td>LSTM</td><td>DL (RNN)</td><td>เข้าใจลำดับคำ</td><td>ต้องใช้ข้อมูลมาก</td><td class="c">ปานกลาง</td></tr>
+<tr><td>BERT</td><td>Transformer</td><td>เข้าใจบริบทสองทิศ</td><td>ใช้ทรัพยากรสูง</td><td class="c">ดี</td></tr>
+<tr><td><b>WangchanBERTa</b></td><td>Transformer (ไทย)</td><td>เข้าใจบริบทไทยดีมาก</td><td>ใช้ได้เฉพาะไทย</td><td class="c"><b>ดีมาก</b></td></tr>
+</table>
+<div class="cap"><b>ตาราง 2.1</b> การเปรียบเทียบโมเดลสำหรับการจำแนกความรู้สึก</div>
+<div class="box"><p><b>หมายเหตุเชิงวิธีการที่สำคัญ:</b> ในงานวิจัยนี้ผู้วิจัยใช้ WangchanBERTa <b>เวอร์ชันที่ผ่านการ fine-tune
+มาแล้ว</b> บนคลังข้อมูล <i>Wisesight Sentiment</i> (revision <code>finetuned@wisesight_sentiment</code>) แบบนำมาใช้โดยตรง
+(transfer learning / off-the-shelf) <b>โดยไม่ได้ fine-tune เพิ่มด้วยข้อมูลรีวิวร้านอาหารเอง</b> เนื่องจากข้อจำกัดด้านปริมาณ
+ข้อมูลที่ติดป้ายกำกับและทรัพยากรการฝึก ทั้งนี้โมเดลคืน 4 คลาส (positive/neutral/negative/question) ผู้วิจัยจึงแมป
+คลาส “question” เป็น “neutral” ให้เหลือ 3 คลาสตามขอบเขตงาน การประเมินในบทที่ 4 จึงเป็นการวัดความสามารถของ
+checkpoint นี้บนโดเมนรีวิวร้านอาหารโดยตรง</p></div>
+
+<h3>2.1.4 การสกัดวลีความเห็นเชิงพจนานุกรม (Lexicon-driven Opinion Phrase Extraction)</h3>
+<p>แทนที่จะนับ “คำเดี่ยว” ซึ่งให้ข้อมูลน้อย (เช่น “อาหาร”, “ดี”) งานวิจัยนี้สกัด “วลีความเห็น” ที่นำไปใช้ได้จริง
+ผู้วิจัยได้ประเมินการติดป้ายชนิดคำ (POS tagging) ของ PyThaiNLP แล้วพบว่าติดป้ายคำแสดงความเห็นไทยผิดบ่อย
+(เช่น “อร่อย”→NOUN, “ดี”→ADV) จึงเลือกใช้ <b>ไวยากรณ์เชิงพจนานุกรมที่กำหนดเอง</b> ซึ่งคงเส้นคงวาและอธิบายได้
+ประกอบด้วยการจับวลีตายตัว/สำนวน (idiom/MWE), คู่ “คำนามหัวหมวด + คำขยาย” (เช่น “อาหาร”+“อร่อย”), การกู้คำประสม
+จากพจนานุกรม (เช่น “รอ”+“นาน” → “รอนาน”) และวลีไร้คำนาม (เช่น “ติดริมน้ำ”, “เย็นสบาย”)</p>
+
+<h3>2.1.5 การจัดการคำปฏิเสธและการแบ่งอนุประโยค (Negation &amp; Clause Segmentation)</h3>
+<p>ภาษาไทยมีการปฏิเสธที่พลิกความหมาย หากตัวตัดคำแยก “ไม่อร่อย” เป็น [“ไม่”,“อร่อย”] แล้วลบ “ไม่” ทิ้งเป็นคำหยุด
+จะเหลือ “อร่อย” ทำให้ตีความกลับด้าน ผู้วิจัยจึง<b>รวมคำปฏิเสธกับคำขั้วที่ตามมาเป็นโทเคนเดียว</b> (“ไม่อร่อย”, “ราคาไม่แพง”)
+นอกจากนี้รีวิวจริงมักกล่าวหลายหมวดในประโยคเดียว เช่น “อาหารอร่อยแต่บริการช้า” จึง<b>แบ่งเป็นอนุประโยค (clause)</b>
+ตามคำเชื่อมขัดแย้ง (แต่/แต่ว่า/อย่างไรก็ตาม) เพื่อผูกอารมณ์เข้ากับหมวดได้ตรง — แนวคิดนี้เป็นรากฐานของการวิเคราะห์
+ความรู้สึกเชิงหมวด (Aspect-Based Sentiment Analysis: ABSA) แบบเบา (Pontiki et al., 2014)</p>
+
+<h3>2.1.6 แบบจำลองภาษาขนาดใหญ่ (LLM) สำหรับการสกัดวลี — Gemini</h3>
+<p>นอกจากเครื่องยนต์เชิงกฎ ระบบยังรองรับการสกัดวลีด้วยแบบจำลองภาษาขนาดใหญ่ (LLM) คือ Google Gemini ซึ่งรับ
+รีวิวทั้งชุดแล้วคืนวลีความเห็นพร้อมหมวดและอารมณ์ในรูปแบบ JSON ที่กำหนด schema ไว้ วิธีนี้มักแม่นกว่าในรีวิวภาษา
+ธรรมชาติที่หลากหลาย/ไม่เป็นทางการ แต่มีข้อพิจารณาด้านค่าใช้จ่าย ความเป็นส่วนตัวของข้อมูล และการพึ่งพาบริการภายนอก
+ระบบจึงออกแบบให้ Gemini เป็นทางเลือก (opt-in) และ <b>fallback กลับไปใช้เครื่องยนต์เชิงกฎอัตโนมัติ</b> เมื่อไม่ได้ตั้งค่า
+คีย์ API หรือเรียกใช้ไม่สำเร็จ</p>
+
+<h3>2.1.7 การแสดงผลข้อมูลและแดชบอร์ด</h3>
+<p>การแสดงผลข้อมูล (data visualization) ช่วยให้เข้าใจรูปแบบ แนวโน้ม และความผิดปกติได้รวดเร็ว (Tableau, 2024)
+แดชบอร์ดเป็นการแสดงผลแบบรวมศูนย์ที่สรุปตัวชี้วัดสำคัญไว้บนหน้าจอเดียว (Few, 2006) ในงานวิจัยนี้ผลการจำแนกอารมณ์
+และวลีความเห็นถูกนำเสนอด้วยแผนภูมิโดนัท การ์ดสัดส่วนอารมณ์ ตารางรีวิว และรายการวลีแยกตามหมวด/อารมณ์ พร้อม
+ข้อความข้อเสนอแนะเชิงปฏิบัติ</p>
+
+<h2>2.2 งานวิจัยที่เกี่ยวข้อง</h2>
+<h3>2.2.1 Thai Sentiment Analysis แบบ Hybrid (WangchanBERTa-CNN-BiLSTM)</h3>
+<p>กษิดิศ สุระรัตน์ชัย (2023) เสนอการผสาน WangchanBERTa กับ CNN และ BiLSTM เพื่อเพิ่มความสามารถสกัดคุณลักษณะ
+และจำแนกอารมณ์ ทดสอบบน Wisesight และ Thai Children’s Tales ได้ Macro-F1 สูงกว่าโมเดลพื้นฐาน งานดังกล่าวเน้น
+การปรับสถาปัตยกรรมเพื่อความแม่นยำสูงสุด ขณะที่งานวิจัยนี้รับแนวคิดด้านความแม่นยำมาเป็นฐาน แล้วมุ่ง
+<b>การประยุกต์ใช้จริง</b> โดยนำผลจำแนกไปต่อยอดเป็นการสกัดวลีเชิงหมวดและแดชบอร์ดสนับสนุนการตัดสินใจ</p>
+<h3>2.2.2 การวิเคราะห์ความคิดเห็นร้านอาหารบนเว็บไซต์รีวิว</h3>
+<p>ปราชญภาคย์ เหล่าสังข์สุข และคณะ (2017) พัฒนาการวิเคราะห์ความคิดเห็นเชิงคุณลักษณะ (feature-based) โดยสกัดคำ
+และคำนวณคะแนนจากคำแสดงอารมณ์ งานวิจัยนี้ต่อยอดโดยเปลี่ยนแหล่งข้อมูลเป็น Google Maps และยกระดับจากการนับ
+คำตามพจนานุกรมล้วน มาเป็นการผสาน WangchanBERTa (ระดับอนุประโยค) กับการสกัด “วลี” พร้อมแดชบอร์ด</p>
+<h3>2.2.3 การสรุปรีวิวด้วย AI บนแพลตฟอร์มออนไลน์ (GrabFood)</h3>
+<p>GrabFood ใช้ Generative AI สรุปรีวิวให้ “ผู้บริโภค” อ่านสั้น ๆ (B2C) ขณะที่งานวิจัยนี้มุ่งกลุ่ม “ผู้ประกอบการ”
+(B2B) บนแพลตฟอร์มสาธารณะอย่าง Google Maps โดยให้ผลเชิงปริมาณ (สัดส่วนอารมณ์ราย aspect, วลีที่พบบ่อย)
+และข้อเสนอแนะที่วัดผลได้ แทนการสรุปข้อความเพียงอย่างเดียว</p>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 3 -->
+<!-- ============================================================ -->
+<div class="pagebreak"></div>
+<div class="chapter-no">บทที่ 3</div>
+<h1 class="chapter">วิธีดำเนินงานวิจัย</h1>
+
+<h2>3.1 ภาพรวมสถาปัตยกรรมระบบ</h2>
+<p>ระบบออกแบบเป็นเว็บแอปพลิเคชันแบบ MVC อย่างย่อ โดย <code>app.py</code> (Flask) ทำหน้าที่ควบคุมเส้นทาง (routes)
+เรียกใช้ตรรกะการวิเคราะห์ในแพ็กเกจ <code>core/</code> เก็บผลลงฐานข้อมูล <code>SQLite</code> และส่งให้เทมเพลต Jinja2 แสดงผล
+ไปป์ไลน์การวิเคราะห์ (รูป 3.1) เป็นแบบ deterministic ทุกขั้นตอนอธิบายได้ ทำงานทีละอนุประโยค</p>
+<div class="fig">app.py (Flask routes)  ──►  core/pipeline.py : run_analysis(url)
+        │                         │
+        │   scraper ─► preprocess ─► sentiment ─► aspect ─► phrases(rule|llm) ─► aggregate ─► insights
+        ▼                                                                                      │
+   db/database.py (SQLite)  ◄──────────────── ผลลัพธ์ (dict) ───────────────────────────────────┘
+        │
+        ▼
+   templates/ (Jinja2) + static/ (css,js)  ──►  แดชบอร์ด</div>
+<div class="cap"><b>รูป 3.1</b> สถาปัตยกรรมระบบและการไหลของข้อมูล</div>
+
+<h2>3.2 การรวบรวมและเตรียมข้อมูล</h2>
+<h3>3.2.1 การรวบรวมข้อมูล</h3>
+<p>ระบบรับ URL ร้านจากผู้ใช้ แล้วเรียก Apify ดึงรีวิว (ข้อความ, คะแนนดาว, วันที่) ในโหมดพัฒนา/เดโม ระบบใช้ชุดข้อมูล
+ตัวอย่าง <code>data/sample_reviews.json</code> (30 รีวิว) แทน เพื่อให้รัน/ทดสอบไปป์ไลน์ได้โดยไม่ต้องมีโทเคนและไม่มีค่าใช้จ่าย</p>
+<h3>3.2.2 การคัดเลือกข้อมูล</h3>
+<p>คัดเฉพาะรีวิวภาษาไทยด้วยฟังก์ชัน <code>is_thai()</code> ซึ่งนับสัดส่วนอักษรไทยในข้อความ หากถึงเกณฑ์ (≥ 0.2) จึงถือว่า
+เป็นภาษาไทย และตัดรีวิวซ้ำด้วยการเปรียบเทียบข้อความ</p>
+<h3>3.2.3 การเตรียมข้อมูล (Text Preprocessing)</h3>
+<ol>
+  <li><b>ทำความสะอาด:</b> ลบ URL อีโมจิ อักขระพิเศษ คงเฉพาะอักษรไทย/อังกฤษ/ตัวเลข/ช่องว่าง และลดคำยืดเสียง (ตัวซ้ำ 3+ → 1)</li>
+  <li><b>Normalize:</b> แปลงอังกฤษเป็นตัวพิมพ์เล็ก และ normalize ด้วย PyThaiNLP</li>
+  <li><b>ตัดคำ:</b> ใช้ PyThaiNLP เอนจิน <code>newmm</code> (มี fallback ตัดด้วยช่องว่างหากไม่มีไลบรารี)</li>
+  <li><b>แบ่งอนุประโยค:</b> แยกตามคำเชื่อมขัดแย้งระดับโทเคน (แต่/แต่ว่า/อย่างไรก็ตาม) เพื่อกันการตัดคำว่า “ตกแต่ง” ผิด</li>
+  <li><b>จัดการคำปฏิเสธ:</b> รวม “คำปฏิเสธ + คำขั้วที่ตามมา” เป็นโทเคนเดียวก่อนลบคำหยุด</li>
+  <li><b>ลบคำหยุด:</b> ลบ stopwords ของ PyThaiNLP</li>
+</ol>
+<p>ผลลัพธ์ของแต่ละอนุประโยคจะมี 3 มุมมองโทเคน: <code>raw_tokens</code> (สำหรับการสกัดวลี), <code>tokens_base</code>
+(สำหรับจัดหมวด) และ <code>tokens</code> (รวม negation, สำหรับ lexicon sentiment)</p>
+
+<h2>3.3 การจำแนกอารมณ์ (Sentiment Classification)</h2>
+<p>ระบบมี 2 เครื่องยนต์ เลือกอัตโนมัติจากค่าตั้งค่า:</p>
+<ul class="noind">
+  <li><b>WangchanBERTa (โหมดวิจัย, USE_MODEL=1):</b> โหลด pipeline จาก transformers ด้วย checkpoint
+  <code>airesearch/wangchanberta-base-att-spm-uncased</code> revision <code>finetuned@wisesight_sentiment</code>
+  ป้อนข้อความที่ทำความสะอาดแล้ว (ไม่ตัด stopword เพื่อคงบริบทให้โมเดล) แล้วแมปผล 4 คลาส → 3 คลาส (question→neutral)</li>
+  <li><b>Lexicon (โหมดเริ่มต้น/baseline):</b> นับคำบวก/ลบจากพจนานุกรม โดยเข้าใจคำปฏิเสธผ่าน <code>word_polarity()</code>
+  ใช้เป็น fallback อัตโนมัติเมื่อโหลดโมเดลไม่สำเร็จ เพื่อให้ระบบไม่ล่ม</li>
+</ul>
+<p>ระบบจำแนกอารมณ์ทั้ง “ระดับรีวิว” (ใช้กับโดนัท/ตาราง) และ “ระดับอนุประโยค” (ใช้กับสรุปอารมณ์ราย aspect ที่แม่นขึ้น)
+และมีฟังก์ชัน <code>engine_name()</code> ที่รายงานเครื่องยนต์ที่ทำงาน “จริง” เพื่อความโปร่งใส</p>
+
+<h2>3.4 การสกัดวลีความเห็น (Opinion Phrase Extraction)</h2>
+<p>หัวใจของระบบคือไปป์ไลน์การสกัดวลี 7 ขั้นตอน ทำงานทีละอนุประโยค</p>
+<table class="nobreak">
+<tr><th class="c">ขั้น</th><th>ชื่อ</th><th>หน้าที่</th></tr>
+<tr><td class="c">1</td><td>Extract</td><td>สกัดวลีด้วยไวยากรณ์เชิงพจนานุกรม: idiom/MWE (longest-match) → คู่ “หัวหมวด+ขยาย” → กู้คำประสม → วลีไร้คำนาม (รูปแบบ P1–P7) พร้อม overlap suppression</td></tr>
+<tr><td class="c">2</td><td>Quality</td><td>กรองวลีขยะ/ข้อมูลน้อย (คำนามเดี่ยว “อาหาร”, คำชวนเชียร์ “แนะนำ”) และคุมการเติมคำนามหัวเพื่อกัน insight หลอน</td></tr>
+<tr><td class="c">3</td><td>Canonical</td><td>ทำรูปมาตรฐาน ตัดคำขยาย/คำเชื่อมส่วนเกิน</td></tr>
+<tr><td class="c">4</td><td>Synonyms</td><td>รวมคำพ้องแบบอนุรักษ์นิยม (“ราคาไม่แพง”/“ราคาดี”/“คุ้มค่า” → “ราคาคุ้มค่า”) แต่ไม่รวมคำที่ต่างความหมาย</td></tr>
+<tr><td class="c">5</td><td>Aspect (4-tier)</td><td>จัดหมวด: idiom/concept → คำนามหัวหมวด → บริบทอนุประโยค → คำขยายบ่งหมวด</td></tr>
+<tr><td class="c">6</td><td>Sentiment</td><td>ตีอารมณ์รายวลี: ใช้ “ขั้วของวลีเอง” เป็นหลัก (negation-aware); ใช้บริบทอนุประโยคเฉพาะวลีที่ไม่มีขั้วในตัว (เช่น “คนเยอะ”)</td></tr>
+<tr><td class="c">7</td><td>Aggregate</td><td>นับและจัดอันดับเป็นโครงสร้าง <code>{food/service/ambience × positive/neutral/negative}</code></td></tr>
+</table>
+<div class="cap"><b>ตาราง 3.1</b> ขั้นตอนการสกัดวลีความเห็น (เครื่องยนต์ Rule-based)</div>
+
+<h3>3.4.1 เครื่องยนต์ทางเลือก: Gemini (LLM)</h3>
+<p>เมื่อผู้ใช้เลือกเครื่องยนต์ LLM และตั้งค่าคีย์ API ระบบจะส่งรีวิวทั้งชุดเป็นคำขอเดียวให้ Gemini พร้อม schema
+ที่บังคับให้คืน <code>{phrase, aspect, sentiment}</code> แล้วแปลงเข้าโครงสร้างเดียวกับเครื่องยนต์เชิงกฎ มีการกรองวลีที่ยาว
+เกินเกณฑ์ (>40 อักขระ) เพื่อตัด “ทั้งประโยค” ที่หลุดมา หากเรียกไม่สำเร็จ (เช่น โควตาหมด) ระบบ fallback ไปเครื่องยนต์
+เชิงกฎอัตโนมัติ และรายงานเครื่องยนต์ที่ใช้จริง</p>
+
+<h2>3.5 การจัดหมวด (Aspect) และข้อเสนอแนะเชิงปฏิบัติ</h2>
+<p>ระบบจัด 3 หมวดหลัก: อาหาร (รวมเรื่องราคา) / บริการ / บรรยากาศ การจัดหมวดระดับอนุประโยคใช้พจนานุกรมคำนามหัวหมวด
+และคำขยายบ่งหมวด ส่วนการจัดหมวดรายวลีใช้ตัวแก้หมวด 4 ชั้น (<code>route_aspect</code>) จากแม่นไปหลวม จากนั้นโมดูล
+<code>insights.py</code> สร้างข้อเสนอแนะราย aspect ด้วยกฎ: หากสัดส่วนเชิงลบ ≥ 0.30 → “ควรปรับปรุง” (พร้อมคำเชิงลบที่พบบ่อย)
+หากสัดส่วนเชิงบวก ≥ 0.65 → “จุดแข็ง” มิฉะนั้น “ปานกลาง” และต้องมีอย่างน้อย 5 รีวิวจึงสรุป (ไม่งั้นแจ้ง “ข้อมูลน้อย”)</p>
+
+<h2>3.6 การออกแบบส่วนต่อประสานผู้ใช้ (UI)</h2>
+<p>ประกอบด้วยหน้าหลัก (กรอก URL + ปุ่ม Analyze), หน้าแดชบอร์ด (การ์ดอารมณ์ บวก/กลาง/ลบ, แผนภูมิโดนัท, ตารางรีวิว,
+วลีความเห็นแยกหมวด/อารมณ์, ข้อเสนอแนะ), หน้าประวัติ, รายการโปรด, หน้าตั้งค่า (เลือกเครื่องมือวิเคราะห์/จำนวนรีวิว)
+และการส่งออก CSV/JSON</p>
+
+<h2>3.7 วิธีการประเมินผล (Evaluation Method)</h2>
+<p>ประเมินความถูกต้องของการจำแนกอารมณ์เทียบกับชุดทดสอบที่ติดป้ายกำกับด้วยมือ <code>data/labeled_reviews.json</code>
+จำนวน 60 รายการ (เชิงบวก/กลาง/ลบ อย่างละ 20) คำนวณตัวชี้วัด ได้แก่ Accuracy, Precision/Recall/F1 รายคลาส,
+Macro-F1, Weighted-F1, Confusion Matrix และ Cohen’s Kappa โดยพัฒนาสคริปต์ <code>eval/evaluate.py</code> ที่คำนวณ
+ทุกค่าด้วยตนเอง (ไม่พึ่ง scikit-learn) นิยามตัวชี้วัดหลัก:</p>
+<div class="box"><p class="small">
+Accuracy = (ทำนายถูก) / (ทั้งหมด) &nbsp;|&nbsp; Precision = TP/(TP+FP) &nbsp;|&nbsp; Recall = TP/(TP+FN) &nbsp;|&nbsp;
+F1 = 2·P·R/(P+R) &nbsp;|&nbsp; Macro-F1 = ค่าเฉลี่ย F1 ทุกคลาส &nbsp;|&nbsp;
+Kappa = (p<sub>o</sub> − p<sub>e</sub>)/(1 − p<sub>e</sub>) โดย p<sub>o</sub>=ความเห็นพ้องจริง, p<sub>e</sub>=ความเห็นพ้องโดยบังเอิญ
+</p></div>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 4 -->
+<!-- ============================================================ -->
+<div class="pagebreak"></div>
+<div class="chapter-no">บทที่ 4</div>
+<h1 class="chapter">ผลการวิจัยและการอภิปรายผล</h1>
+
+<h2>4.1 ผลการพัฒนาระบบ</h2>
+<p>ผู้วิจัยพัฒนาเว็บแอปพลิเคชัน InsightReview สำเร็จครบทุกฟังก์ชันตามขอบเขต ได้แก่ การรับ URL และดึงรีวิว การคัดกรอง
+ภาษาไทยและทำความสะอาด การจำแนกอารมณ์ (WangchanBERTa/lexicon) การสกัดวลีความเห็นเชิงหมวด (rule/LLM)
+การสร้างข้อเสนอแนะเชิงปฏิบัติ การแสดงผลแดชบอร์ด ประวัติ รายการโปรด การตั้งค่า และการส่งออกข้อมูล โดยมีชุดทดสอบ
+อัตโนมัติ (unit tests) ครอบคลุมทุกโมดูลหลักรวมประมาณ 135 กรณีทดสอบ ผ่านทั้งหมด ซึ่งยืนยันความถูกต้องเชิงพฤติกรรม
+ของไปป์ไลน์</p>
+<p>ตัวอย่างผลการสกัดวลี: รีวิว “อาหารอร่อยมาก แต่บริการช้า รอนานมาก” ถูกแบ่งเป็น 2 อนุประโยค ได้วลี
+“อาหารอร่อยมาก” (หมวดอาหาร, บวก) และ “บริการช้า”, “รอนาน” (หมวดบริการ, ลบ) แสดงให้เห็นว่าการประมวลผลระดับ
+อนุประโยคผูกอารมณ์เข้าหมวดได้ถูกต้อง (บริการไม่ถูกนับว่าบวกจากการชมอาหาร)</p>
+
+<h2>4.2 ผลการประเมินการจำแนกอารมณ์</h2>
+<p>ประเมินด้วยชุดทดสอบ 60 รีวิว (โหมด WangchanBERTa) ได้ผลภาพรวมดังตาราง 4.1</p>
+<table class="nobreak" style="width:70%;margin:auto">
+<tr><th>ตัวชี้วัด</th><th class="c">ค่า</th></tr>
+<tr><td>Accuracy</td><td class="c">0.8833 (88.3%)</td></tr>
+<tr><td>Macro-F1</td><td class="c">0.8792</td></tr>
+<tr><td>Weighted-F1</td><td class="c">0.8792</td></tr>
+<tr><td>Cohen’s Kappa</td><td class="c">0.8250</td></tr>
+</table>
+<div class="cap"><b>ตาราง 4.1</b> ผลการประเมินภาพรวม (WangchanBERTa, n = 60)</div>
+
+<p>ผลรายคลาสแสดงดังตาราง 4.2</p>
+<table class="nobreak" style="width:80%;margin:auto">
+<tr><th>คลาส</th><th class="c">Precision</th><th class="c">Recall</th><th class="c">F1</th><th class="c">Support</th></tr>
+<tr><td>positive (บวก)</td><td class="c">0.826</td><td class="c">0.950</td><td class="c">0.884</td><td class="c">20</td></tr>
+<tr><td>neutral (กลาง)</td><td class="c">1.000</td><td class="c">0.700</td><td class="c">0.824</td><td class="c">20</td></tr>
+<tr><td>negative (ลบ)</td><td class="c">0.870</td><td class="c">1.000</td><td class="c">0.930</td><td class="c">20</td></tr>
+</table>
+<div class="cap"><b>ตาราง 4.2</b> Precision / Recall / F1 รายคลาส</div>
+
+<p>เมทริกซ์ความสับสน (confusion matrix) แสดงดังตาราง 4.3</p>
+<table class="nobreak" style="width:70%;margin:auto">
+<tr><th rowspan="2">จริง \ ทำนาย</th><th colspan="3" class="c">ทำนาย</th></tr>
+<tr><th class="c">บวก</th><th class="c">กลาง</th><th class="c">ลบ</th></tr>
+<tr><td>บวก</td><td class="c">19</td><td class="c">0</td><td class="c">1</td></tr>
+<tr><td>กลาง</td><td class="c">4</td><td class="c">14</td><td class="c">2</td></tr>
+<tr><td>ลบ</td><td class="c">0</td><td class="c">0</td><td class="c">20</td></tr>
+</table>
+<div class="cap"><b>ตาราง 4.3</b> Confusion Matrix (แถว = จริง, คอลัมน์ = ทำนาย)</div>
+
+<h2>4.3 การวิเคราะห์ข้อผิดพลาด (Error Analysis)</h2>
+<p>จากตาราง 4.3 พบว่าคลาสเชิงลบทำนายได้สมบูรณ์ (recall 1.00) และเชิงบวกพลาดเพียง 1 รายการ จุดอ่อนหลักอยู่ที่
+<b>คลาสกลาง (neutral) ซึ่งมี recall เพียง 0.70</b> โดยถูกทำนายผิดเป็นบวก 4 รายการและเป็นลบ 2 รายการ สาเหตุน่าจะมาจาก
+รีวิวกลางจำนวนหนึ่งมีถ้อยคำเชิงประเมินปนอยู่ (เช่น กล่าวข้อดีและข้อเสียพร้อมกัน หรือใช้คำที่มีนัยอารมณ์อ่อน ๆ) ทำให้
+โมเดลเอนไปทางขั้วใดขั้วหนึ่ง อย่างไรก็ตาม Precision ของคลาสกลางเท่ากับ 1.00 หมายความว่าเมื่อโมเดลทำนายว่า “กลาง”
+จะถูกต้องเสมอ การปรับปรุงในอนาคตควรเพิ่มตัวอย่างคลาสกลางที่หลากหลายขึ้น</p>
+
+<h2>4.4 ข้อสังเกตด้านชุดข้อมูลและความเที่ยงตรง</h2>
+<p>ชุดทดสอบถูกออกแบบให้สมดุล (20/20/20) เพื่อให้ตัวชี้วัดรายคลาสไม่ลำเอียงจากความถี่ ทำให้ Macro-F1 และ
+Weighted-F1 มีค่าเท่ากัน ค่า Cohen’s Kappa 0.825 อยู่ในระดับ “สอดคล้องสูง” (substantial-to-almost-perfect)
+อย่างไรก็ตาม การกระจายอารมณ์ในรีวิวจริงมักไม่สมดุลเช่นนี้ ดังนั้นค่าความถูกต้องในการใช้งานจริงอาจต่างจากผลทดสอบ
+และจำนวน 60 รายการยังถือว่าเล็ก ควรขยายชุดทดสอบเพื่อความน่าเชื่อถือเชิงสถิติที่สูงขึ้น</p>
+
+<h2>4.5 การเปรียบเทียบเครื่องยนต์สกัดวลี (Rule-based vs LLM)</h2>
+<p>ผู้วิจัยพัฒนาเครื่องมือเปรียบเทียบ <code>scripts/compare_engines.py</code> เพื่อรันรีวิวชุดเดียวกันผ่านทั้งสองเครื่องยนต์
+จากการสังเกตเชิงคุณภาพ เครื่องยนต์เชิงกฎให้ผลที่ <b>คงเส้นคงวา อธิบายได้ ไม่มีค่าใช้จ่าย และทำงานออฟไลน์</b> เหมาะเป็น
+ค่าเริ่มต้น ส่วน Gemini มักจับวลีในรีวิวภาษาธรรมชาติที่ไม่เป็นทางการได้ครอบคลุมกว่า แต่มีค่าใช้จ่าย/โควตา ความไม่แน่นอน
+ของผลลัพธ์ และต้องส่งข้อมูลออกภายนอก ระบบจึงให้เลือกใช้ตามบริบท พร้อม fallback อัตโนมัติ (ข้อจำกัด: การสกัดวลียัง
+ไม่มีชุด gold ราย phrase สำหรับวัดเชิงปริมาณ — เป็นข้อเสนอแนะเพื่องานต่อไป)</p>
+
+<h2>4.6 ผลการแสดงผลแดชบอร์ด</h2>
+<p>แดชบอร์ดแสดงการ์ดสัดส่วนอารมณ์ (บวก/กลาง/ลบ ที่รวมกันได้ 100% ด้วยวิธี largest-remainder) แผนภูมิโดนัท
+ตารางรีวิวพร้อมป้ายอารมณ์/หมวด รายการวลีความเห็นแยกตามหมวด (อาหาร/บริการ/บรรยากาศ) และข้อเสนอแนะเชิงปฏิบัติ
+ที่เรียง “ด้านที่ควรปรับปรุง” ขึ้นก่อน ทำให้ผู้ประกอบการเห็นสิ่งที่ต้องแก้ทันที ตอบโจทย์คำว่า “กลยุทธ์” ในชื่อเรื่อง</p>
+
+<!-- ============================================================ -->
+<!-- CHAPTER 5 -->
+<!-- ============================================================ -->
+<div class="pagebreak"></div>
+<div class="chapter-no">บทที่ 5</div>
+<h1 class="chapter">สรุปผลการวิจัยและข้อเสนอแนะ</h1>
+
+<h2>5.1 สรุปผลการวิจัย</h2>
+<p>งานวิจัยนี้พัฒนาเว็บแอปพลิเคชัน InsightReview ที่เปลี่ยนรีวิวร้านอาหารบน Google Maps ให้กลายเป็นสารสนเทศเชิงกลยุทธ์
+ได้สำเร็จตามวัตถุประสงค์ทั้งสองข้อ ระบบสามารถดึงรีวิว คัดเฉพาะภาษาไทย ทำความสะอาด ตัดคำและแบ่งอนุประโยค จำแนก
+อารมณ์ด้วย WangchanBERTa (หรือ lexicon เป็น baseline) สกัดวลีความเห็นเชิงหมวดด้วยเครื่องยนต์เชิงกฎหรือ Gemini
+สรุปเป็นข้อเสนอแนะเชิงปฏิบัติ และแสดงผลบนแดชบอร์ด ผลการประเมินการจำแนกอารมณ์ได้ Accuracy 88.3%, Macro-F1
+0.879 และ Kappa 0.825 ซึ่งอยู่ในระดับน่าพอใจ จุดเด่นสำคัญคือการสกัด “วลี” ที่นำไปใช้ตัดสินใจได้จริงร่วมกับการประมวลผล
+ระดับอนุประโยคและการจัดการคำปฏิเสธ ทำให้ผูกอารมณ์เข้ากับหมวดได้แม่นยำกว่าการนับคำเดี่ยว</p>
+
+<h2>5.2 ข้อจำกัดของงานวิจัย</h2>
+<ul class="noind">
+  <li>การจำแนกอารมณ์ใช้ checkpoint ที่ fine-tune มาจากคลังโซเชียลมีเดีย (Wisesight) โดยตรง ยังไม่ได้ fine-tune เพิ่มด้วยรีวิวร้านอาหารเฉพาะโดเมน</li>
+  <li>การแบ่งอนุประโยครองรับเฉพาะคำเชื่อมขัดแย้งกลุ่ม “แต่” (อนุรักษ์นิยมเพื่อกันการแบ่งผิด)</li>
+  <li>การสกัดวลีอิงพจนานุกรม คำที่ไม่อยู่ใน <code>lexicon.py</code> (เช่น สแลงใหม่) จะไม่ถูกจับ และยังไม่มีชุด gold ราย phrase สำหรับวัดเชิงปริมาณ</li>
+  <li>ขอบเขตคำปฏิเสธมองเฉพาะคำขั้วที่ติดกัน 1 คำ</li>
+  <li>ชุดประเมินอารมณ์มี 60 รายการและสมดุลแบบเทียม ผลในการใช้งานจริงอาจต่างออกไป</li>
+  <li>การวิเคราะห์จริงต่อครั้งอาจใช้เวลาหลายสิบวินาทีถึงไม่กี่นาที (รอ Apify + โมเดลบน CPU) และระบบยังไม่มีระบบยืนยันตัวตน/CSRF เพราะออกแบบให้ใช้ในวงจำกัด</li>
+</ul>
+
+<h2>5.3 ข้อเสนอแนะ</h2>
+<ul class="noind">
+  <li>Fine-tune WangchanBERTa เพิ่มด้วยรีวิวร้านอาหารที่ติดป้ายกำกับเอง (แนะนำทำบน Google Colab ที่มี GPU ฟรี) เพื่อยกระดับความแม่นยำเชิงโดเมน</li>
+  <li>สร้างชุด gold ราย phrase เพื่อวัดความแม่นยำของการสกัดวลีและการจัดหมวดเชิงปริมาณ และเปรียบเทียบ rule vs LLM อย่างเป็นระบบ</li>
+  <li>ขยายชุดทดสอบอารมณ์ให้ใหญ่ขึ้นและสะท้อนการกระจายจริง พร้อมวัดความสอดคล้องระหว่างผู้ติดป้ายหลายคน (inter-annotator agreement)</li>
+  <li>เพิ่มการแบ่งอนุประโยคและจัดการคำปฏิเสธให้ครอบคลุมรูปแบบภาษาที่หลากหลายขึ้น</li>
+  <li>เพิ่มการประมวลผลแบบอะซิงโครนัส/คิวงาน และระบบความปลอดภัย (authentication, CSRF, rate limiting) หากจะนำไปให้บริการสาธารณะ</li>
+  <li>ต่อยอดข้อเสนอแนะให้เป็นภาษาธรรมชาติด้วย LLM และเพิ่มการวิเคราะห์แนวโน้มตามช่วงเวลา</li>
+</ul>
+
+<!-- ============================================================ -->
+<!-- REFERENCES -->
+<!-- ============================================================ -->
+<div class="pagebreak"></div>
+<h2 class="center" style="text-align:center">บรรณานุกรม</h2>
+<div class="small">
+<p class="noind">ปราชญภาคย์ เหล่าสังข์สุข, อนัส จินดา, และ สิรยา สิทธิสาร. (2560). การวิเคราะห์ความคิดเห็นเกี่ยวกับร้านอาหารบนเว็บไซต์รีวิว. <i>วารสารมหาวิทยาลัยทักษิณ, 20</i>(1).</p>
+<p class="noind">กษิดิศ สุระรัตน์ชัย. (2566). Thai language sentiment analysis with a hybrid method on WangchanBERTa-CNN-BiLSTM. วิทยานิพนธ์, จุฬาลงกรณ์มหาวิทยาลัย.</p>
+<p class="noind">Amazon Web Services. (2023). <i>What is sentiment analysis?</i> https://aws.amazon.com/what-is/sentiment-analysis/</p>
+<p class="noind">Apify. (2024). <i>Google Maps Reviews Scraper.</i> https://apify.com/compass/google-maps-reviews-scraper</p>
+<p class="noind">Chevalier, J. A., &amp; Mayzlin, D. (2006). The effect of word of mouth on sales: Online book reviews. <i>Journal of Marketing Research, 43</i>(3), 345–354.</p>
+<p class="noind">Devlin, J., Chang, M.-W., Lee, K., &amp; Toutanova, K. (2019). BERT: Pre-training of deep bidirectional transformers for language understanding. <i>Proceedings of NAACL-HLT.</i> https://arxiv.org/abs/1810.04805</p>
+<p class="noind">Few, S. (2006). <i>Information dashboard design.</i> O’Reilly.</p>
+<p class="noind">Google. (2024). <i>Gemini API documentation.</i> https://ai.google.dev</p>
+<p class="noind">IBM. (2023). <i>Natural language processing (NLP).</i> https://www.ibm.com/think/topics</p>
+<p class="noind">Jurafsky, D., &amp; Martin, J. H. (2020). <i>Speech and Language Processing</i> (3rd ed.). https://web.stanford.edu/~jurafsky/slp3/</p>
+<p class="noind">Liu, B. (2012). <i>Sentiment Analysis and Opinion Mining.</i> Morgan &amp; Claypool.</p>
+<p class="noind">Lowphansirikul, L., Polpanumas, C., Jantrakulchai, N., &amp; Nutanong, S. (2021). WangchanBERTa: Pretraining transformer-based Thai language models. <i>arXiv preprint.</i> https://arxiv.org/abs/2101.09635</p>
+<p class="noind">Pontiki, M., et al. (2014). SemEval-2014 Task 4: Aspect based sentiment analysis. <i>Proceedings of SemEval-2014.</i></p>
+<p class="noind">Tableau. (2024). <i>What is data visualization?</i> https://www.tableau.com/visualization/what-is-data-visualization</p>
+</div>
+
+</body>
+</html>
