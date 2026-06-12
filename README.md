@@ -1,14 +1,22 @@
 # InsightReview
 
-เว็บแอปวิเคราะห์รีวิวร้านอาหารจาก Google Maps → จำแนกอารมณ์ (บวก/กลาง/ลบ) ด้วย WangchanBERTa → แยกคุณลักษณะ (อาหาร/บริการ/บรรยากาศ) → สรุปคำสำคัญ → แดชบอร์ด + ข้อสรุปเชิงปฏิบัติ
+เว็บแอปวิเคราะห์รีวิวร้านอาหารจาก Google Maps:
+ดึงรีวิว → คัดเฉพาะภาษาไทย + ทำความสะอาด → จำแนกอารมณ์ (บวก/กลาง/ลบ) →
+**สกัด "วลีความเห็น" (opinion phrases)** แยกตามหมวด (อาหาร/บริการ/บรรยากาศ) →
+สรุปข้อเสนอแนะเชิงปฏิบัติ → แสดงผลบนแดชบอร์ด
 
-โครงงาน วท.บ. เทคโนโลยีสารสนเทศ มหาวิทยาลัยนเรศวร
+> โครงงาน วท.บ. เทคโนโลยีสารสนเทศ มหาวิทยาลัยนเรศวร
+
+จุดเด่นของระบบคือ **ไม่ได้ดึง "คำเดี่ยว"** (เช่น `อาหาร`, `ดี`, `อร่อย`) แต่ดึง
+**วลีที่นำไปใช้ตัดสินใจได้จริง** เช่น `อาหารอร่อย`, `ราคาไม่แพง`, `รอนาน`,
+`ติดริมน้ำ`, `บริการรวดเร็ว` พร้อมจำแนกหมวดและอารมณ์ของแต่ละวลี
 
 ---
 
-## ✨ จุดสำคัญ: รันได้ทันทีด้วย "โหมด demo"
+## ✨ รันได้ทันทีด้วย "โหมด demo"
 
-โค้ดนี้ออกแบบให้ **รันได้เลยโดยไม่ต้องมี Apify token และไม่ต้องโหลดโมเดล** — เหมาะกับการพัฒนา UI และทดสอบ flow ทั้งหมด
+ออกแบบให้ **รันได้เลยโดยไม่ต้องมี Apify token และไม่ต้องโหลดโมเดล** — เหมาะกับการ
+พัฒนา/ทดสอบ flow ทั้งระบบ
 
 ```bash
 # 1) ติดตั้ง dependency (เบา)
@@ -17,161 +25,294 @@ pip install -r requirements.txt
 # 2) รัน
 python app.py
 
-# 3) เปิดเบราว์เซอร์
-#    http://127.0.0.1:5000
-#    วาง URL ร้านอะไรก็ได้ (โหมด demo จะใช้ข้อมูลตัวอย่างแทน) แล้วกด Analyze
+# 3) เปิดเบราว์เซอร์ http://127.0.0.1:5000
+#    วาง URL อะไรก็ได้ (โหมด demo จะใช้ข้อมูลตัวอย่างแทน) แล้วกด Analyze
 ```
 
 โหมด demo จะ:
-- ใช้รีวิวตัวอย่าง 30 รายการใน `data/sample_reviews.json` (ร้าน "ครัวบ้านสวน") แทนการเรียก Apify
-- วิเคราะห์อารมณ์ด้วย **lexicon** (พจนานุกรมคำบวก/ลบ) แทน WangchanBERTa
-- ทำงานครบทุกขั้นตอนที่เหลือเหมือนจริง (aspect, keyword, insight, dashboard, history, save)
+- ใช้รีวิวตัวอย่าง **30 รายการ** ใน `data/sample_reviews.json` (ร้าน "ครัวบ้านสวน") แทน Apify
+- จำแนกอารมณ์ด้วย **lexicon** (พจนานุกรมคำบวก/ลบ + คำปฏิเสธ) แทน WangchanBERTa
+- ทำงานครบทุกขั้นตอนที่เหลือเหมือนจริง (สกัดวลี, จัดหมวด, สรุป, แดชบอร์ด, history, save, export)
 
-> มี badge บนแดชบอร์ดบอกว่ากำลังใช้ engine อะไร (`lexicon (demo)` หรือ `WangchanBERTa`)
+แดชบอร์ดมี badge บอกว่ากำลังใช้เครื่องมือใด — `lexicon (พจนานุกรมคำ)` หรือ `WangchanBERTa`
+(รายงานตามสถานะจริง ถ้าโมเดลโหลดไม่สำเร็จจะ fallback มา lexicon และแจ้งให้ทราบ)
 
 ---
 
-## 🚀 เปิด "โหมดจริง" (ทำเมื่อพร้อม)
+## 🚀 เปิด "โหมดจริง"
 
-ทั้งสองส่วนเปิดแยกกันได้อิสระ — จะเปิดแค่ Apify, แค่โมเดล, หรือทั้งคู่ก็ได้
+ตั้งค่าผ่านไฟล์ `.env` (คัดลอกจาก `.env.example`) — เปิดแยกกันได้อิสระ จะเปิดแค่ Apify,
+แค่โมเดล หรือทั้งคู่ก็ได้
+
+```bash
+cp .env.example .env     # Windows: copy .env.example .env
+```
 
 ### (ก) ดึงรีวิวจริงจาก Google Maps ด้วย Apify
-1. สมัคร [Apify](https://apify.com) (ฟรี เครดิต $5/เดือน ≈ 20,000 รีวิว)
-2. คัดลอก API token จาก Apify Console → Settings → Integrations
-3. ตั้งค่า:
-   ```bash
-   export APIFY_TOKEN=apify_api_xxxxxxxxxxxxx
-   export MAX_REVIEWS=300
-   python app.py
+1. สมัคร [Apify](https://apify.com) (มีเครดิตฟรี) แล้วคัดลอก API token
+2. ใส่ใน `.env`:
    ```
-> ⚠️ ต้องตรวจชื่อ field ของ actor ที่ใช้ใน `core/scraper.py` ให้ตรงกับ actor จริง (เช่น `startUrls`, `maxReviews`) เพราะแต่ละ actor ตั้งชื่อ input ไม่เหมือนกัน — ดูคอมเมนต์ในไฟล์
+   APIFY_TOKEN=apify_api_xxxxxxxxxxxxx
+   MAX_REVIEWS=100
+   ```
+ใช้ actor `compass/google-maps-reviews-scraper` (ดู `core/scraper.py`).
+มีสคริปต์ตรวจการเชื่อมต่อ: `python debug_apify.py`
 
 ### (ข) ใช้ WangchanBERTa วิเคราะห์อารมณ์จริง
-1. ติดตั้งโมเดล (หนักหน่อย ~2GB):
+1. ติดตั้งโมเดล (หนักหน่อย — torch ~2GB, โมเดลโหลดครั้งแรกอัตโนมัติ):
    ```bash
    pip install -r requirements-model.txt
    ```
-2. ตั้งค่า:
-   ```bash
-   export USE_MODEL=1
-   python app.py
-   ```
-> โมเดลจะถูกดาวน์โหลดอัตโนมัติครั้งแรก ใช้ `airesearch/wangchanberta-base-att-spm-uncased`
-> revision `finetuned@wisesight_sentiment` (4 คลาส — โค้ดแมป "question" → neutral ให้แล้ว)
-> รันบน CPU ได้แต่ช้า ถ้าจะ **fine-tune** ให้ทำบน Google Colab
+2. ตั้งใน `.env`: `USE_MODEL=1`
+
+โมเดล: `airesearch/wangchanberta-base-att-spm-uncased`
+revision `finetuned@wisesight_sentiment` (4 คลาส — โค้ดแมป "question" → neutral)
+รันบน CPU ได้แต่ช้า; ถ้าจะ **fine-tune** แนะนำทำบน Google Colab
+
+> ผู้ใช้ทั่วไปยังปรับ "เครื่องมือวิเคราะห์" และ "จำนวนรีวิว" ได้จากหน้า **Settings**
+> โดยไม่ต้องแก้ `.env` (เก็บลง `data/settings.json`, มีผลทันที). `APIFY_TOKEN` และ
+> เพดานจำนวนรีวิว (`MAX_REVIEWS`) เป็นค่าฝั่งผู้ดูแลระบบ — ตั้งใน `.env` เท่านั้น
 
 ดูค่าทั้งหมดได้ที่ `.env.example`
 
 ---
 
-## 🗂 แผนผังโค้ด (ไว้ปรับเองง่าย ๆ)
+## 🔬 วิธีการสกัดวลีความเห็น (Methodology — Review Insight)
+
+หัวใจของระบบคือ pipeline ที่ทุกขั้นตอนเป็น **deterministic และอธิบายได้** (ไม่ใช่กล่องดำ)
+ทำงานทีละ "อนุประโยค" (clause):
+
+```
+รีวิว
+ └─ คัดไทย + ทำความสะอาด + ตัดคำ          core/preprocess.py
+     └─ แบ่งอนุประโยคตามคำเชื่อมขัดแย้ง       core/clause.py   (แต่ / แต่ว่า / อย่างไรก็ตาม)
+         1. สกัดวลี (extract)              core/phrases/extract.py
+         2. กรองคุณภาพ (quality)           core/phrases/quality.py
+         3. ทำรูปมาตรฐาน (canonical)        core/phrases/canonical.py
+         4. รวมคำพ้อง (synonyms)           core/phrases/synonyms.py
+         5. จัดหมวด 4 ชั้น (aspect)         core/aspect.py
+         6. จำแนกอารมณ์ตามบริบท (sentiment) core/sentiment.py
+         7. นับ + จัดอันดับ (aggregate)     core/phrases/aggregate.py
+ → แดชบอร์ด (วลี × หมวด × อารมณ์) + ข้อสรุปเชิงปฏิบัติ
+```
+
+แนวคิดสำคัญ:
+
+- **ระดับอนุประโยค (clause-level):** `"อาหารอร่อย แต่บริการช้า"` ถูกแยกเป็น 2 อนุประโยค
+  เพื่อผูกอารมณ์เข้าหมวดให้ตรง — "บริการ" จะไม่ถูกนับว่าบวกจากการชมอาหาร
+- **คำปฏิเสธ (negation):** รวม "ไม่ + คำขั้ว" เป็นวลีเดียว (`ไม่อร่อย`, `ราคาไม่แพง`,
+  `ไม่ประทับใจ`) กันความหมายกลับด้าน
+- **สกัดเชิงพจนานุกรม ไม่พึ่ง POS:** เราประเมินตัวระบุชนิดคำ (POS tagging) ของ PyThaiNLP
+  แล้วพบว่า**ติดป้ายคำแสดงความเห็นไทยผิดบ่อย** ในทุก corpus ที่ลอง (เช่น `อร่อย`→NOUN,
+  `ดี`→ADV, `จัดจ้าน`→NOUN) จึงเลือกใช้ **ไวยากรณ์เชิงพจนานุกรมที่กำหนดเอง**
+  (idiom/วลีตายตัว + คู่ "คำนามหัวหมวด + คำขยาย" + การกู้คำประสมจาก lexicon เช่น `รอ`+`นาน`→`รอนาน`)
+  ซึ่งคงเส้นคงวาและอธิบายได้ แทนการพึ่ง POS ที่ไม่น่าเชื่อถือ
+- **รวมคำพ้องแบบอนุรักษ์นิยม:** รวมเฉพาะวลีที่สื่อความ "เดียวกันจริง"
+  (`ราคาไม่แพง` / `ราคาดี` / `คุ้มค่า` → `ราคาคุ้มค่า`) แต่ **ไม่รวม** คำบรรยายที่ต่างความหมาย
+  (`อร่อย` ≠ `จัดจ้าน` ≠ `เข้มข้น`)
+- **จัดหมวด 4 ชั้น (เรียงจากแม่นไปหลวม):** idiom/คอนเซ็ปต์ → คำนามหัวหมวด → บริบทอนุประโยค
+  → คำขยายบ่งหมวด — รองรับวลีไร้คำนาม เช่น `ติดริมน้ำ`, `เย็นสบาย`, `คึกคัก`
+- **แยก "การสกัด" ออกจาก "การตัดสินอารมณ์":** อารมณ์ของแต่ละวลีใช้ **"ขั้วของวลีเอง" เป็นหลัก**
+  (เช่น `ราคาแพง` = ลบ, `ราคาไม่แพง` = บวก แม้อยู่ในประโยคบวก) ใช้ **บริบทอนุประโยค**
+  เฉพาะวลีที่ไม่มีขั้วในตัว เช่น `คนเยอะ`
+
+### เกณฑ์ "วลีที่ดี" กับ "วลีที่ตัดทิ้ง"
+
+| ✅ เก็บ (นำไปใช้ได้) | ❌ ตัดทิ้ง (ข้อมูลน้อย) |
+|---|---|
+| `อาหารอร่อย`, `รสชาติจัดจ้าน`, `ราคาไม่แพง` | คำนามหัวหมวดเดี่ยว: `อาหาร`, `เมนู`, `ร้าน` |
+| `บริการรวดเร็ว`, `รอนาน`, `พนักงานหยาบคาย` | คำบรรยายเดี่ยวกว้าง ๆ: `ดี`, `อร่อย` (จะถูกเติมหัว → `อาหารอร่อย` หรือถ้ากำกวมจะถูกทิ้ง) |
+| `บรรยากาศดี`, `ติดริมน้ำ`, `เย็นสบาย`, `คึกคัก` | คำชวนเชียร์/อภิปราย: `ชอบ`, `แนะนำ` |
+
+---
+
+## 🤖 เครื่องยนต์สกัดวลี (Extraction engines)
+
+ระบบเลือกได้ 2 เครื่องยนต์สำหรับ "การสกัดวลี" (ปรับได้จากหน้า **Settings**):
+
+- **Rule-based (ค่าเริ่มต้น):** pipeline เชิงพจนานุกรมตามหัวข้อด้านบน — ทำงาน
+  **ออฟไลน์ ไม่มีค่าใช้จ่าย และอธิบายผลลัพธ์ได้ทุกขั้นตอน**
+- **Gemini (LLM) — เลือกใช้เพิ่มเติม (opt-in):** ส่งรีวิวให้ Google Gemini สกัดวลีความเห็น
+  พร้อมหมวดและอารมณ์โดยตรง มักแม่นกว่าในรีวิวภาษาธรรมชาติที่หลากหลาย/ไม่เป็นทางการ
+
+### ตั้งค่า
+
+ตั้งค่าใน `.env`:
+
+- `GEMINI_API_KEY` — **ต้องตั้งค่านี้** เพื่อเปิดใช้เครื่องยนต์ Gemini
+  (ขอ key ฟรีที่ [Google AI Studio](https://aistudio.google.com))
+- `GEMINI_MODEL` (ไม่บังคับ) — ค่าเริ่มต้น `gemini-2.5-flash-lite` (free tier ใช้ได้จริง
+  โควต้า/วันสูงกว่า); ใส่ `gemini-2.5-flash` ได้ถ้ามีโควต้า/จ่ายเงิน — แม่นกว่าเล็กน้อยแต่ฟรีจำกัด ~20 ครั้ง/วัน
+
+และต้องติดตั้ง SDK: `pip install google-genai` (อยู่ใน `requirements.txt` แล้ว)
+
+ถ้าไม่ได้ตั้ง `GEMINI_API_KEY` (หรือไม่ได้ติดตั้ง `google-genai` SDK) หรือเรียก API
+แล้วเกิดข้อผิดพลาด ระบบจะ **fallback กลับไปใช้ rule-based โดยอัตโนมัติ** —
+เลือก "Gemini (LLM)" ในหน้า Settings ไว้ได้โดยไม่ทำให้ระบบล่ม
+
+### ค่าใช้จ่าย
+
+Gemini มี **free tier** จาก Google AI Studio (มีลิมิตจำนวนคำขอต่อนาที/ต่อวัน) —
+การวิเคราะห์หนึ่งครั้งส่งรีวิวทั้งชุดเป็น request เดียว จึงอยู่ในโควตาฟรีได้สบายสำหรับ
+งานระดับโครงงาน
+
+---
+
+## 🗂 แผนผังโค้ด
 
 ```
 insightreview/
-├── app.py                 # Flask: route ทั้งหมด (/, /analyze, /dashboard, /history, /saved, ...)
-├── config.py              # ค่ากลาง อ่านจาก env (สลับ demo/real ที่นี่)
+├── app.py                 # Flask: route ทั้งหมด (ดูหัวข้อ "หน้าเว็บ & API")
+├── config.py              # ค่ากลางจาก .env + การตั้งค่าฝั่งผู้ใช้ (settings.json)
 │
-├── core/                  # ตรรกะการวิเคราะห์ (แก้ส่วนนี้เพื่อปรับคุณภาพผลลัพธ์)
-│   ├── scraper.py         #  - ดึงรีวิว: Apify จริง / sample เมื่อ demo
-│   ├── preprocess.py      #  - ทำความสะอาด + ตัดคำไทย (PyThaiNLP, มี fallback)
-│   ├── sentiment.py       #  - จำแนกอารมณ์: WangchanBERTa / lexicon เมื่อ demo
-│   ├── lexicon.py         #  - ★ พจนานุกรม aspect + คำบวก/ลบ (เพิ่มคำที่นี่)
-│   ├── aspect.py          #  - จับหมวด อาหาร/บริการ/บรรยากาศ
-│   ├── keywords.py        #  - สกัดคำสำคัญด้วย TF-IDF (ดึงคำเด่นเฉพาะร้าน)
-│   ├── export.py          #  - ส่งออกผลเป็น CSV / JSON (สำหรับงานวิจัย)
-│   ├── insights.py        #  - ★ สร้างข้อสรุปเชิงปฏิบัติ (rule-based, ปรับ threshold ได้)
-│   └── pipeline.py        #  - ร้อยทุกขั้นตอนเข้าด้วยกัน → ผลลัพธ์ 1 ก้อน
+├── core/                  # ตรรกะการวิเคราะห์
+│   ├── scraper.py         #  ดึงรีวิว: Apify จริง / sample เมื่อ demo
+│   ├── preprocess.py      #  คัดไทย + ทำความสะอาด + ตัดคำ + เตรียม raw_tokens/อนุประโยค
+│   ├── clause.py          #  แบ่งอนุประโยคตามคำเชื่อมขัดแย้ง (ระดับ token — กันตัด "ตกแต่ง" ผิด)
+│   ├── negation.py        #  จัดการคำปฏิเสธ + แหล่งความจริงเรื่อง "ขั้วของคำ" (word_polarity)
+│   ├── sentiment.py       #  จำแนกอารมณ์รีวิว/อนุประโยค + classify_phrase (ราย phrase ตามบริบท)
+│   ├── lexicon.py         #  ★ พจนานุกรม: คำนามหัวหมวด, descriptor, idiom, hint, คำพ้อง (เพิ่มคำที่นี่)
+│   ├── aspect.py          #  จับหมวดระดับอนุประโยค + route_aspect() ตัวแก้หมวด 4 ชั้น
+│   ├── phrases/           #  ★ การสกัดวลีความเห็น (หัวใจของ Review Insight)
+│   │   ├── model.py       #     Phrase dataclass (วัตถุที่ไหลผ่านทุกขั้นตอน)
+│   │   ├── extract.py     #     สกัดวลี: idiom/MWE → ไวยากรณ์เชิงพจนานุกรม
+│   │   ├── quality.py     #     กรองวลีขยะ + คุมการเติมคำนามหัว (กัน insight หลอน)
+│   │   ├── canonical.py   #     ทำวลีให้เป็นรูปมาตรฐาน (ตัดคำขยาย/คำเชื่อม)
+│   │   ├── synonyms.py    #     รวมวลีความหมายเดียวกันแบบอนุรักษ์นิยม
+│   │   └── aggregate.py   #     นับ + จัดอันดับเป็นโครงสร้างของแดชบอร์ด
+│   ├── insights.py        #  ★ ข้อสรุปเชิงปฏิบัติ (rule-based, ปรับ threshold ได้)
+│   ├── export.py          #  ส่งออกผลเป็น CSV / JSON (สำหรับงานวิจัย)
+│   └── pipeline.py        #  ร้อยทุกขั้นตอน → ผลลัพธ์ 1 ก้อน (run_analysis)
 │
-├── db/
-│   └── database.py        # SQLite: บันทึก/ดึงผลวิเคราะห์ + History + Save
+├── db/database.py         # SQLite: บันทึก/ดึงผล + History + Save (insightreview.db สร้างอัตโนมัติ)
 │
-├── templates/             # หน้าเว็บ (Jinja2)
-│   ├── base.html          #  - โครง: sidebar + topbar
-│   ├── index.html         #  - หน้าแรก (กรอก URL)
-│   ├── dashboard.html     #  - แดชบอร์ด (การ์ดอารมณ์ + donut + ตาราง + insight)
-│   └── history.html       #  - History / Saved
+├── templates/             # หน้าเว็บ (Jinja2): base, index, dashboard, history, settings, error
+├── static/                # css/style.css (donut เป็น CSS ล้วน) + js (common/dashboard/history)
 │
-├── static/
-│   ├── css/style.css      # ธีมตาม mockup (donut เป็น CSS ล้วน ไม่พึ่ง CDN)
-│   └── js/dashboard.js    # สลับแท็บ All/Keywords + filter อารมณ์ + ปุ่ม save
+├── data/
+│   ├── sample_reviews.json    # ข้อมูลตัวอย่างโหมด demo (30 รีวิว)
+│   ├── labeled_reviews.json   # ชุดทดสอบ gold standard ติด label มือ (60 รีวิว)
+│   └── settings.json          # การตั้งค่าฝั่งผู้ใช้ (สร้างเมื่อกดบันทึกใน Settings)
 │
-├── data/sample_reviews.json   # ข้อมูลตัวอย่างสำหรับโหมด demo
-├── data/labeled_reviews.json  # ชุดทดสอบ gold standard (ติด label มือ)
-├── eval/                       # การประเมินผลโมเดล
-│   ├── evaluate.py             #  - คำนวณ F1 / confusion matrix / kappa
-│   └── label_tool.py           #  - เครื่องมือช่วยติด label เพิ่ม
-├── requirements.txt           # demo mode
-├── requirements-model.txt     # + WangchanBERTa
-└── .env.example               # ตัวอย่างค่า env
+├── eval/                  # การประเมินผลโมเดลอารมณ์ (ดูหัวข้อ "การประเมินผล")
+│   ├── evaluate.py        #   คำนวณ Accuracy / F1 / confusion matrix / Cohen's Kappa
+│   └── label_tool.py      #   เครื่องมือช่วยติด label เพิ่ม (p/u/n/s/q)
+│
+├── debug_apify.py         # สคริปต์ตรวจการเชื่อมต่อ Apify
+├── docs/superpowers/      # เอกสารออกแบบ (spec) + แผนการพัฒนา (plan) ของฟีเจอร์สกัดวลี
+├── requirements.txt       # โหมด demo (Flask, requests, pythainlp)
+├── requirements-model.txt # + WangchanBERTa (transformers, torch, ...)
+└── .env.example           # ตัวอย่างค่า config
 ```
 
 จุดที่มัก "ปรับบ่อย":
-- **`core/lexicon.py`** → เพิ่มคำในพจนานุกรม aspect ให้จับหมวดได้แม่นขึ้น
+- **`core/lexicon.py`** → เพิ่มคำนามหัวหมวด / descriptor / idiom / คำพ้อง ให้สกัดวลีครอบคลุมขึ้น
 - **`core/insights.py`** → ปรับ threshold / ข้อความข้อเสนอแนะ
-- **`static/css/style.css`** → ปรับหน้าตาให้ตรง mockup เป๊ะขึ้น
+- **`static/css/style.css`** → ปรับหน้าตา
 
 ---
 
-## 🔬 ขั้นตอนทำวิจัยแบบครบวงจร (แนะนำสำหรับเล่ม)
+## 📊 หมวด (Aspect) & ผลลัพธ์
 
-```
-1) วิเคราะห์ร้านจริง (ตั้ง APIFY_TOKEN) -> ได้ dashboard + เก็บลง DB
-2) บนหน้า dashboard กดปุ่ม Export:
-     - "รีวิวทั้งหมด (CSV)"  -> ใส่ภาคผนวก / ตรวจสอบผลด้วยตา
-     - "สรุปผล (CSV)"        -> ตารางสถิติลงเล่ม
-     - "รีวิวสำหรับติด label (JSON)" -> เอาไปสร้างชุดทดสอบจากข้อมูลจริง
-3) ติด label ข้อมูลจริง:  python eval/label_tool.py for_labeling_1.json
-4) วัดผลโมเดล:            USE_MODEL=1 python eval/evaluate.py
-     -> ได้ Accuracy / F1 / confusion matrix / kappa จากข้อมูลจริงของคุณเอง
-```
+ระบบจัด **3 หมวดหลัก**: **อาหาร (food) / บริการ (service) / บรรยากาศ (ambience)**
+โดยเรื่อง **ราคา** ถูกจัดให้อยู่ในหมวด "อาหาร" (เช่น `ราคาไม่แพง`, `ราคาคุ้มค่า`)
 
-> การวัด F1 บน "รีวิวจริงของร้านที่ใช้ในเล่ม" น่าเชื่อถือกว่าชุดตัวอย่าง และตอบกรรมการได้ตรงคำถาม
+`pipeline.run_analysis(url)` คืน dict ที่มีคีย์:
+
+| คีย์ | ความหมาย |
+|---|---|
+| `store_name`, `source_url`, `total_reviews` | ข้อมูลร้าน + จำนวนรีวิว**ที่วิเคราะห์จริง** (รีวิวไทยหลังคัดกรอง) |
+| `fetched_reviews` | จำนวนรีวิว**ที่ดึงมาทั้งหมด** (ก่อนคัดภาษาไทย) — ใช้แสดงความโปร่งใสบนแดชบอร์ด "X จาก Y" |
+| `engine` | เครื่องมือที่ใช้จริง (`lexicon (พจนานุกรมคำ)` / `WangchanBERTa`) |
+| `distribution` | สัดส่วนอารมณ์รวม (counts + % บวก/กลาง/ลบ) |
+| `aspect_summary` | นับอารมณ์ราย aspect (ระดับอนุประโยค) |
+| `keywords` | **วลีความเห็นราย aspect/อารมณ์** → `{food:{positive:[{word,count}],neutral,negative}, service, ambience}` |
+| `insights` | ข้อสรุปเชิงปฏิบัติราย aspect (จุดแข็ง/ควรปรับปรุง/ปานกลาง/ข้อมูลน้อย) |
+| `reviews` | ตารางรีวิวรายรายการ (ข้อความ, ดาว, วันที่, อารมณ์, หมวด) |
 
 ---
 
-## 📊 การประเมินผลโมเดล (สำหรับบทที่ 4)
+## 🌐 หน้าเว็บ & API (app.py)
 
-มีชุดประเมินผลพร้อมใช้ที่โฟลเดอร์ `eval/` — ให้หลักฐานเชิงปริมาณว่าโมเดลแม่นแค่ไหน
+| Method + Route | หน้าที่ |
+|---|---|
+| `GET /` | หน้าแรก (ช่องวาง URL + ปุ่ม Analyze) |
+| `POST /analyze` | รับ URL → รัน pipeline → เก็บ DB → redirect ไป dashboard |
+| `GET /dashboard/<aid>` | แดชบอร์ดผลวิเคราะห์ (การ์ดอารมณ์ + donut + ตาราง + วลี + insight) |
+| `GET /history` / `GET /saved` | ประวัติการวิเคราะห์ / รายการโปรด |
+| `POST /toggle-save/<aid>` | สลับสถานะรายการโปรด (คืน JSON) |
+| `POST /delete/<aid>` | ลบผลวิเคราะห์ (คืน JSON) |
+| `GET /api/analysis/<aid>` | คืนผลวิเคราะห์เต็มเป็น JSON |
+| `GET /settings` / `POST /settings` | ตั้งค่าเครื่องมือวิเคราะห์ + จำนวนรีวิว (ฝั่งผู้ใช้) |
+| `GET /export/<aid>/reviews.csv` | ส่งออกรีวิวรายรายการ (CSV, มี BOM ให้ Excel อ่านไทยถูก) |
+| `GET /export/<aid>/summary.csv` | ส่งออกสถิติสรุป (CSV) |
+| `GET /export/<aid>/labeling.json` | ส่งออกรีวิวล้วนสำหรับนำไปติด label (JSON) |
+
+มีหน้า error (404/500) ที่เป็นมิตร และครอบ `/analyze` ด้วย error handling เพื่อไม่ให้ผู้ใช้
+เจอหน้า 500 ดิบ ๆ เมื่อ Apify/โมเดลขัดข้อง
+
+> ความปลอดภัย: Flask debug ปิดเป็นค่าเริ่มต้น (เปิดด้วย `FLASK_DEBUG=1` เฉพาะตอนพัฒนา);
+> `SECRET_KEY` อ่านจาก env ถ้ามี ไม่งั้นสุ่มต่อโปรเซส คำสั่ง SQL ใช้ parameterized query
+> และ Jinja2 escape อัตโนมัติ (กัน SQL injection / XSS) ระบบ **จงใจไม่มี login/CSRF token**
+> เพราะออกแบบให้รันเฉพาะเครื่อง/ผู้ดูแลคนเดียว — หากจะ deploy สาธารณะ ควรเพิ่ม
+> authentication, CSRF protection และ rate limiting ก่อน
+
+---
+
+## 🧪 การทดสอบ
+
+มีชุดทดสอบ **135 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
 
 ```bash
-python eval/evaluate.py                # ประเมิน engine ปัจจุบัน (demo = lexicon)
-USE_MODEL=1 python eval/evaluate.py    # ประเมิน WangchanBERTa จริง
+python -m unittest discover -s tests          # รันทั้งหมด
+python -m unittest tests.test_extract_grammar # รันไฟล์เดียว
 ```
 
-จะได้: Accuracy, Precision/Recall/F1 รายคลาส, Macro/Weighted-F1, Confusion Matrix และ
+ครอบคลุม: การสกัดวลี (idiom/ไวยากรณ์/คำปฏิเสธ), การกรองคุณภาพ, การทำรูปมาตรฐาน,
+การรวมคำพ้อง, การจัดหมวด 4 ชั้น, อารมณ์รายวลีตามบริบท, การรวมผล, และสโม้คเทสต์ทั้ง pipeline
+(ทดสอบโดย "ฉีด" ผลลัพธ์ที่คาดไว้ ไม่ขึ้นกับ .env)
+
+---
+
+## 📈 การประเมินผลโมเดล (สำหรับบทที่ 4)
+
+ประเมินความแม่นของการจำแนก **อารมณ์** เทียบกับชุดทดสอบที่ติด label มือ
+(`data/labeled_reviews.json`, ปัจจุบัน 60 รายการ):
+
+```bash
+python eval/evaluate.py                 # ประเมิน engine ปัจจุบัน (demo = lexicon)
+USE_MODEL=1 python eval/evaluate.py     # ประเมิน WangchanBERTa จริง
+```
+
+ได้: Accuracy, Precision/Recall/F1 รายคลาส, Macro/Weighted-F1, Confusion Matrix และ
 Cohen's Kappa — พิมพ์ออกจอ + บันทึก `eval/report.txt`, `eval/confusion_matrix.csv`
-(และ `confusion_matrix.png` ถ้ามี matplotlib)
+(และ `confusion_matrix.png` ถ้ามี matplotlib) คำนวณ metric เองทั้งหมด ไม่พึ่ง scikit-learn
 
-ชุดทดสอบ gold standard อยู่ที่ `data/labeled_reviews.json` (ติด label มือ 60 รายการ)
-**ก่อนสอบจริงควรขยายเป็น ~400 รายการ** ด้วยเครื่องมือช่วย:
-
+ขยายชุดทดสอบให้ใหญ่ขึ้น (น่าเชื่อถือกว่า) ด้วยเครื่องมือช่วยติด label:
 ```bash
-python eval/label_tool.py              # ติด label เพิ่มทีละรีวิว (p/u/n/s/q)
+python eval/label_tool.py               # ติด label ทีละรีวิว (p/u/n/s/q) ต่อท้ายไฟล์ gold
 ```
+
+ขั้นตอนทำวิจัยแบบครบวงจร: วิเคราะห์ร้านจริง → Export "รีวิวสำหรับติด label (JSON)"
+→ `label_tool.py` ติด label จากข้อมูลจริง → `evaluate.py` วัด F1
 
 ---
 
-## ✅ ทำเสร็จแล้ว
-- [x] ดึงรีวิว (Apify จริง + โหมด demo)
-- [x] คัดเฉพาะภาษาไทย + ทำความสะอาด + ตัดคำ
-- [x] จำแนกอารมณ์ 3 คลาส (WangchanBERTa + lexicon fallback)
-- [x] จับ aspect อาหาร/บริการ/บรรยากาศ
-- [x] สกัดคำสำคัญด้วย **TF-IDF** (ดึงคำเด่นเฉพาะร้าน)
-- [x] ข้อสรุปเชิงปฏิบัติ (rule-based)
-- [x] แดชบอร์ด + History + Search/Sort/Delete + Save
-- [x] **Error handling** (try/except, ตรวจ URL, หน้า error, flash→toast)
-- [x] **Export** ผลวิเคราะห์เป็น CSV (รีวิว+สรุป) และ JSON สำหรับติด label
-- [x] **ชุดประเมินผล F1 + confusion matrix + Cohen's Kappa**
+## ⚠️ ข้อจำกัด (Limitations)
 
-## 🔜 ทำต่อ
-- [ ] ขยายชุดทดสอบเป็น ~400 รีวิว (ใช้ `eval/label_tool.py`) แล้วรายงานผลจริง
-- [ ] (ถ้าผล F1 ต่ำ) fine-tune WangchanBERTa บน Colab
-- [ ] export ผลเป็น PDF/Excel, แบ่งหน้า (pagination) ใน History
-- [ ] ประเมินการใช้งานจริงด้วยแบบสอบถาม SUS
+- แบ่งอนุประโยคเฉพาะคำเชื่อมขัดแย้งกลุ่ม "แต่" (อนุรักษ์นิยม เพื่อกันการแบ่งผิด)
+- การสกัดวลีเป็นแบบ **อิงพจนานุกรม (lexicon-driven)** — คำที่ไม่อยู่ใน `core/lexicon.py`
+  เช่น คำสแลงใหม่ ๆ จะไม่ถูกจับ (ระบบไม่ได้เรียนรู้คำใหม่เอง); วิธีปรับปรุงคือ
+  **เพิ่มคำเข้า `core/lexicon.py` ด้วยมือ**
+- ขอบเขตคำปฏิเสธมองเฉพาะคำขั้วที่ติดกัน 1 คำ
+- คุณภาพการสกัดวลี/การจัดหมวด ตรวจเชิงคุณภาพด้วยตัวอย่างจริง (ยังไม่มีชุด gold ราย phrase);
+  ส่วน **อารมณ์** มีชุดประเมินเชิงปริมาณใน `eval/`
+- การวิเคราะห์จริง 1 ครั้งอาจใช้เวลาหลายสิบวินาทีถึงไม่กี่นาที (รอ Apify + โมเดลบน CPU)
 
 ---
 
 ## หมายเหตุ
+
 - ฐานข้อมูล `insightreview.db` ถูกสร้างอัตโนมัติเมื่อรันครั้งแรก
 - โหมด demo ออกแบบให้ทดสอบ UI/flow ได้โดยไม่มีค่าใช้จ่ายและไม่ต้องต่อเน็ตหนัก
-- การวิเคราะห์จริง 1 ครั้งอาจใช้เวลาหลายสิบวินาทีถึงไม่กี่นาที (รอ Apify + โมเดลบน CPU) — ควรเพิ่ม UX แสดงสถานะกำลังโหลดเมื่อขึ้นโหมดจริง
+- เอกสารออกแบบเชิงลึกของฟีเจอร์สกัดวลีอยู่ที่ `docs/superpowers/` (spec + plan)

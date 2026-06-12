@@ -43,6 +43,31 @@
       </div>
     </div>
 
+    <!-- วิธีสกัดวลีคำสำคัญ -->
+    <div class="panel set-panel">
+      <div class="set-sec-head">
+        <h3>วิธีสกัดวลีคำสำคัญ</h3>
+        <p>เลือกวิธีดึงวลีเด่นจากรีวิว</p>
+      </div>
+
+      <div class="radio-cards">
+        <label class="radio-card {{ 'sel' if s.extract_engine == 'rule' }}">
+          <input type="radio" name="extract_engine" value="rule" {{ 'checked' if s.extract_engine == 'rule' }}>
+          <div class="rc-body">
+            <div class="rc-title">Rule-based <span class="rc-tag">เร็วกว่า</span></div>
+            <div class="rc-desc">ใช้พจนานุกรม ทำงานออฟไลน์ ไม่มีค่าใช้จ่าย โปร่งใส อธิบายได้</div>
+          </div>
+        </label>
+        <label class="radio-card {{ 'sel' if s.extract_engine == 'llm' }}">
+          <input type="radio" name="extract_engine" value="llm" {{ 'checked' if s.extract_engine == 'llm' }}>
+          <div class="rc-body">
+            <div class="rc-title">Gemini (LLM) <span class="rc-tag rec">แม่นยำกว่า</span></div>
+            <div class="rc-desc">แม่นกว่าในรีวิวภาษาธรรมชาติ — ต้องตั้ง GEMINI_API_KEY (ขอฟรีที่ Google AI Studio; ถ้าไม่มีจะใช้ rule-based อัตโนมัติ)</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
     <!-- การดึงรีวิว -->
     <div class="panel set-panel">
       <div class="set-sec-head">

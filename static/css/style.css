@@ -259,13 +259,22 @@ table.reviews tr:hover td{background:var(--surface-hover)}
 .kw-aspect .title .ai{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:var(--surface-2);color:var(--ink-2)}
 .kw-aspect .title .ai svg{width:17px;height:17px;stroke-width:1.8}
 .kw-aspect .title .cnt{margin-left:auto;font-size:12px;font-weight:400;color:var(--ink-3)}
+.kw-group{margin-bottom:12px}
+.kw-group:last-of-type{margin-bottom:0}
+.kw-glabel{font-size:11.5px;font-weight:600;color:var(--ink-3);margin-bottom:7px;letter-spacing:.01em}
+.kw-glabel.up{color:var(--pos-ink)}
+.kw-glabel.down{color:var(--neg-ink)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:var(--r-pill);font-size:12.5px;font-weight:500;transition:transform var(--t)}
+.chip .kc{font-size:10px;font-weight:600;opacity:.55;margin-left:1px}
 .chip:hover{transform:translateY(-1px)}
 .chip .cdot{width:6px;height:6px;border-radius:50%;opacity:.7}
 .chip.pos{background:var(--pos-soft);color:var(--pos-ink)} .chip.pos .cdot{background:var(--pos)}
 .chip.neg{background:var(--neg-soft);color:var(--neg-ink)} .chip.neg .cdot{background:var(--neg)}
 .chip.neu{background:var(--neu-soft);color:var(--neu-ink)} .chip.neu .cdot{background:var(--neu)}
+.chip.topic{background:var(--surface-2);color:var(--ink-2)} .chip.topic .cdot{background:var(--ink-3)}
+.kw-topics{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)}
+.kw-glabel.muted{color:var(--ink-3);font-weight:500}
 .kw-empty{color:var(--ink-3);font-size:12.5px;font-style:italic}
 
 /* ===================== Insights ===================== */

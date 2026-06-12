@@ -54,6 +54,7 @@ SENTIMENT_WORDS = {
         "สุดยอด", "แนะนำ", "น่ารัก", "ใส่ใจ", "รวดเร็ว", "หอม", "นุ่ม", "ฟิน",
         "โอเค", "เด็ด", "ปัง", "สวย", "สบาย", "ถูก", "ดีมาก", "เริ่ด", "ละมุน",
         "คุ้มค่า", "ยิ้มแย้ม", "บริการดี", "รสชาติดี", "ประทับ",
+        "แซ่บ", "จี๊ดจ๊าด",
     ],
     "negative": [
         "แย่", "ไม่อร่อย", "จืด", "ช้า", "แพง", "สกปรก", "ผิดหวัง", "เสีย",
@@ -61,4 +62,89 @@ SENTIMENT_WORDS = {
         "แห้ง", "เละ", "โทรม", "อึดอัด", "เสียงดัง", "แย่มาก", "ไม่ประทับใจ",
         "ไม่แนะนำ", "เค็มไป", "เผ็ดไป", "ไม่สด", "บริการแย่", "งั้นๆ",
     ],
+}
+
+# ---------------------------------------------------------------------------
+# 3) Phrase-extraction maps (Review Insight pipeline)
+# ---------------------------------------------------------------------------
+
+# Head nouns per aspect (pure topic markers — NO polarity words here).
+# Note: ราคา routes to "food" per the Price-into-Food product decision.
+ASPECT_NOUNS = {
+    "food": {
+        "อาหาร", "เมนู", "เมนูอาหาร", "รสชาติ", "รส", "วัตถุดิบ", "จาน", "ปริมาณ",
+        "ของหวาน", "เครื่องดื่ม", "เนื้อ", "ข้าว", "น้ำจิ้ม", "ซุป", "ของกิน",
+        "กับข้าว", "ชิ้น", "คำ", "เครื่องปรุง", "ปลา", "ราคา",
+    },
+    "service": {
+        "บริการ", "พนักงาน", "เสิร์ฟ", "คิว", "ออเดอร์", "คิดเงิน", "จ่ายเงิน",
+        "พนง", "เด็กเสิร์ฟ", "บริกร", "ต้อนรับ",
+    },
+    "atmosphere": {
+        "บรรยากาศ", "แอร์", "ที่จอดรถ", "ห้องน้ำ", "โต๊ะ", "เก้าอี้", "วิว", "มุม",
+        "ร้าน", "เพลง", "แสง", "คน",
+    },
+}
+
+NOUN_TO_ASPECT = {n: a for a, nouns in ASPECT_NOUNS.items() for n in nouns}
+
+ASPECT_HEAD_NOUN = {"food": "อาหาร", "service": "บริการ", "atmosphere": "บรรยากาศ"}
+
+# Multi-word expressions. Key == joined idiom string (no spaces).
+IDIOMS = {
+    "ติดริมน้ำ": {"canonical": "ติดริมน้ำ", "aspect": "atmosphere"},
+    "ริมน้ำ":    {"canonical": "ติดริมน้ำ", "aspect": "atmosphere"},
+    "ถึงเครื่อง": {"canonical": "ถึงเครื่อง", "aspect": "food"},
+    "มาไว":      {"canonical": "มาไว", "aspect": "service"},
+}
+
+# Descriptor → aspect. Used to detect clause aspects, route noun-less phrases
+# (tier 4), and set provisional aspect for bare-descriptor synthesis.
+DESCRIPTOR_ASPECT_HINTS = {
+    # food-bound descriptors
+    "อร่อย": "food", "จืด": "food", "เค็ม": "food", "หวาน": "food", "เปรี้ยว": "food",
+    "เผ็ด": "food", "สด": "food", "หอม": "food", "เข้มข้น": "food", "จัดจ้าน": "food",
+    "นุ่ม": "food", "กรอบ": "food", "ละมุน": "food", "ฟิน": "food", "เด็ด": "food",
+    "เยอะ": "food", "น้อย": "food",   # portion (ปริมาณเยอะ); head-noun routing overrides คนเยอะ
+    "แซ่บ": "food", "จี๊ดจ๊าด": "food", "กลมกล่อม": "food", "ชุ่มฉ่ำ": "food",
+    # service-bound descriptors
+    "รวดเร็ว": "service", "ช้า": "service", "ใส่ใจ": "service", "ยิ้มแย้ม": "service",
+    "หยาบคาย": "service", "เป็นกันเอง": "service", "ใจดี": "service", "สุภาพ": "service",
+    # atmosphere-bound descriptors (incl. noun-less compounds)
+    "สวย": "atmosphere", "สะอาด": "atmosphere", "สกปรก": "atmosphere",
+    "เย็นสบาย": "atmosphere", "คึกคัก": "atmosphere", "เงียบสงบ": "atmosphere",
+    "โล่ง": "atmosphere", "อึดอัด": "atmosphere", "โทรม": "atmosphere",
+    "น่านั่ง": "atmosphere", "กว้าง": "atmosphere", "แคบ": "atmosphere",
+}
+
+# Self-contained descriptor words that read naturally ALONE — do NOT synthesize a
+# head noun for these (keep "คึกคัก", not "บรรยากาศคึกคัก"). Compounds (เย็นสบาย) are
+# already kept as-is by the compound rule; this set is for single-token vibe words.
+NO_SYNTH_DESCRIPTORS = {"คึกคัก"}
+
+INTENSIFIERS = {"มาก", "มากๆ", "สุดๆ", "จริง", "จริงๆ", "เลย", "ๆ", "ที่สุด", "นิดหน่อย"}
+FILLERS = {"คือ", "ที่", "อะ", "นะ", "ก็"}
+META_VERBS = {"ชอบ", "แนะนำ", "บอก", "คิดว่า", "รู้สึก"}
+
+# ---------------------------------------------------------------------------
+# 4) Conservative synonym aggregation (opt-in whitelist; default = identity)
+#    Merge ONLY when: same business lever + same orientation + manager acts
+#    identically. Distinct sensory descriptors are NOT merged.
+# ---------------------------------------------------------------------------
+SYNONYM_GROUPS = {
+    "price_good": {"label": "ราคาคุ้มค่า", "aspect": "food",
+                   "members": {"คุ้มค่า", "ราคาดี", "ราคาไม่แพง", "ราคาเหมาะสม", "ราคาโอเค"}},
+    "price_bad":  {"label": "ราคาแพง", "aspect": "food",
+                   "members": {"ราคาแพง", "แพงไป", "ไม่คุ้ม", "ไม่คุ้มค่า"}},
+    "wait_long":  {"label": "รอนาน", "aspect": "service",
+                   "members": {"รอนาน", "มาช้า", "อาหารมาช้า", "เสิร์ฟช้า"}},
+    "taste_good": {"label": "รสชาติดี", "aspect": "food",
+                   "members": {"รสชาติดี", "รสดี"}},
+}
+
+# reverse map: member phrase -> (concept_key, label, aspect)
+MEMBER_TO_CONCEPT = {
+    m: (key, g["label"], g["aspect"])
+    for key, g in SYNONYM_GROUPS.items()
+    for m in g["members"]
 }

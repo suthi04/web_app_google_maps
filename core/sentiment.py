@@ -13,6 +13,10 @@ sentiment.py
 """
 import config
 from core.lexicon import SENTIMENT_WORDS
+from core.negation import starts_with_negator, word_polarity
+
+_POS = set(SENTIMENT_WORDS["positive"])
+_NEG = set(SENTIMENT_WORDS["negative"])
 
 # label ที่โมเดล wisesight ใช้ -> map เป็น 3 คลาสของเรา
 _WISESIGHT_MAP = {
@@ -24,6 +28,7 @@ _WISESIGHT_MAP = {
 
 _model_pipe = None    # cache โมเดล
 _model_status = None  # None=ยังไม่ลอง, "ok"=โหลดได้, "failed"=โหลดไม่สำเร็จ
+_unknown_label_warned = False  # เตือนเรื่อง label ที่แมปไม่ได้ครั้งเดียวพอ
 
 
 def _load_model():
@@ -43,22 +48,31 @@ def _load_model():
 
 
 def _predict_model(clean_text: str) -> str:
+    global _unknown_label_warned
     pipe = _load_model()
     out = pipe(clean_text[:512])          # ตัดความยาวกัน token เกิน
     raw = out[0]["label"].lower()
+    if raw not in _WISESIGHT_MAP and not _unknown_label_warned:
+        # กันบั๊กเงียบ: ถ้า checkpoint คืน label แบบ LABEL_0/1/2 (ไม่มี id2label)
+        # ทุกอย่างจะถูกแมปเป็น neutral โดยไม่มี error -> ผล F1 เพี้ยนทั้งชุด
+        _unknown_label_warned = True
+        print(f"[sentiment] ⚠️  โมเดลคืน label ที่ไม่รู้จัก: {out[0]['label']!r} "
+              f"-> แมปเป็น neutral. ตรวจ id2label ของ checkpoint "
+              f"({config.MODEL_NAME}@{config.MODEL_REVISION})")
     return _WISESIGHT_MAP.get(raw, "neutral")
 
 
 def _predict_lexicon(tokens: list) -> str:
-    """fallback: นับคำบวก/ลบ แล้วตัดสิน"""
-    pos = sum(1 for t in tokens if t in SENTIMENT_WORDS["positive"])
-    neg = sum(1 for t in tokens if t in SENTIMENT_WORDS["negative"])
-    # เผื่อคำที่ไม่ถูกตัดแยก ลองเช็คแบบ substring กับข้อความรวม
-    joined = "".join(tokens)
-    if pos == 0:
-        pos = sum(1 for w in SENTIMENT_WORDS["positive"] if w in joined)
-    if neg == 0:
-        neg = sum(1 for w in SENTIMENT_WORDS["negative"] if w in joined)
+    """fallback: นับคำบวก/ลบ (เข้าใจ negation ผ่าน negation.word_polarity) แล้วตัดสิน"""
+    pos = sum(1 for t in tokens if word_polarity(t) > 0)
+    neg = sum(1 for t in tokens if word_polarity(t) < 0)
+
+    if pos == 0 and neg == 0:
+        # เผื่อคำที่ไม่ถูกตัดแยก ลองเช็คแบบ substring กับข้อความรวม
+        # ข้ามโทเคนที่ขึ้นต้นด้วยคำปฏิเสธ กันนับ "สะอาด" ใน "ไม่สะอาด" เป็นบวก
+        joined = "".join(t for t in tokens if not starts_with_negator(t))
+        pos = sum(1 for w in _POS if w in joined)
+        neg = sum(1 for w in _NEG if w in joined)
 
     if pos == 0 and neg == 0:
         return "neutral"
@@ -87,9 +101,17 @@ def predict(review: dict) -> str:
 
 
 def analyze_all(reviews: list) -> list:
-    """ใส่ key 'sentiment' ให้รีวิวทุกรายการ"""
+    """
+    ใส่ key 'sentiment' ให้รีวิวทุกรายการ (ระดับรีวิว — ใช้กับ donut/ตาราง)
+    และให้ทุกอนุประโยค (ระดับ clause — ใช้กับสรุปอารมณ์ราย aspect ที่แม่นขึ้น)
+
+    ออกแบบให้ระดับรีวิวยังทำงานเหมือนเดิม (อารมณ์รวมของทั้งรีวิว) เพื่อไม่ให้
+    ภาพรวม/การกระจายอารมณ์เปลี่ยนพฤติกรรม ส่วนการแยกราย aspect ใช้อารมณ์ราย clause
+    """
     for r in reviews:
         r["sentiment"] = predict(r)
+        for c in r.get("clauses", []):
+            c["sentiment"] = predict(c)
     return reviews
 
 
@@ -100,3 +122,39 @@ def engine_name() -> str:
     if _model_status == "failed":
         return "lexicon (WangchanBERTa โหลดไม่สำเร็จ)"
     return "WangchanBERTa"
+
+
+def classify_phrase(phrase) -> str:
+    """Stage 6 — sentiment for one phrase occurrence, independent of extraction.
+
+    A phrase with a CLEAR polarity of its own (negation-aware) keeps that polarity —
+    so "ราคาแพง" stays negative even inside a mostly-positive clause, and "ราคาไม่แพง"
+    stays positive. Only phrases with NO inherent polarity (e.g. คนเยอะ) are decided
+    from the source-clause CONTEXT (WangchanBERTa when on; lexicon when off).
+    """
+    global _model_status
+
+    # 1) clear own polarity wins (joined so negation flips correctly: ไม่อร่อย -> neg)
+    if phrase.descriptor_tokens:
+        own = word_polarity("".join(phrase.descriptor_tokens))
+        if own > 0:
+            return "positive"
+        if own < 0:
+            return "negative"
+
+    # 2) ambiguous phrase -> reuse the clause sentiment already computed in
+    #    analyze_all (avoids a second, redundant model inference per phrase)
+    clause = phrase.clause or {}
+    cached = clause.get("sentiment")
+    if cached in ("positive", "neutral", "negative"):
+        return cached
+
+    # 2b) no cached clause sentiment (e.g. clause-less phrase) -> compute now
+    if config.get_use_model():
+        try:
+            return _predict_model(clause.get("clean", phrase.surface))
+        except Exception as e:
+            if _model_status != "failed":
+                _model_status = "failed"
+                print(f"[sentiment] WangchanBERTa unavailable, using lexicon: {e}")
+    return _predict_lexicon(clause.get("tokens") or phrase.descriptor_tokens)
