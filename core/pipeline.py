@@ -10,17 +10,26 @@ pipeline.py
 
 ฟังก์ชันหลัก: run_analysis(url, max_reviews) -> dict ผลลัพธ์
 """
+import logging
+
 import config
-from core import scraper, preprocess, sentiment, aspect, insights
+from core import scraper, preprocess, sentiment, aspect, insights, audience_insights
 from core.phrases import extract, quality, canonical, synonyms, aggregate, llm_extract
 
 # internal aspect value -> dashboard contract key
 _ASPECT_KEY = {"food": "food", "service": "service", "atmosphere": "ambience"}
+log = logging.getLogger(__name__)
 
 
-def _rule_phrase_pipeline(reviews: list) -> dict:
+def rule_phrase_occurrences(reviews: list, use_model: bool | None = None) -> list:
+    """คืน Phrase ทุก occurrence ก่อน aggregate สำหรับ audit/evaluation
+
+    ``reviews`` ต้องผ่าน preprocess, sentiment และ aspect แล้วเหมือน input ของ
+    ``_rule_phrase_pipeline`` การแยกฟังก์ชันนี้ทำให้ตัวประเมินวัดระดับวลีจริงได้
+    โดย dashboard contract เดิมไม่เปลี่ยน
+    """
     collected = []
-    for r in reviews:
+    for review_index, r in enumerate(reviews):
         try:
             for clause in r.get("clauses", []):
                 clause_aspects = aspect.detect_clause_aspects(clause)
@@ -33,27 +42,39 @@ def _rule_phrase_pipeline(reviews: list) -> dict:
                     if p.aspect is None:
                         continue
                     p.aspect = _ASPECT_KEY.get(p.aspect, p.aspect)
-                    p.sentiment = sentiment.classify_phrase(p)
+                    p.sentiment = sentiment.classify_phrase(p, use_model=use_model)
+                    p.review_index = review_index
                     collected.append(p)
         except Exception as e:                             # never let one review 500 the run
-            print(f"[phrases] skipped a review due to: {e}")
+            log.warning("Skipped one review during phrase extraction: %s", e)
             continue
-    return aggregate.build(collected)
+    return collected
 
 
-def _phrase_pipeline(reviews: list):
+def _rule_phrase_pipeline(reviews: list, use_model: bool | None = None) -> dict:
+    return aggregate.build(rule_phrase_occurrences(reviews, use_model=use_model))
+
+
+def _phrase_pipeline(
+    reviews: list,
+    extract_engine: str | None = None,
+    use_model: bool | None = None,
+):
     """Dispatch to the configured engine and report which engine ACTUALLY ran.
 
     Returns (contract, engine_used). engine_used is "rule" even when the LLM engine
     was selected but unavailable or its call failed (e.g. quota/429) — so the result
     label never claims an engine that didn't actually produce the phrases.
     """
-    if config.get_extract_engine() == "llm" and llm_extract.available():
+    selected_engine = (
+        config.get_extract_engine() if extract_engine is None else extract_engine
+    )
+    if selected_engine == "llm" and llm_extract.available():
         try:
             return llm_extract.extract_all(reviews), "llm"
         except Exception as e:
-            print(f"[phrases] LLM engine failed, falling back to rule-based: {e}")
-    return _rule_phrase_pipeline(reviews), "rule"
+            log.warning("LLM phrase extraction failed; using rules: %s", e)
+    return _rule_phrase_pipeline(reviews, use_model=use_model), "rule"
 
 
 def _percentages(counts: dict, total: int) -> dict:
@@ -84,40 +105,62 @@ def _sentiment_distribution(reviews: list) -> dict:
     }
 
 
-def run_analysis(url: str, max_reviews: int = None) -> dict:
+def run_analysis(
+    url: str,
+    max_reviews: int = None,
+    use_model: bool | None = None,
+    extract_engine: str | None = None,
+    progress_callback=None,
+) -> dict:
+    def report(stage: str, progress: int) -> None:
+        if progress_callback is not None:
+            progress_callback(stage, progress)
+
     # 1) ดึงรีวิว (Apify หรือ demo)
+    report("fetching_reviews", 10)
     raw = scraper.fetch_reviews(url, max_reviews)
     fetched = len(raw["reviews"])          # ที่ดึงมา (ก่อนคัดไทย) — ใช้แสดงความโปร่งใส
 
     # 2) คัดไทย + ทำความสะอาด + ตัดคำ
+    report("preprocessing", 30)
     reviews = preprocess.filter_and_prepare(raw["reviews"])
+    for index, review in enumerate(reviews, 1):
+        review["review_id"] = f"R{index:03d}"
 
     # 3) วิเคราะห์อารมณ์
-    reviews = sentiment.analyze_all(reviews)
+    report("sentiment", 50)
+    reviews = sentiment.analyze_all(reviews, use_model=use_model)
 
     # 4) จัดหมวด aspect
+    report("aspects", 65)
     reviews = aspect.tag_aspects(reviews)
 
     # 5) สรุป + สกัด keyword + insight
     distribution = _sentiment_distribution(reviews)
     aspect_summary = aspect.aspect_sentiment_summary(reviews)
-    kw, extract_engine = _phrase_pipeline(reviews)   # engine_used = ตัวที่ทำงานจริง
+    report("phrases", 78)
+    kw, engine_used = _phrase_pipeline(
+        reviews, extract_engine=extract_engine, use_model=use_model
+    )
+    report("insights", 90)
     actionable = insights.generate_insights(aspect_summary, kw)
 
     # 6) ประกอบผลลัพธ์
-    return {
+    report("finalizing", 96)
+    result = {
         "store_name": raw["store_name"],
         "source_url": raw["source_url"],
         "total_reviews": len(reviews),       # ที่วิเคราะห์จริง (รีวิวไทยหลังคัดกรอง)
         "fetched_reviews": fetched,          # ที่ดึงมาทั้งหมด (รวมภาษาอื่น/ซ้ำ ที่ถูกคัดออก)
-        "engine": sentiment.engine_name(),
-        "extract_engine": extract_engine,
+        "engine": sentiment.engine_name(use_model=use_model),
+        "extract_engine": engine_used,
         "distribution": distribution,        # %, counts
         "aspect_summary": aspect_summary,     # นับอารมณ์ราย aspect
         "keywords": kw,                       # keyword ราย aspect/sentiment
         "insights": actionable,               # ข้อสรุปเชิงปฏิบัติ
         "reviews": [                          # ตารางรีวิว (All)
             {
+                "review_id": r["review_id"],
                 "text": r["text"],
                 "rating": r["rating"],
                 "review_date": r["review_date"],
@@ -127,3 +170,4 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
             for r in reviews
         ],
     }
+    return audience_insights.enrich_result(result)

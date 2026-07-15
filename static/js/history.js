@@ -30,12 +30,19 @@
   const sortLabel = document.getElementById("sortLabel");
   const SORT_TH = { newest: "ใหม่สุด", oldest: "เก่าสุด", pos: "บวกมากสุด", neg: "ลบมากสุด" };
 
+  function setSortOpen(open) {
+    sortMenu.classList.toggle("open", open);
+    sortBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
   sortBtn.addEventListener("click", (e) => {
     e.stopPropagation();
-    sortMenu.classList.toggle("open");
+    setSortOpen(!sortMenu.classList.contains("open"));
   });
-  document.addEventListener("click", () => sortMenu.classList.remove("open"));
+  document.addEventListener("click", () => setSortOpen(false));
   sortMenu.addEventListener("click", (e) => e.stopPropagation());
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setSortOpen(false);
+  });
 
   function sortBy(mode) {
     const cards = [...list.querySelectorAll(".hist-card")];
@@ -50,11 +57,15 @@
   }
   sortMenu.querySelectorAll(".mi").forEach((b) => {
     b.addEventListener("click", () => {
-      sortMenu.querySelectorAll(".mi").forEach((x) => x.classList.remove("active"));
+      sortMenu.querySelectorAll(".mi").forEach((x) => {
+        x.classList.remove("active");
+        x.setAttribute("aria-checked", "false");
+      });
       b.classList.add("active");
+      b.setAttribute("aria-checked", "true");
       sortLabel.textContent = SORT_TH[b.dataset.sort];
       sortBy(b.dataset.sort);
-      sortMenu.classList.remove("open");
+      setSortOpen(false);
     });
   });
 
@@ -70,7 +81,11 @@
         okText: "ลบ",
         onOk: async () => {
           try {
-            const res = await fetch(`/delete/${id}`, { method: "POST" });
+            const res = await fetch(`/delete/${id}`, {
+              method: "POST",
+              headers: csrfHeaders(),
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const j = await res.json();
             if (!j.deleted) throw new Error();
             const card = list.querySelector(`.hist-card[data-id="${id}"]`);
@@ -95,7 +110,11 @@
       e.stopPropagation();
       const id = btn.dataset.id;
       try {
-        const res = await fetch(`/toggle-save/${id}`, { method: "POST" });
+        const res = await fetch(`/toggle-save/${id}`, {
+          method: "POST",
+          headers: csrfHeaders(),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const j = await res.json();
         const svg = btn.querySelector("svg");
         btn.classList.toggle("active", j.is_saved);

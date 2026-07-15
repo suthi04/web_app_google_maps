@@ -5,8 +5,8 @@
 > ทุกตัวเลข/คำกล่าวอ้างในเอกสารนี้ตรวจจากโค้ดจริง (branch `feat/review-insight-phrase-extraction`, 2026-06-12)
 > ไม่มีการคาดเดา — จุดที่เป็นความเห็น/ข้อควรระวังจะระบุชัด
 >
-> อ่านคู่กับ: [ANALYSIS.md](ANALYSIS.md) (วิเคราะห์ repo เชิงลึก) · [../README.md](../README.md) (วิธีรัน) ·
-> `output/InsightReview-Thesis-v100.pdf` (ร่างเล่มฉบับสมบูรณ์) · `output/InsightReview-Review-Summary.pdf` (รายงานตรวจสอบ)
+> อ่านคู่กับ: [ANALYSIS.md](ANALYSIS.md) (วิเคราะห์ repo เชิงลึก) · [../README.md](../README.md) (วิธีรัน) ·-ๅ
+> `output/InsightReview-Thesis-v100.pdf` (baseline ที่มี PDF) · `output/thesis-v2.html` (ร่างที่ใหม่กว่า ยังต้องตรวจและสร้าง PDF) · `output/InsightReview-Review-Summary.pdf` (รายงานตรวจสอบ)
 
 ---
 
@@ -116,7 +116,7 @@
 | 4 Synonyms | `synonyms.py` | รวมคำพ้องผ่าน whitelist `MEMBER_TO_CONCEPT` เท่านั้น (อนุรักษ์นิยม) |
 | 5 Aspect | `aspect.py` `route_aspect()` | จัดหมวด 4 ชั้น (ดู 3.4) |
 | 6 Sentiment | `sentiment.py` `classify_phrase()` | ตีอารมณ์รายวลี (ดู 3.2) |
-| 7 Aggregate | `aggregate.py` | นับ + จัดอันดับ → `{aspect:{positive/neutral/negative:[{word,count}]}}` (TOP_N=6) |
+| 7 Aggregate | `aggregate.py` | นับ occurrence + รีวิวต้นทางไม่ซ้ำ แล้วจัดอันดับ → แต่ละวลีมี `{word,count,review_count,evidence_review_ids}` (TOP_N=6) |
 
 **รูปแบบไวยากรณ์ (patterns) ใน extract.py — เขียนเป็นตารางในบทที่ 3 ได้:**
 | รูปแบบ | คำอธิบาย | ตัวอย่าง |
@@ -194,8 +194,14 @@ USE_MODEL=1 python eval/evaluate.py
 # เปรียบเทียบเครื่องยนต์สกัดวลี rule vs Gemini
 python -m scripts.compare_engines          # rule อย่างเดียว
 python -m scripts.compare_engines --llm     # + Gemini (ต้องมี GEMINI_API_KEY)
+# สร้าง/ติด label/วัดผล phrase-level (ดู PHRASE-ANNOTATION-GUIDE.md)
+python -m eval.build_phrase_queue --seed 2026
+python -m eval.phrase_dataset data/phrase_gold.json --split-dir data/phrase_splits
+python -m eval.phrase_evaluate data/phrase_gold.json --engine rule
+python -m eval.phrase_evaluate data/phrase_gold.json --engine llm --llm-batch-size 25
+python -m eval.phrase_error_analysis data/phrase_gold.json --engine rule
 # รันชุดทดสอบทั้งหมด (พิสูจน์ระบบทำงาน)
-python -m unittest discover -s tests        # → Ran 135 tests ... OK
+python -m unittest discover -s tests        # → Ran 243 tests ... OK
 ```
 ผลถูกเขียนอัตโนมัติที่ `eval/report.txt`, `eval/confusion_matrix.csv` (+`.png` ถ้ามี matplotlib)
 
@@ -213,8 +219,12 @@ python -m unittest discover -s tests        # → Ran 135 tests ... OK
 **เกณฑ์ตีความ Kappa:** <0.20 น้อย, 0.21–0.40 พอใช้, 0.41–0.60 ปานกลาง, 0.61–0.80 สูง, 0.81–1.00 เกือบสมบูรณ์
 → ของเรา **0.825 = เกือบสมบูรณ์**
 
+**ตัวชี้วัดวลี (`eval/phrase_metrics.py`):** Exact span P/R/F1, Partial span IoU≥0.5,
+Aspect/Sentiment/Joint end-to-end F1, Macro-F1 บน span ที่ match และ Cohen's Kappa
+ระหว่างผู้ติด label ดู workflow และกติกาที่ `docs/PHRASE-ANNOTATION-GUIDE.md`
+
 ### 5.3 สิ่งที่บทที่ 4 ควรมี (โครงเนื้อหา)
-1. ผลการพัฒนาระบบ (ฟังก์ชันครบ + 135 เทสต์ผ่าน) + **screenshot แดชบอร์ดจริง** (ต้องแคปเอง)
+1. ผลการพัฒนาระบบ (ฟังก์ชันครบ + 243 เทสต์ผ่าน) + **screenshot แดชบอร์ดจริง** (ต้องแคปเอง)
 2. ตัวอย่างผลการสกัดวลี (เช่น "อาหารอร่อยมาก แต่บริการช้า" → แยกหมวดถูก)
 3. ตารางผลประเมินอารมณ์ (ภาพรวม + รายคลาส + confusion matrix) ← มีใน `report.txt`
 4. **Error Analysis** (โดยเฉพาะ neutral recall 0.70) — วิเคราะห์ว่าทำไมพลาด
@@ -227,9 +237,10 @@ python -m unittest discover -s tests        # → Ran 135 tests ... OK
 
 ### 6.1 ติดตั้ง
 ```bash
-pip install -r requirements.txt           # โหมด demo (เบา: Flask, requests, pythainlp, google-genai)
+pip install -r requirements.txt           # เว็บ+demo (Flask, Waitress, requests, pythainlp, google-genai)
 pip install -r requirements-model.txt     # + WangchanBERTa (transformers, torch ~2GB)
 python app.py                             # เปิด http://127.0.0.1:5000
+# production: ตั้ง SECRET_KEY แล้วใช้ python serve.py (Waitress, single process)
 ```
 
 ### 6.2 ตัวแปร config (`.env`, คัดลอกจาก `.env.example`)
@@ -237,27 +248,28 @@ python app.py                             # เปิด http://127.0.0.1:5000
 |---|---|---|---|
 | `APIFY_TOKEN` | (ว่าง→demo) | กุญแจดึงรีวิวจริง | ผู้ดูแลระบบ |
 | `MAX_REVIEWS` | 100 | เพดานจำนวนรีวิว/ร้าน | ผู้ดูแลระบบ |
-| `USE_MODEL` | 0 | 1 = ใช้ WangchanBERTa | (ผู้ใช้ปรับผ่าน Settings ได้) |
+| `USE_MODEL` | 0 | ค่าเริ่มต้นของ WangchanBERTa; ผู้ใช้เลือกต่อการวิเคราะห์ข้างช่อง URL | ผู้ดูแล/ผู้ใช้ |
 | `MODEL_NAME` | `airesearch/wangchanberta-base-att-spm-uncased` | checkpoint | — |
 | `MODEL_REVISION` | `finetuned@wisesight_sentiment` | revision 4 คลาส | — |
 | `GEMINI_API_KEY` | (ว่าง→ปิด LLM) | เปิดเครื่องยนต์ Gemini | ผู้ดูแลระบบ |
 | `GEMINI_MODEL` | `gemini-2.5-flash-lite` | โมเดล Gemini | — |
 | `FLASK_DEBUG` | 0 | 1 = เปิด debugger (อันตราย) | dev เท่านั้น |
 
-> **สำคัญสำหรับการสาธิต/ทำผลวิจัย:** ค่าใน `data/settings.json` (ฝั่งผู้ใช้) **ทับ** ค่า env บางตัว
-> (`use_model`, `extract_engine`, `max_reviews`) — ก่อนเก็บผลให้เช็กว่าตั้งโหมดที่ต้องการรายงาน
-> ปัจจุบันเครื่องนี้ตั้ง `use_model:true` → รัน WangchanBERTa จริง
+> **สำคัญสำหรับการสาธิต/ทำผลวิจัย:** เลือก `sentiment`, `phrase extraction` และจำนวนรีวิว
+> ข้างช่อง URL ก่อนกด Analyze ตัวเลือกเหล่านี้ถูกส่งไปกับ background job และบันทึกชื่อ
+> engine ที่ทำงานจริงในผลลัพธ์ โดยไม่แก้ค่าร่วมของงานอื่น
 
 ### 6.3 หน้าเว็บ & API
 | Route | หน้าที่ |
 |---|---|
-| `GET /` | หน้าแรก (กรอก URL) |
-| `POST /analyze` | รัน pipeline → เก็บ DB → ไป dashboard |
-| `GET /dashboard/<id>` | แดชบอร์ดผลวิเคราะห์ |
+| `GET /` | หน้าแรก (URL + ตัวเลือกเครื่องมือ/จำนวนรีวิว) |
+| `POST /analyze` | ตรวจคำขอ → สร้าง background job → ไปหน้าสถานะ |
+| `GET /jobs/<id>` / `/api/jobs/<id>` | หน้า/API สถานะพร้อม stage และ progress 7 ขั้น |
+| `GET /dashboard/<id>` | แท็บผู้บริโภค + แดชบอร์ดผู้ประกอบการ |
 | `GET /history` `/saved` | ประวัติ / รายการโปรด |
 | `POST /toggle-save/<id>` `/delete/<id>` | สลับโปรด / ลบ (JSON) |
 | `GET /api/analysis/<id>` | ผลเต็มเป็น JSON |
-| `GET/POST /settings` | ตั้งค่าเครื่องมือ + จำนวนรีวิว |
+| `GET/POST /settings` | route compatibility; UI หลักย้ายตัวเลือกไปข้าง URL แล้ว |
 | `GET /export/<id>/{reviews,summary}.csv`, `/labeling.json` | ส่งออกข้อมูล |
 
 ---
@@ -312,11 +324,11 @@ python app.py                             # เปิด http://127.0.0.1:5000
 |---|---|---|---|
 | 1 | **ไม่ได้ fine-tune** WangchanBERTa เอง (ใช้ Wisesight off-the-shelf) | 🔴 สูง | เขียนให้ตรง — อย่าเคลมว่า fine-tune; หรือไป fine-tune จริงบน Colab |
 | 2 | **ค่าเริ่มต้นโค้ดคือ lexicon + rule** (แต่เครื่องนี้ตั้ง use_model:true) | 🟠 | ระบุชัดว่ารายงานผลจากโหมดไหน; lexicon=baseline, WangchanBERTa=วิจัย |
-| 3 | การสกัดวลี **ไม่มี gold set ราย phrase** วัดเชิงปริมาณ | 🟠 | ระบุเป็นข้อจำกัด + เสนองานต่อยอด; ใช้ตัวอย่างเชิงคุณภาพแทน |
+| 3 | Phrase evaluation framework พร้อม แต่ **gold set ยังติด label ไม่ครบ** | 🟠 | ให้ผู้ติด label 2 คนทำอิสระ วัด Kappa แล้ว adjudicate ก่อนรายงาน Phrase F1 |
 | 4 | ชุดทดสอบ **60 รายการ balance เทียม** | 🟠 | ระบุ + เสนอขยาย + อภิปรายว่าผลจริงอาจต่าง |
 | 5 | Gemini ส่งข้อมูลออกภายนอก + มีค่าใช้จ่าย/โควตา | 🟡 | ระบุ privacy/cost + ว่ามี fallback + เป็น opt-in |
 | 6 | negation มองแค่คำขั้วติดกัน 1 คำ; clause split เฉพาะกลุ่ม "แต่" | 🟡 | ระบุเป็น scope/limitation |
-| 7 | ไม่มี auth/CSRF; synchronous ไม่ scale | 🟡 | ระบุว่าออกแบบให้รันเฉพาะที่ ไม่ใช่ public |
+| 7 | ไม่มีบัญชีผู้ใช้; background queue อยู่ในโปรเซสเดียว | 🟡 | เหมาะโครงงาน/สาธิต; ถ้า scale ให้เพิ่ม user isolation + external broker |
 | 8 | spec รอบแรกพูดถึง Claude/POS ที่เลิกใช้ | 🟡 | ใส่หมายเหตุ superseded หรือไม่อ้างถึงในเล่ม |
 
 ---
@@ -376,14 +388,14 @@ python app.py                             # เปิด http://127.0.0.1:5000
 
 **Q9: ทำไมไม่ใช้ POS tagging?** → ประเมิน POS ของ PyThaiNLP แล้วติดป้ายคำความเห็นไทยผิดบ่อย (`อร่อย`→NOUN) เลือกไวยากรณ์พจนานุกรมที่อธิบายได้แทน
 **Q10: Gemini อยู่ตรงไหน privacy เป็นยังไง?** → เครื่องยนต์ทางเลือกในขั้นสกัดวลี ส่งรีวิวให้ Google (opt-in), มี fallback rule-based ที่ทำงานออฟไลน์เป็นค่าเริ่มต้น
-**Q11: วัดคุณภาพ phrase ยังไง?** → ปัจจุบันเชิงคุณภาพ (ยังไม่มี gold ราย phrase) — ระบุเป็นข้อจำกัด + future work
+**Q11: วัดคุณภาพ phrase ยังไง?** → ใช้ Exact/Partial span F1 + Aspect/Sentiment/Joint F1 จาก `eval/phrase_evaluate.py`; ตอนนี้ framework พร้อม แต่ต้องติด label 2 คนและ adjudicate ก่อนอ้างผล
 
 ### กลุ่มระบบ
 **Q12: clause split ทำไมแค่ "แต่"?** → อนุรักษ์นิยมเพื่อกันแบ่งผิด; "และ/ส่วน" กำกวมเกินไป — เป็น scope
 **Q13: negation ครอบคลุมแค่ไหน?** → คำขั้วติดกัน 1 คำ; เคสซับซ้อน ("ไม่อร่อยเท่าไหร่") เป็นข้อจำกัด
 **Q14: threshold insights มาจากไหน?** → design choice เชิงปฏิบัติ ปรับได้; เสนอ tune จากข้อมูลจริงเป็นงานต่อยอด
 **Q15: เก็บ CSV หรือ SQLite?** → SQLite (เล่มฉบับปรับปรุงแก้ขอบเขตแล้ว) + รองรับ export CSV/JSON
-**Q16: รองรับผู้ใช้พร้อมกันกี่คน?** → ออกแบบ single-user/รันเฉพาะที่ (synchronous); public ต้องเพิ่ม queue+auth — ระบุไว้
+**Q16: รองรับผู้ใช้พร้อมกันกี่คน?** → ปรับ worker/คิวได้ด้วย env และ request ไม่ค้าง; ค่าเริ่มต้น 1 งาน + รอ 10 งานต่อโปรเซส ถ้าหลายโปรเซสต้องใช้ external broker
 
 ---
 
@@ -409,7 +421,7 @@ python app.py                             # เปิด http://127.0.0.1:5000
 | เก็บ SQLite + history/save | `db/database.py` |
 | export CSV/JSON | `core/export.py` |
 | ประเมิน F1/Kappa | `eval/evaluate.py`, ผลใน `eval/report.txt` |
-| 135 เทสต์ผ่าน | `tests/` (`python -m unittest discover -s tests`) |
+| 243 เทสต์ผ่าน | `tests/` (`python -m unittest discover -s tests`) |
 
 ---
 

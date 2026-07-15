@@ -79,9 +79,13 @@ def _client():
     return genai.Client(api_key=config.get_gemini_api_key())
 
 
-def _to_contract(payload: dict) -> dict:
-    phrases = []
+def payload_occurrences(payload: dict) -> list[dict]:
+    """Validate structured output while preserving its review index for evaluation."""
+    occurrences = []
     for r in payload.get("reviews", []):
+        index = r.get("index")
+        if not isinstance(index, int) or index < 0:
+            continue
         for item in r.get("phrases", []):
             aspect = _ASPECT_KEY.get(item.get("aspect"))
             sentiment = item.get("sentiment")
@@ -90,12 +94,25 @@ def _to_contract(payload: dict) -> dict:
                 continue
             if len(text) > _MAX_PHRASE_CHARS:        # ทั้งประโยคหลุดมา -> ข้าม
                 continue
-            p = Phrase(surface=text)
-            p.aspect, p.sentiment = aspect, sentiment
-            p.display = text
-            p.agg_key = text          # identical phrasings merge & count
-            p.label = text
-            phrases.append(p)
+            occurrences.append({
+                "index": index,
+                "text": text,
+                "aspect": aspect,
+                "sentiment": sentiment,
+            })
+    return occurrences
+
+
+def _to_contract(payload: dict) -> dict:
+    phrases = []
+    for item in payload_occurrences(payload):
+        p = Phrase(surface=item["text"])
+        p.aspect, p.sentiment = item["aspect"], item["sentiment"]
+        p.review_index = item["index"]
+        p.display = item["text"]
+        p.agg_key = item["text"]          # identical phrasings merge & count
+        p.label = item["text"]
+        phrases.append(p)
     return aggregate.build(phrases)
 
 
@@ -111,9 +128,8 @@ def _build_prompt(reviews: list) -> str:
     return "\n".join(lines)
 
 
-def extract_all(reviews: list) -> dict:
-    """Call Gemini once for the batch and return the dashboard contract. Raises on
-    API/parse failure; callers (pipeline) catch and fall back to the rule engine."""
+def extract_payload(reviews: list) -> dict:
+    """Call Gemini once and return its validated-schema JSON payload."""
     client = _client()
     gen_config = {
         "system_instruction": _SYSTEM,
@@ -125,5 +141,10 @@ def extract_all(reviews: list) -> dict:
         contents=_build_prompt(reviews),
         config=gen_config,
     )
-    payload = json.loads(resp.text)
-    return _to_contract(payload)
+    return json.loads(resp.text)
+
+
+def extract_all(reviews: list) -> dict:
+    """Call Gemini once for the batch and return the dashboard contract. Raises on
+    API/parse failure; callers (pipeline) catch and fall back to the rule engine."""
+    return _to_contract(extract_payload(reviews))

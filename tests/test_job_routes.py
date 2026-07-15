@@ -1,0 +1,57 @@
+import os
+import sys
+import unittest
+from unittest import mock
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import app
+
+
+class TestJobRoutes(unittest.TestCase):
+    def setUp(self):
+        app.app.config.update(TESTING=True)
+        self.client = app.app.test_client()
+
+    def test_queued_job_page_renders_polling_client(self):
+        job = {"id": "abc123", "status": "queued", "analysis_id": None,
+               "error_message": None}
+        with mock.patch.object(app.database, "get_job", return_value=job):
+            response = self.client.get("/jobs/abc123")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"/api/jobs/abc123", response.data)
+        self.assertIn(b"js/job.js", response.data)
+
+    def test_completed_job_page_redirects_to_dashboard(self):
+        job = {"id": "abc123", "status": "completed", "analysis_id": 42,
+               "error_message": None}
+        with mock.patch.object(app.database, "get_job", return_value=job):
+            response = self.client.get("/jobs/abc123")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers["Location"], "/dashboard/42")
+
+    def test_job_api_returns_persisted_status(self):
+        job = {"id": "abc123", "status": "running", "analysis_id": None,
+               "error_message": None, "stage": "sentiment", "progress": 50}
+        with mock.patch.object(app.database, "get_job", return_value=job):
+            response = self.client.get("/api/jobs/abc123")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["status"], "running")
+        self.assertEqual(response.get_json()["progress"], 50)
+
+    def test_completed_job_api_includes_server_generated_dashboard_url(self):
+        job = {"id": "abc123", "status": "completed", "analysis_id": 42,
+               "error_message": None, "stage": "completed", "progress": 100}
+        with mock.patch.object(app.database, "get_job", return_value=job):
+            response = self.client.get("/api/jobs/abc123")
+        self.assertEqual(response.get_json()["dashboard_url"], "/dashboard/42")
+
+    def test_missing_job_api_returns_json_404(self):
+        with mock.patch.object(app.database, "get_job", return_value=None):
+            response = self.client.get("/api/jobs/missing")
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.get_json()["error"], "not_found")
+
+
+if __name__ == "__main__":
+    unittest.main()
