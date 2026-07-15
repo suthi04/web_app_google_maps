@@ -117,9 +117,8 @@
   const consumerReviewCards = [...document.querySelectorAll(".consumer-review-card")];
   const consumerReviewSearch = document.getElementById("consumerReviewSearch");
   const consumerReviewEmpty = document.getElementById("consumerReviewEmpty");
-  const consumerReviewsMoreBtn = document.getElementById("consumerReviewsMoreBtn");
+  const consumerReviewVisibleCount = document.getElementById("consumerReviewVisibleCount");
   const consumerFilterButtons = [...document.querySelectorAll("[data-consumer-filter]")];
-  let consumerReviewsExpanded = false;
   let consumerSentimentFilter = "all";
 
   function setHighlightedText(element, text, query) {
@@ -149,9 +148,7 @@
         || card.dataset.sentiment === consumerSentimentFilter;
       const matchesSearch = !query
         || (card.dataset.reviewText || "").toLocaleLowerCase("th").includes(query);
-      const collapsedExtra = !consumerReviewsExpanded
-        && card.dataset.consumerExtra === "1";
-      card.hidden = !matchesSentiment || !matchesSearch || collapsedExtra;
+      card.hidden = !matchesSentiment || !matchesSearch;
       card.classList.remove("evidence-focus");
       setHighlightedText(
         card.querySelector(".consumer-review-text"),
@@ -161,24 +158,23 @@
       if (!card.hidden) visibleCount += 1;
     });
     if (consumerReviewEmpty) consumerReviewEmpty.hidden = visibleCount > 0;
+    if (consumerReviewVisibleCount) {
+      consumerReviewVisibleCount.textContent = `แสดง ${visibleCount} จาก ${consumerReviewCards.length} รีวิว`;
+    }
   }
 
   consumerFilterButtons.forEach((button) => {
     button.addEventListener("click", () => {
       consumerSentimentFilter = button.dataset.consumerFilter;
-      consumerFilterButtons.forEach((item) => item.classList.toggle("active", item === button));
+      consumerFilterButtons.forEach((item) => {
+        const active = item === button;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-pressed", active ? "true" : "false");
+      });
       applyConsumerReviewFilter();
     });
   });
   consumerReviewSearch?.addEventListener("input", applyConsumerReviewFilter);
-  consumerReviewsMoreBtn?.addEventListener("click", () => {
-    consumerReviewsExpanded = !consumerReviewsExpanded;
-    consumerReviewsMoreBtn.setAttribute("aria-expanded", consumerReviewsExpanded ? "true" : "false");
-    consumerReviewsMoreBtn.textContent = consumerReviewsExpanded
-      ? "แสดงรีวิวน้อยลง"
-      : `แสดงรีวิวทั้งหมด ${consumerReviewCards.length} รายการ`;
-    applyConsumerReviewFilter();
-  });
   applyConsumerReviewFilter();
 
   /* ---------- Evidence drawer ---------- */
@@ -250,7 +246,6 @@
     const focusIds = new Set(activeEvidenceIds);
     closeEvidence({ restoreFocus: false });
     setPersona("consumer");
-    consumerReviewsExpanded = true;
     consumerSentimentFilter = "all";
     consumerFilterButtons.forEach((button) => {
       button.classList.toggle("active", button.dataset.consumerFilter === "all");

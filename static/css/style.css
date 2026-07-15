@@ -261,25 +261,38 @@ button{font-family:inherit}
 .evidence-link:not(:disabled):hover{background:var(--accent-soft);border-color:rgba(52,121,112,.35)}
 .evidence-link:disabled{cursor:not-allowed;color:var(--ink-3);opacity:.7}
 .metric .evidence-link{margin-top:12px}
-.consumer-reviews{margin-top:16px}
-.consumer-review-tools{display:flex;gap:5px;flex-wrap:wrap;padding-right:34px}
-.review-filter{border:1px solid var(--border);background:var(--surface);color:var(--ink-2);border-radius:var(--r-pill);padding:7px 12px;font:500 12.5px/1.2 inherit;cursor:pointer}
-.review-filter.active{background:var(--accent-soft);border-color:rgba(52,121,112,.2);color:var(--accent-ink)}
-.consumer-review-search{display:flex;align-items:center;gap:9px;border:1px solid var(--border-strong);border-radius:var(--r-sm);padding:9px 12px;margin-bottom:12px;background:var(--surface)}
+.consumer-reviews{margin-top:16px;padding:0;overflow:hidden}
+.consumer-review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding:26px 28px 22px;background:linear-gradient(135deg,#fff 45%,#eef6f2);border-bottom:1px solid var(--border)}
+.consumer-review-kicker{font-size:11.5px;font-weight:700;letter-spacing:.055em;color:var(--accent-ink);margin-bottom:5px}
+.consumer-review-title{display:flex;align-items:center;gap:9px}.consumer-review-title h3{font-size:22px;letter-spacing:-.35px}.review-total{display:inline-grid;place-items:center;min-width:28px;height:28px;padding:0 8px;border-radius:var(--r-pill);background:var(--accent-soft);color:var(--accent-ink);font-size:11.5px;font-weight:600}
+.consumer-review-head>div:first-child>p{font-size:13.5px;line-height:1.65;color:var(--ink-2);margin-top:5px}
+.consumer-review-overview{display:grid;grid-template-columns:repeat(3,minmax(72px,1fr));gap:6px;padding:6px;background:rgba(255,255,255,.72);border:1px solid rgba(52,121,112,.12);border-radius:var(--r-sm);box-shadow:var(--sh-sm)}
+.consumer-review-overview>div{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:7px;padding:8px 10px;border-radius:10px}.overview-dot{grid-row:1/3;align-self:center;width:7px;height:7px;border-radius:50%;background:var(--ink-4)}.consumer-review-overview strong{font-size:14px;line-height:1.1}.consumer-review-overview small{font-size:10.5px;color:var(--ink-3);line-height:1.25}.consumer-review-overview .positive .overview-dot{background:var(--pos)}.consumer-review-overview .neutral .overview-dot{background:var(--neu)}.consumer-review-overview .negative .overview-dot{background:var(--neg)}
+.consumer-review-controls{display:flex;align-items:stretch;gap:10px;padding:18px 28px 12px}
+.consumer-review-tools{display:flex;gap:5px;flex-wrap:nowrap;padding:4px;background:var(--surface-2);border-radius:var(--r-sm)}
+.review-filter{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:var(--ink-2);border-radius:10px;padding:7px 10px;font:500 12px/1.2 inherit;cursor:pointer;white-space:nowrap;transition:background var(--t),color var(--t),box-shadow var(--t)}
+.review-filter b{font-size:9.5px;color:var(--ink-3);background:rgba(255,255,255,.75);padding:2px 5px;border-radius:var(--r-pill)}
+.review-filter.active{background:var(--surface);color:var(--accent-ink);box-shadow:var(--sh-sm)}.review-filter.active b{color:var(--accent-ink);background:var(--accent-soft)}
+.consumer-review-search{flex:1;display:flex;align-items:center;gap:9px;border:1px solid var(--border-strong);border-radius:var(--r-sm);padding:9px 12px;background:var(--surface)}
 .consumer-review-search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(52,121,112,.08)}
 .consumer-review-search svg{width:17px;height:17px;color:var(--ink-3);stroke-width:1.7;flex:0 0 auto}
 .consumer-review-search input{border:0;outline:0;background:transparent;color:var(--ink);font:inherit;width:100%;min-width:0}
-.consumer-review-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.consumer-review-card{padding:16px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);transition:border-color var(--t),box-shadow var(--t),background var(--t)}
+.consumer-review-resultbar{display:flex;justify-content:space-between;gap:12px;padding:0 30px 10px;color:var(--ink-3);font-size:11.5px}.consumer-review-resultbar span:first-child{color:var(--ink-2);font-weight:500}
+.consumer-review-list{display:flex;flex-direction:column;gap:9px;max-height:660px;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;margin:0 20px 22px;padding:4px 8px 4px 8px}
+.consumer-review-list:focus-visible{outline:3px solid rgba(52,121,112,.2);outline-offset:3px;border-radius:var(--r-sm)}
+.consumer-review-list::-webkit-scrollbar{width:8px}.consumer-review-list::-webkit-scrollbar-track{background:var(--surface-2);border-radius:var(--r-pill)}.consumer-review-list::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-pill)}.consumer-review-list::-webkit-scrollbar-thumb:hover{background:var(--ink-4)}
+.consumer-review-card{position:relative;padding:18px 20px;border:1px solid var(--border);border-left:3px solid var(--ink-4);border-radius:var(--r-sm);background:var(--surface);transition:border-color var(--t),box-shadow var(--t),background var(--t),transform var(--t)}
+.consumer-review-card[data-sentiment="positive"]{border-left-color:var(--pos)}.consumer-review-card[data-sentiment="neutral"]{border-left-color:var(--neu)}.consumer-review-card[data-sentiment="negative"]{border-left-color:var(--neg)}
+.consumer-review-card:hover{border-color:var(--border-strong);box-shadow:var(--sh-sm);transform:translateY(-1px)}
 .consumer-review-card.evidence-focus{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px rgba(52,121,112,.08)}
-.consumer-review-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px;color:var(--ink-3);font-size:11.5px}
-.review-ref{color:var(--accent-ink);background:var(--accent-soft);padding:3px 7px;border-radius:var(--r-pill)}
-.consumer-review-meta .rating{margin:0;align-items:center}
-.consumer-review-meta time{margin-left:auto}
+.consumer-review-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.consumer-review-id{display:flex;align-items:center;gap:9px}.review-quote{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--surface-2);color:var(--accent-ink)}.review-quote svg{width:16px;height:16px;stroke-width:1.7}.consumer-review-id div{display:flex;align-items:baseline;gap:5px}.consumer-review-id small{font-size:11px;color:var(--ink-3)}.consumer-review-id strong{font-size:11.5px;color:var(--ink-2)}
 .review-sentiment{padding:3px 7px;border-radius:var(--r-pill);font-weight:500}.review-sentiment.positive{background:var(--pos-soft);color:var(--pos-ink)}.review-sentiment.neutral{background:var(--neu-soft);color:var(--neu-ink)}.review-sentiment.negative{background:var(--neg-soft);color:var(--neg-ink)}
-.consumer-review-text{font-size:14px;line-height:1.75;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.consumer-review-text{font-size:14.5px;line-height:1.8;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere;padding:0 2px}
 .consumer-review-text mark{background:#fff0a8;color:inherit;border-radius:3px;padding:0 2px}
-.consumer-review-empty{text-align:center;color:var(--ink-2);font-size:13.5px;padding:24px}
+.consumer-review-card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:15px;padding-top:12px;border-top:1px solid var(--border)}
+.consumer-review-facts{display:flex;align-items:center;gap:10px;color:var(--ink-3);font-size:11px}.review-rating{display:inline-flex;align-items:center;gap:4px;color:var(--neu-ink)}.review-rating svg{width:13px;height:13px;fill:var(--neu);stroke:none}.review-rating strong{font-size:11px}.consumer-review-aspects{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}.consumer-review-aspects span{font-size:10.5px;color:var(--ink-2);background:var(--surface-2);padding:3px 7px;border-radius:var(--r-pill)}
+.consumer-review-empty{text-align:center;color:var(--ink-2);font-size:13.5px;padding:30px;margin:0 28px 22px;border:1px dashed var(--border-strong);border-radius:var(--r-sm);background:var(--surface-2)}
 
 /* Evidence drawer: desktop side sheet, mobile bottom sheet */
 body.evidence-open{overflow:hidden}
@@ -573,7 +586,16 @@ table.reviews tr:hover td{background:var(--surface-hover)}
   .caution-item{grid-template-columns:32px minmax(0,1fr)}
   .caution-item .severity-label{grid-column:2}
   .know-reference{white-space:normal;text-align:right}
-  .consumer-review-tools{padding-right:24px}
+  .consumer-review-head{flex-direction:column;gap:16px;padding:22px 18px 18px}
+  .consumer-review-overview{width:100%;grid-template-columns:repeat(3,1fr)}
+  .consumer-review-controls{flex-direction:column;padding:16px 18px 10px}
+  .consumer-review-tools{width:100%;padding:4px;overflow-x:auto}
+  .review-filter{flex:1;justify-content:center}
+  .consumer-review-resultbar{padding:0 20px 9px}.consumer-review-resultbar span:last-child{display:none}
+  .consumer-review-list{max-height:600px;margin:0 10px 16px;padding-inline:8px}
+  .consumer-review-card{padding:16px}
+  .consumer-review-card-foot{align-items:flex-start;flex-direction:column}
+  .consumer-review-aspects{justify-content:flex-start}
   .evidence-drawer-shell{display:flex;align-items:flex-end}
   .evidence-backdrop{position:absolute;inset:0}
   .evidence-drawer{width:100%;height:min(82vh,760px);height:min(82dvh,760px);margin-top:auto;padding:18px;border-radius:20px 20px 0 0;animation:drawerUp .22s var(--ease)}

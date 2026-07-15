@@ -90,6 +90,17 @@ class TestAudienceDashboard(unittest.TestCase):
         self.assertNotIn('id="resultMoreBtn"', html)
         self.assertNotIn('data-result-extra=', html)
 
+    def test_consumer_reviews_render_as_filterable_scroll_feed(self):
+        payload = _payload()
+        payload["reviews"] = payload["reviews"] * 6
+        html = _get_dashboard(payload)
+        self.assertIn('class="consumer-review-head"', html)
+        self.assertIn('id="consumerReviewVisibleCount"', html)
+        self.assertIn('aria-label="รายการรีวิวทั้งหมด"', html)
+        self.assertIn('class="consumer-review-card-foot"', html)
+        self.assertNotIn('id="consumerReviewsMoreBtn"', html)
+        self.assertNotIn('data-consumer-extra=', html)
+
 
 if __name__ == "__main__":
     unittest.main()

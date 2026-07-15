@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% set active = '' %}
 {% set ASPECTS = [('food','อาหาร'),('service','บริการ'),('ambience','บรรยากาศ')] %}
+{% set ASPECT_TH = {'food':'อาหาร','service':'บริการ','ambience':'บรรยากาศ'} %}
 {% set LEVEL_TH = {'improve':'ควรแก้ไข','strength':'ควรรักษาไว้','neutral':'ควรติดตาม','insufficient':'ข้อมูลยังน้อย'} %}
 {% macro evidence_button(ids, claim='', label='ดูรีวิวอ้างอิง') -%}
   {% set refs = ids or [] %}
@@ -161,39 +162,59 @@
   </section>
 
   <section class="panel consumer-section consumer-reviews" id="consumerReviews">
-    <div class="section-number">04</div>
-    <div class="panel-head">
-      <div><h3>รีวิวทั้งหมด</h3><div class="sub-h">อ่านข้อความต้นฉบับครบ {{ a.reviews|length }} รีวิว พร้อมรหัสอ้างอิงที่ตรวจสอบย้อนกลับได้</div></div>
-      <div class="consumer-review-tools" role="group" aria-label="กรองรีวิวสำหรับผู้บริโภค">
-        <button class="review-filter active" type="button" data-consumer-filter="all">ทั้งหมด</button>
-        <button class="review-filter" type="button" data-consumer-filter="positive">เชิงบวก</button>
-        <button class="review-filter" type="button" data-consumer-filter="neutral">กลาง</button>
-        <button class="review-filter" type="button" data-consumer-filter="negative">เชิงลบ</button>
+    <div class="consumer-review-head">
+      <div>
+        <div class="consumer-review-kicker">เสียงจริงจากลูกค้า</div>
+        <div class="consumer-review-title"><h3>รีวิวทั้งหมด</h3><span class="review-total mono">{{ a.reviews|length }}</span></div>
+        <p>ค้นหาและอ่านความคิดเห็นต้นฉบับ พร้อมดูบริบทของแต่ละรีวิวได้ในที่เดียว</p>
+      </div>
+      <div class="consumer-review-overview" aria-label="สรุปจำนวนรีวิวตามอารมณ์">
+        <div class="positive"><span class="overview-dot"></span><strong class="mono">{{ a.distribution.counts.positive }}</strong><small>เชิงบวก</small></div>
+        <div class="neutral"><span class="overview-dot"></span><strong class="mono">{{ a.distribution.counts.neutral }}</strong><small>เป็นกลาง</small></div>
+        <div class="negative"><span class="overview-dot"></span><strong class="mono">{{ a.distribution.counts.negative }}</strong><small>เชิงลบ</small></div>
       </div>
     </div>
-    <label class="consumer-review-search">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4" stroke-linecap="round"/></svg>
-      <span class="sr-only">ค้นหาในรีวิวทั้งหมด</span>
-      <input id="consumerReviewSearch" type="search" placeholder="ค้นหา เช่น ราคา บริการ ที่จอดรถ" autocomplete="off">
-    </label>
-    <div class="consumer-review-list" id="consumerReviewList">
+    <div class="consumer-review-controls">
+      <label class="consumer-review-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4" stroke-linecap="round"/></svg>
+        <span class="sr-only">ค้นหาในรีวิวทั้งหมด</span>
+        <input id="consumerReviewSearch" type="search" placeholder="ค้นหาในรีวิว เช่น ราคา บริการ ที่จอดรถ" autocomplete="off">
+      </label>
+      <div class="consumer-review-tools" role="group" aria-label="กรองรีวิวสำหรับผู้บริโภค">
+        <button class="review-filter active" type="button" data-consumer-filter="all" aria-pressed="true"><span>ทั้งหมด</span><b class="mono">{{ a.reviews|length }}</b></button>
+        <button class="review-filter" type="button" data-consumer-filter="positive" aria-pressed="false"><span>เชิงบวก</span><b class="mono">{{ a.distribution.counts.positive }}</b></button>
+        <button class="review-filter" type="button" data-consumer-filter="neutral" aria-pressed="false"><span>กลาง</span><b class="mono">{{ a.distribution.counts.neutral }}</b></button>
+        <button class="review-filter" type="button" data-consumer-filter="negative" aria-pressed="false"><span>เชิงลบ</span><b class="mono">{{ a.distribution.counts.negative }}</b></button>
+      </div>
+    </div>
+    <div class="consumer-review-resultbar">
+      <span id="consumerReviewVisibleCount" aria-live="polite">แสดง {{ a.reviews|length }} รีวิว</span>
+      <span>เลื่อนเพื่ออ่านรีวิวทั้งหมด</span>
+    </div>
+    <div class="consumer-review-list" id="consumerReviewList" tabindex="0" aria-label="รายการรีวิวทั้งหมด">
       {% for r in a.reviews %}
       <article class="consumer-review-card" id="consumer-review-{{ r.review_id }}"
                data-review-id="{{ r.review_id }}" data-sentiment="{{ r.sentiment }}"
-               data-review-text="{{ r.text }}" data-consumer-extra="{{ '1' if loop.index > 6 else '0' }}"
-               {% if loop.index > 6 %}hidden{% endif %}>
-        <div class="consumer-review-meta">
-          <strong class="review-ref mono">{{ r.review_id }}</strong>
-          {% if r.rating %}<span class="rating"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg> {{ r.rating }}.0</span>{% endif %}
-          {% if r.review_date %}<time datetime="{{ r.review_date }}">{{ r.review_date[:10] }}</time>{% endif %}
+               data-review-text="{{ r.text }}">
+        <header class="consumer-review-card-head">
+          <div class="consumer-review-id">
+            <span class="review-quote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9.5 11H5a5 5 0 0 1 5-5v2a3 3 0 0 0-3 3h2.5v6H4v-6M20 11h-4.5a5 5 0 0 1 5-5v2a3 3 0 0 0-3 3H20v6h-5.5v-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <div><small>รีวิว</small><strong class="mono">{{ r.review_id }}</strong></div>
+          </div>
           <span class="review-sentiment {{ r.sentiment }}">{{ {'positive':'เชิงบวก','neutral':'กลาง','negative':'เชิงลบ'}[r.sentiment] }}</span>
-        </div>
+        </header>
         <p class="consumer-review-text">{{ r.text }}</p>
+        <footer class="consumer-review-card-foot">
+          <div class="consumer-review-facts">
+            {% if r.rating %}<span class="review-rating"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg><strong class="mono">{{ r.rating }}.0</strong></span>{% endif %}
+            {% if r.review_date %}<time datetime="{{ r.review_date }}">{{ r.review_date[:10] }}</time>{% endif %}
+          </div>
+          {% if r.aspects %}<div class="consumer-review-aspects">{% for aspect in r.aspects %}<span>{{ ASPECT_TH.get(aspect, aspect) }}</span>{% endfor %}</div>{% endif %}
+        </footer>
       </article>
       {% endfor %}
     </div>
     <p class="consumer-review-empty" id="consumerReviewEmpty" hidden>ไม่พบรีวิวที่ตรงกับตัวกรองหรือคำค้นหา</p>
-    {% if a.reviews|length > 6 %}<div class="result-more-wrap"><button class="btn btn-ghost" id="consumerReviewsMoreBtn" type="button" aria-expanded="false">แสดงรีวิวทั้งหมด {{ a.reviews|length }} รายการ</button></div>{% endif %}
   </section>
 </section>
 
