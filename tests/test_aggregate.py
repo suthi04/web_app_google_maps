@@ -62,6 +62,20 @@ class TestAggregate(unittest.TestCase):
         # label = most frequent display ("รอนาน" appears 2x vs "รออาหารนาน" 1x)
         self.assertEqual(neg[0]["word"], "รอนาน")
 
+    def test_evidence_counts_unique_reviews_not_occurrences(self):
+        phrases = [
+            self._mk("food", "positive", "ราคาไม่แพง", "ราคาไม่แพง"),
+            self._mk("food", "positive", "ราคาไม่แพง", "ราคาไม่แพง"),
+            self._mk("food", "positive", "ราคาไม่แพง", "ราคาดี"),
+        ]
+        phrases[0].review_index = 0
+        phrases[1].review_index = 0
+        phrases[2].review_index = 4
+        item = aggregate.build(phrases)["food"]["positive"][0]
+        self.assertEqual(item["count"], 3)
+        self.assertEqual(item["review_count"], 2)
+        self.assertEqual(item["evidence_review_ids"], ["R001", "R005"])
+
 
 if __name__ == "__main__":
     unittest.main()

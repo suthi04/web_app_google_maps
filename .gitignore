@@ -10,8 +10,15 @@ insightreview.db
 server.log
 .env
 data/settings.json
+data/phrase_label_queue.json
+data/phrase_annotations_*.json
+eval/phrase_report.json
+eval/phrase_report.txt
+eval/phrase_errors.json
+data/phrase_splits/
 
 # OS / editor
 .DS_Store
+.claude/
 .idea/
 .vscode/

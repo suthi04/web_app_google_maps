@@ -33,7 +33,9 @@ def _summarize(contract: dict) -> dict:
 
 def _run_rule(reviews: list) -> dict:
     prepared = preprocess.filter_and_prepare(reviews)
-    prepared = sentiment.analyze_all(prepared)
+    # การเทียบ extraction engine ต้องรันได้แบบ offline และคงที่ ไม่ควรแอบโหลด
+    # WangchanBERTa ตาม settings.json ของเครื่องที่รัน
+    prepared = sentiment.analyze_all(prepared, use_model=False)
     prepared = aspect.tag_aspects(prepared)
     return _summarize(pipeline._rule_phrase_pipeline(prepared))
 

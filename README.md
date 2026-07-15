@@ -3,7 +3,7 @@
 เว็บแอปวิเคราะห์รีวิวร้านอาหารจาก Google Maps:
 ดึงรีวิว → คัดเฉพาะภาษาไทย + ทำความสะอาด → จำแนกอารมณ์ (บวก/กลาง/ลบ) →
 **สกัด "วลีความเห็น" (opinion phrases)** แยกตามหมวด (อาหาร/บริการ/บรรยากาศ) →
-สรุปข้อเสนอแนะเชิงปฏิบัติ → แสดงผลบนแดชบอร์ด
+สรุปข้อเสนอแนะเชิงปฏิบัติ → แสดงผลแยกมุมมองผู้บริโภคและผู้ประกอบการ
 
 > โครงงาน วท.บ. เทคโนโลยีสารสนเทศ มหาวิทยาลัยนเรศวร
 
@@ -39,6 +39,23 @@ python app.py
 
 ---
 
+## 🏭 รันแบบ production
+
+เมื่อติดตั้ง `requirements.txt` แล้ว ให้ใช้ Waitress แทน Flask development server:
+
+```bash
+# ตั้ง SECRET_KEY แบบยาวและคงที่ใน .env ก่อน
+python serve.py
+```
+
+ค่าเริ่มต้นฟังที่ `127.0.0.1:5000`; ปรับ `HOST`, `PORT` และ `WEB_THREADS` ใน `.env`
+ได้ตามระบบ deploy และใช้ `GET /healthz` เป็น readiness probe ซึ่งตรวจทั้ง SQLite และ
+รายงานสถานะความจุของคิว (`capacity`, `inflight`, `available`) ตัวประมวลผลเบื้องหลังเป็น
+in-process queue จึงควรรันเว็บเพียง **1 process**; เพิ่ม HTTP threads ได้ แต่ไม่ควรเปิดหลาย
+process จนกว่าจะย้ายคิว/rate limit ไป Redis/Celery/RQ
+
+---
+
 ## 🚀 เปิด "โหมดจริง"
 
 ตั้งค่าผ่านไฟล์ `.env` (คัดลอกจาก `.env.example`) — เปิดแยกกันได้อิสระ จะเปิดแค่ Apify,
@@ -69,9 +86,9 @@ cp .env.example .env     # Windows: copy .env.example .env
 revision `finetuned@wisesight_sentiment` (4 คลาส — โค้ดแมป "question" → neutral)
 รันบน CPU ได้แต่ช้า; ถ้าจะ **fine-tune** แนะนำทำบน Google Colab
 
-> ผู้ใช้ทั่วไปยังปรับ "เครื่องมือวิเคราะห์" และ "จำนวนรีวิว" ได้จากหน้า **Settings**
-> โดยไม่ต้องแก้ `.env` (เก็บลง `data/settings.json`, มีผลทันที). `APIFY_TOKEN` และ
-> เพดานจำนวนรีวิว (`MAX_REVIEWS`) เป็นค่าฝั่งผู้ดูแลระบบ — ตั้งใน `.env` เท่านั้น
+> ผู้ใช้เลือกเครื่องมือวิเคราะห์วลี เครื่องมือวิเคราะห์อารมณ์ และจำนวนรีวิวได้
+> **ข้างช่องวาง URL ก่อนกด Analyze** โดยตัวเลือกมีผลเฉพาะงานนั้นและไม่แก้ค่าร่วมของระบบ
+> ส่วน `APIFY_TOKEN` และเพดานจำนวนรีวิว (`MAX_REVIEWS`) ยังเป็นค่าฝั่งเซิร์ฟเวอร์ใน `.env`
 
 ดูค่าทั้งหมดได้ที่ `.env.example`
 
@@ -128,7 +145,7 @@ revision `finetuned@wisesight_sentiment` (4 คลาส — โค้ดแม�
 
 ## 🤖 เครื่องยนต์สกัดวลี (Extraction engines)
 
-ระบบเลือกได้ 2 เครื่องยนต์สำหรับ "การสกัดวลี" (ปรับได้จากหน้า **Settings**):
+ระบบเลือกได้ 2 เครื่องยนต์สำหรับ "การสกัดวลี" (เลือกข้างช่อง URL ก่อนวิเคราะห์):
 
 - **Rule-based (ค่าเริ่มต้น):** pipeline เชิงพจนานุกรมตามหัวข้อด้านบน — ทำงาน
   **ออฟไลน์ ไม่มีค่าใช้จ่าย และอธิบายผลลัพธ์ได้ทุกขั้นตอน**
@@ -148,7 +165,7 @@ revision `finetuned@wisesight_sentiment` (4 คลาส — โค้ดแม�
 
 ถ้าไม่ได้ตั้ง `GEMINI_API_KEY` (หรือไม่ได้ติดตั้ง `google-genai` SDK) หรือเรียก API
 แล้วเกิดข้อผิดพลาด ระบบจะ **fallback กลับไปใช้ rule-based โดยอัตโนมัติ** —
-เลือก "Gemini (LLM)" ในหน้า Settings ไว้ได้โดยไม่ทำให้ระบบล่ม
+เลือก "Gemini (LLM)" ก่อนวิเคราะห์ได้โดยไม่ทำให้ระบบล่ม
 
 ### ค่าใช้จ่าย
 
@@ -163,7 +180,11 @@ Gemini มี **free tier** จาก Google AI Studio (มีลิมิตจ
 ```
 insightreview/
 ├── app.py                 # Flask: route ทั้งหมด (ดูหัวข้อ "หน้าเว็บ & API")
+├── serve.py               # production entrypoint (Waitress, single process)
 ├── config.py              # ค่ากลางจาก .env + การตั้งค่าฝั่งผู้ใช้ (settings.json)
+├── background_jobs.py     # bounded ThreadPoolExecutor สำหรับงานวิเคราะห์เบื้องหลัง
+├── request_limits.py      # rate limit ต่อ IP + จำกัดงานวิเคราะห์พร้อมกัน
+├── web_security.py        # CSRF + browser security headers
 │
 ├── core/                  # ตรรกะการวิเคราะห์
 │   ├── scraper.py         #  ดึงรีวิว: Apify จริง / sample เมื่อ demo
@@ -181,26 +202,27 @@ insightreview/
 │   │   ├── synonyms.py    #     รวมวลีความหมายเดียวกันแบบอนุรักษ์นิยม
 │   │   └── aggregate.py   #     นับ + จัดอันดับเป็นโครงสร้างของแดชบอร์ด
 │   ├── insights.py        #  ★ ข้อสรุปเชิงปฏิบัติ (rule-based, ปรับ threshold ได้)
+│   ├── audience_insights.py # มุมผู้บริโภค + จุดวิกฤต/กลยุทธ์สำหรับผู้ประกอบการ
 │   ├── export.py          #  ส่งออกผลเป็น CSV / JSON (สำหรับงานวิจัย)
 │   └── pipeline.py        #  ร้อยทุกขั้นตอน → ผลลัพธ์ 1 ก้อน (run_analysis)
 │
-├── db/database.py         # SQLite: บันทึก/ดึงผล + History + Save (insightreview.db สร้างอัตโนมัติ)
+├── db/database.py         # SQLite: ผลวิเคราะห์ + History/Save + สถานะ background job
 │
-├── templates/             # หน้าเว็บ (Jinja2): base, index, dashboard, history, settings, error
-├── static/                # css/style.css (donut เป็น CSS ล้วน) + js (common/dashboard/history)
+├── templates/             # หน้าเว็บ (Jinja2): base, index, job, dashboard, history, error
+├── static/                # css/style.css + js (common/job/dashboard/history)
 │
 ├── data/
 │   ├── sample_reviews.json    # ข้อมูลตัวอย่างโหมด demo (30 รีวิว)
 │   ├── labeled_reviews.json   # ชุดทดสอบ gold standard ติด label มือ (60 รีวิว)
-│   └── settings.json          # การตั้งค่าฝั่งผู้ใช้ (สร้างเมื่อกดบันทึกใน Settings)
+│   └── settings.json          # ค่าเริ่มต้นเดิม/compatibility; งานใหม่รับตัวเลือกจากแบบฟอร์ม
 │
 ├── eval/                  # การประเมินผลโมเดลอารมณ์ (ดูหัวข้อ "การประเมินผล")
 │   ├── evaluate.py        #   คำนวณ Accuracy / F1 / confusion matrix / Cohen's Kappa
 │   └── label_tool.py      #   เครื่องมือช่วยติด label เพิ่ม (p/u/n/s/q)
 │
 ├── debug_apify.py         # สคริปต์ตรวจการเชื่อมต่อ Apify
-├── docs/superpowers/      # เอกสารออกแบบ (spec) + แผนการพัฒนา (plan) ของฟีเจอร์สกัดวลี
-├── requirements.txt       # โหมด demo (Flask, requests, pythainlp)
+├── docs/superpowers/      # historical archive: spec/plan เก่า ไม่ใช่ source of truth ปัจจุบัน
+├── requirements.txt       # เว็บ production/demo (Flask, Waitress, requests, pythainlp)
 ├── requirements-model.txt # + WangchanBERTa (transformers, torch, ...)
 └── .env.example           # ตัวอย่างค่า config
 ```
@@ -226,8 +248,10 @@ insightreview/
 | `engine` | เครื่องมือที่ใช้จริง (`lexicon (พจนานุกรมคำ)` / `WangchanBERTa`) |
 | `distribution` | สัดส่วนอารมณ์รวม (counts + % บวก/กลาง/ลบ) |
 | `aspect_summary` | นับอารมณ์ราย aspect (ระดับอนุประโยค) |
-| `keywords` | **วลีความเห็นราย aspect/อารมณ์** → `{food:{positive:[{word,count}],neutral,negative}, service, ambience}` |
-| `insights` | ข้อสรุปเชิงปฏิบัติราย aspect (จุดแข็ง/ควรปรับปรุง/ปานกลาง/ข้อมูลน้อย) |
+| `keywords` | **วลีความเห็นราย aspect/อารมณ์** → แต่ละวลีมี `word`, จำนวน occurrence (`count`), จำนวนรีวิวไม่ซ้ำ (`review_count`) และ `evidence_review_ids` |
+| `insights` | ข้อสรุปเชิงปฏิบัติราย aspect พร้อมเหตุผล หลักฐาน และกลยุทธ์ |
+| `consumer_summary` | สิ่งที่ควรรู้ก่อนไป, บทสรุปสั้น และข้อควรระวัง |
+| `critical_issues` | จุดวิกฤต/เฝ้าระวังจากวลีลบ พร้อมรหัสรีวิวอ้างอิง เหตุผล และกลยุทธ์แนะนำ |
 | `reviews` | ตารางรีวิวรายรายการ (ข้อความ, ดาว, วันที่, อารมณ์, หมวด) |
 
 ---
@@ -236,14 +260,17 @@ insightreview/
 
 | Method + Route | หน้าที่ |
 |---|---|
-| `GET /` | หน้าแรก (ช่องวาง URL + ปุ่ม Analyze) |
-| `POST /analyze` | รับ URL → รัน pipeline → เก็บ DB → redirect ไป dashboard |
-| `GET /dashboard/<aid>` | แดชบอร์ดผลวิเคราะห์ (การ์ดอารมณ์ + donut + ตาราง + วลี + insight) |
+| `GET /` | หน้าแรก (URL + ตัวเลือกเครื่องมือ/จำนวนรีวิว + ปุ่ม Analyze) |
+| `POST /analyze` | ตรวจ URL/โควตา → สร้าง background job → redirect ไปหน้าสถานะ |
+| `GET /jobs/<job_id>` | หน้า progress 7 ขั้น; เปิด dashboard อัตโนมัติเมื่อเสร็จ |
+| `GET /api/jobs/<job_id>` | status/stage/progress ของ background job เป็น JSON สำหรับ polling |
+| `GET /dashboard/<aid>` | ผลวิเคราะห์แบบแท็บผู้บริโภค / ผู้ประกอบการ พร้อม progressive disclosure |
 | `GET /history` / `GET /saved` | ประวัติการวิเคราะห์ / รายการโปรด |
 | `POST /toggle-save/<aid>` | สลับสถานะรายการโปรด (คืน JSON) |
 | `POST /delete/<aid>` | ลบผลวิเคราะห์ (คืน JSON) |
 | `GET /api/analysis/<aid>` | คืนผลวิเคราะห์เต็มเป็น JSON |
-| `GET /settings` / `POST /settings` | ตั้งค่าเครื่องมือวิเคราะห์ + จำนวนรีวิว (ฝั่งผู้ใช้) |
+| `GET /healthz` | readiness ของ SQLite + ความจุ background queue เป็น JSON |
+| `GET /settings` / `POST /settings` | route compatibility เดิม; GET พากลับหน้า URL และ UI ใหม่ส่งค่าต่อการวิเคราะห์ |
 | `GET /export/<aid>/reviews.csv` | ส่งออกรีวิวรายรายการ (CSV, มี BOM ให้ Excel อ่านไทยถูก) |
 | `GET /export/<aid>/summary.csv` | ส่งออกสถิติสรุป (CSV) |
 | `GET /export/<aid>/labeling.json` | ส่งออกรีวิวล้วนสำหรับนำไปติด label (JSON) |
@@ -252,25 +279,36 @@ insightreview/
 เจอหน้า 500 ดิบ ๆ เมื่อ Apify/โมเดลขัดข้อง
 
 > ความปลอดภัย: Flask debug ปิดเป็นค่าเริ่มต้น (เปิดด้วย `FLASK_DEBUG=1` เฉพาะตอนพัฒนา);
-> `SECRET_KEY` อ่านจาก env ถ้ามี ไม่งั้นสุ่มต่อโปรเซส คำสั่ง SQL ใช้ parameterized query
-> และ Jinja2 escape อัตโนมัติ (กัน SQL injection / XSS) ระบบ **จงใจไม่มี login/CSRF token**
-> เพราะออกแบบให้รันเฉพาะเครื่อง/ผู้ดูแลคนเดียว — หากจะ deploy สาธารณะ ควรเพิ่ม
-> authentication, CSRF protection และ rate limiting ก่อน
+> `SECRET_KEY` อ่านจาก env ถ้ามี ไม่งั้นสุ่มต่อโปรเซส; POST ทุก route ตรวจ CSRF token;
+> session cookie เป็น `HttpOnly`/`SameSite=Lax`; มี browser security headers, จำกัด request 1 MiB,
+> ตรวจ Google Maps URL แบบแยก hostname/path, ใช้ parameterized SQL และ Jinja2 autoescape
+> ระบบไม่มีบัญชีผู้ใช้หรือผู้ดูแลตามขอบเขตของโครงงาน แต่ `/analyze` มี sliding-window
+> rate limit ต่อ IP และจำกัดจำนวนงานที่รันพร้อมกัน เพื่อป้องกันการใช้ Apify/โมเดลเกินโควตา
+> ค่าตั้งต้นคือ 10 ครั้ง/ชั่วโมง/IP, 1 worker และคิวรอ 10 งาน ปรับหรือปิด rate limit ได้จาก `.env`
+
+ก่อน deploy หลัง HTTPS ให้กำหนด `SECRET_KEY` แบบยาวและ `SESSION_COOKIE_SECURE=1`
+แล้วรัน `python serve.py`; หากต้อง scale หลาย process ควรย้าย worker queue/rate-limit
+coordination ไป Redis/Celery/RQ ก่อน เพื่อไม่ให้แต่ละ process มีคิวและโควตาแยกกัน
 
 ---
 
 ## 🧪 การทดสอบ
 
-มีชุดทดสอบ **135 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
+มีชุดทดสอบ **243 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
 
 ```bash
 python -m unittest discover -s tests          # รันทั้งหมด
 python -m unittest tests.test_extract_grammar # รันไฟล์เดียว
 ```
 
+ไฟล์ `.github/workflows/tests.yml` รันชุดเดียวกันอัตโนมัติบน Python 3.12 ทุก push และ pull request
+โดยปิด API/model ภายนอก จึงไม่ใช้ token หรือเสียโควตาระหว่าง CI
+
 ครอบคลุม: การสกัดวลี (idiom/ไวยากรณ์/คำปฏิเสธ), การกรองคุณภาพ, การทำรูปมาตรฐาน,
-การรวมคำพ้อง, การจัดหมวด 4 ชั้น, อารมณ์รายวลีตามบริบท, การรวมผล, และสโม้คเทสต์ทั้ง pipeline
-(ทดสอบโดย "ฉีด" ผลลัพธ์ที่คาดไว้ ไม่ขึ้นกับ .env)
+การรวมคำพ้อง, การจัดหมวด 4 ชั้น, อารมณ์รายวลีตามบริบท, phrase evaluation,
+CSRF/security headers, settings แบบ atomic, SQLite lifecycle, ขอบเขต Apify response,
+มุมมองผู้บริโภค/ผู้ประกอบการ และตัวกรองหลักฐานไม่ให้สร้างเมนูหรือสัญญาณลบผิด
+และสโม้คเทสต์ทั้ง pipeline (ไม่เรียก API จริงและไม่ขึ้นกับ `.env`)
 
 ---
 
@@ -296,6 +334,26 @@ python eval/label_tool.py               # ติด label ทีละรีว�
 ขั้นตอนทำวิจัยแบบครบวงจร: วิเคราะห์ร้านจริง → Export "รีวิวสำหรับติด label (JSON)"
 → `label_tool.py` ติด label จากข้อมูลจริง → `evaluate.py` วัด F1
 
+### ประเมินการสกัดวลีระดับ Span
+
+ระบบมี workflow แยกสำหรับสร้าง gold set โดยผู้ติด label 2 คน วัด agreement,
+adjudicate และประเมิน Exact/Partial span + Aspect/Sentiment/Joint F1:
+
+```bash
+python -m eval.build_phrase_queue --seed 2026
+python -m eval.phrase_label_tool --annotator annotator_a
+python -m eval.phrase_label_tool --annotator annotator_b
+python -m eval.phrase_agreement data/phrase_annotations_annotator_a.json data/phrase_annotations_annotator_b.json
+python -m eval.phrase_adjudicate data/phrase_annotations_annotator_a.json data/phrase_annotations_annotator_b.json
+python -m eval.phrase_dataset data/phrase_gold.json --split-dir data/phrase_splits
+python -m eval.phrase_evaluate data/phrase_gold.json --engine rule
+python -m eval.phrase_evaluate data/phrase_gold.json --engine llm --llm-batch-size 25
+python -m eval.phrase_error_analysis data/phrase_gold.json --engine rule
+```
+
+รายละเอียดเกณฑ์อยู่ใน `docs/PHRASE-ANNOTATION-GUIDE.md` คิวปัจจุบันสร้างจากข้อมูลในเครื่อง
+ได้ 167 รีวิวไม่ซ้ำ และถูก ignore จาก Git จนกว่าจะผ่านการตรวจสิทธิ์ข้อมูล/การ adjudicate
+
 ---
 
 ## ⚠️ ข้อจำกัด (Limitations)
@@ -305,8 +363,8 @@ python eval/label_tool.py               # ติด label ทีละรีว�
   เช่น คำสแลงใหม่ ๆ จะไม่ถูกจับ (ระบบไม่ได้เรียนรู้คำใหม่เอง); วิธีปรับปรุงคือ
   **เพิ่มคำเข้า `core/lexicon.py` ด้วยมือ**
 - ขอบเขตคำปฏิเสธมองเฉพาะคำขั้วที่ติดกัน 1 คำ
-- คุณภาพการสกัดวลี/การจัดหมวด ตรวจเชิงคุณภาพด้วยตัวอย่างจริง (ยังไม่มีชุด gold ราย phrase);
-  ส่วน **อารมณ์** มีชุดประเมินเชิงปริมาณใน `eval/`
+- มี framework ประเมินวลีเชิงปริมาณแล้ว แต่ gold set ยังต้องติด label อิสระ 2 คนและ adjudicate;
+  ห้ามใช้ตัวเลข phrase F1 จนกว่ากระบวนการนี้จะเสร็จ
 - การวิเคราะห์จริง 1 ครั้งอาจใช้เวลาหลายสิบวินาทีถึงไม่กี่นาที (รอ Apify + โมเดลบน CPU)
 
 ---
