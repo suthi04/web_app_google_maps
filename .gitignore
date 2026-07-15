@@ -9,8 +9,6 @@ venv/
 insightreview.db
 server.log
 .env
-data/settings.json
-data/phrase_label_queue.json
 data/phrase_annotations_*.json
 eval/phrase_report.json
 eval/phrase_report.txt

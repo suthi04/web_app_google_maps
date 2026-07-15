@@ -1,0 +1,5 @@
+{
+  "max_reviews": 60,
+  "use_model": true,
+  "extract_engine": "llm"
+}
