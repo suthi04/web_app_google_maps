@@ -81,6 +81,11 @@ class TestAudienceDashboard(unittest.TestCase):
         html = _get_dashboard(payload)
         self.assertIn("ร้านนี้เด่น/ด้อยเรื่องอะไร", html)
         self.assertIn('class="asp-chart"', html)
+        self.assertIn('class="asp-card"', html)
+        self.assertIn("กดอ่านรีวิว", html)
+        self.assertIn('class="asp-review-snippet evidence-trigger"', html)
+        self.assertIn('data-evidence="R001"', html)
+        self.assertIn("อ่านรีวิวเต็ม", html)
         self.assertIn("เชิงบวก 60%", html)
         self.assertIn('class="section-number">04</div>', html)
 

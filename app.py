@@ -227,8 +227,8 @@ def api_job_status(job_id):
     return jsonify(payload)
 
 
-def _aspect_examples(data: dict, per_bucket: int = 2, max_len: int = 150) -> dict:
-    """Collect short, real review examples for each aspect and sentiment."""
+def _aspect_examples(data: dict, per_bucket: int = 3, max_len: int = 220) -> dict:
+    """Collect traceable review excerpts for each aspect and sentiment."""
     examples = {}
     reviews = data.get("reviews") or []
     for aspect in (data.get("aspect_summary") or {}):
@@ -243,7 +243,12 @@ def _aspect_examples(data: dict, per_bucket: int = 2, max_len: int = 150) -> dic
                 text = str(review.get("text") or "").strip()
                 if text:
                     buckets[sentiment].append(
-                        text[:max_len] + ("…" if len(text) > max_len else "")
+                        {
+                            "review_id": review.get("review_id"),
+                            "text": text[:max_len] + ("…" if len(text) > max_len else ""),
+                            "rating": review.get("rating"),
+                            "review_date": review.get("review_date"),
+                        }
                     )
         examples[aspect] = buckets
     return examples

@@ -237,17 +237,56 @@ button{font-family:inherit}
 .consumer-section{position:relative}
 .section-number{position:absolute;right:18px;top:14px;font:600 28px/1 'IBM Plex Mono',monospace;color:var(--border-strong)}
 .aspect-summary-section{margin-bottom:16px}
-.asp-chart{display:grid;gap:12px;margin-top:4px}
-.asp-row{display:flex;align-items:center;gap:12px}
-.asp-name{width:130px;flex:none;font-size:13.5px;font-weight:600;color:var(--ink-2)}
-.asp-bar{flex:1;display:flex;height:28px;border-radius:8px;overflow:hidden;background:var(--surface-2)}
+.asp-chart{display:grid;gap:10px;margin-top:4px}
+.asp-card{border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden;
+  transition:border-color var(--t),box-shadow var(--t),transform var(--t)}
+.asp-card:hover{border-color:var(--border-strong);box-shadow:var(--sh-sm);transform:translateY(-1px)}
+.asp-card[open]{border-color:rgba(52,121,112,.32);box-shadow:0 10px 30px rgba(27,49,45,.08);transform:none}
+.asp-row{display:grid;grid-template-columns:132px minmax(220px,1fr) 46px 22px;align-items:center;gap:14px;
+  padding:14px 15px;cursor:pointer;list-style:none;transition:background var(--t)}
+.asp-row::-webkit-details-marker{display:none}
+.asp-row:hover{background:var(--surface-hover)}
+.asp-card[open] .asp-row{background:linear-gradient(90deg,var(--accent-soft),var(--surface))}
+.asp-label{display:flex;min-width:0;flex-direction:column;gap:2px}
+.asp-name{font-size:14px;font-weight:700;color:var(--ink)}
+.asp-label small{font-size:10.5px;color:var(--accent-ink)}
+.asp-bar{display:flex;height:28px;border-radius:8px;overflow:hidden;background:var(--surface-2);box-shadow:inset 0 0 0 1px rgba(30,41,38,.04)}
 .asp-bar .seg{display:flex;align-items:center;justify-content:center;padding:0;font-size:11.5px;
   font-weight:700;color:#fff;cursor:default;white-space:nowrap;overflow:hidden;transition:filter var(--t)}
 .asp-bar .seg:hover{filter:brightness(1.08)}
 .asp-bar .seg.pos{background:var(--pos)}
 .asp-bar .seg.neu{background:var(--neu)}
 .asp-bar .seg.neg{background:var(--neg)}
-.asp-total{width:34px;flex:none;text-align:right;font-size:12px;color:var(--ink-3)}
+.asp-total{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;color:var(--ink-2)}
+.asp-total strong{font-size:14px}.asp-total small{font-size:9.5px;color:var(--ink-3);margin-top:2px}
+.asp-chevron{width:20px;height:20px;color:var(--ink-3);transition:transform var(--t),color var(--t)}
+.asp-card[open] .asp-chevron{transform:rotate(180deg);color:var(--accent)}
+.asp-detail{padding:0 15px 16px;border-top:1px solid var(--border);background:linear-gradient(180deg,var(--surface-2),var(--surface))}
+.asp-detail-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:15px 1px 12px}
+.asp-detail-head>div{display:flex;flex-direction:column;gap:3px}.asp-detail-head strong{font-size:13.5px}
+.asp-detail-head span{font-size:11.5px;color:var(--ink-3)}.asp-detail-count{white-space:nowrap;padding-top:2px}
+.asp-review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.asp-review-group{min-width:0;padding:11px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.asp-review-group.positive{border-color:#cce9dd;background:linear-gradient(180deg,var(--pos-soft),var(--surface) 72px)}
+.asp-review-group.neutral{border-color:#f0dfbd;background:linear-gradient(180deg,var(--neu-soft),var(--surface) 72px)}
+.asp-review-group.negative{border-color:#f4d5dc;background:linear-gradient(180deg,var(--neg-soft),var(--surface) 72px)}
+.asp-review-group>header{display:flex;align-items:center;gap:7px;padding:1px 1px 10px;font-size:12px}
+.asp-review-group>header b:last-child{margin-left:auto;color:var(--ink-2)}
+.asp-sentiment-dot{width:8px;height:8px;border-radius:50%;background:var(--ink-4)}
+.positive .asp-sentiment-dot{background:var(--pos)}.neutral .asp-sentiment-dot{background:var(--neu)}.negative .asp-sentiment-dot{background:var(--neg)}
+.asp-review-list{display:grid;gap:7px}
+.asp-review-snippet{display:flex;min-width:0;width:100%;flex-direction:column;gap:7px;padding:10px;border:1px solid var(--border);
+  border-radius:8px;background:rgba(255,255,255,.88);font:inherit;text-align:left;color:var(--ink);cursor:pointer;
+  transition:border-color var(--t),box-shadow var(--t),transform var(--t),background var(--t)}
+.asp-review-snippet:hover{border-color:var(--accent);background:var(--surface);box-shadow:var(--sh-sm);transform:translateY(-1px)}
+.asp-review-snippet:focus-visible{outline:3px solid rgba(52,121,112,.22);outline-offset:2px}
+.asp-review-snippet:disabled{cursor:default;opacity:.7;transform:none}
+.asp-review-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10.5px;color:var(--ink-3)}
+.asp-review-meta b{color:var(--accent-ink)}.asp-review-meta span{color:var(--neu-ink)}
+.asp-review-text{display:-webkit-box;overflow:hidden;-webkit-line-clamp:4;-webkit-box-orient:vertical;
+  font-size:12px;line-height:1.55;color:var(--ink-2);overflow-wrap:anywhere}
+.asp-review-open{display:flex;justify-content:flex-end;gap:5px;font-size:10.5px;font-weight:600;color:var(--accent-ink)}
+.asp-review-empty{padding:16px 8px;text-align:center;font-size:11.5px;color:var(--ink-3)}
 .asp-legend{display:flex;align-items:center;gap:16px;margin-top:14px;padding-top:12px;
   border-top:1px dashed var(--border);font-size:12px;color:var(--ink-2);flex-wrap:wrap}
 .asp-legend .dot{width:9px;height:9px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px}
@@ -599,7 +638,11 @@ table.reviews tr:hover td{background:var(--surface-hover)}
   .model-menu summary{padding:8px}.model-menu-label{display:none}.model-menu summary::before{content:"โมเดล"}.model-menu-popover{position:fixed;right:16px;top:70px}
   .persona-switch{grid-template-columns:1fr}.persona-tab{text-align:center}
   .consumer-hero{padding:22px}.consumer-hero h2{font-size:21px}
-  .asp-row{gap:8px}.asp-name{width:88px;font-size:12px}.asp-bar{height:26px}.asp-total{width:28px}
+  .asp-row{grid-template-columns:minmax(0,1fr) auto 20px;gap:8px;padding:13px 12px}
+  .asp-label{grid-column:1}.asp-name{font-size:13px}.asp-total{grid-column:2;grid-row:1}.asp-chevron{grid-column:3;grid-row:1}
+  .asp-bar{grid-column:1 / -1;grid-row:2;height:25px;margin-top:2px}
+  .asp-detail{padding:0 11px 12px}.asp-detail-head{padding-top:13px}.asp-detail-count{display:none}
+  .asp-review-grid{grid-template-columns:1fr}.asp-review-group{padding:10px}.asp-review-text{-webkit-line-clamp:3}
   .asp-legend .asp-hint{width:100%;margin-left:0}
   .caution-list,.critical-grid{grid-template-columns:minmax(0,1fr)}
   .critical-panel .panel-head{flex-wrap:wrap;padding-right:24px}

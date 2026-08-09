@@ -150,7 +150,7 @@
     <div class="section-number">03</div>
     <div class="panel-head"><div>
       <h3>ร้านนี้เด่น/ด้อยเรื่องอะไร</h3>
-      <div class="sub-h">เปรียบเทียบเสียงบวก กลาง และลบในแต่ละด้าน — ชี้ที่แถบเพื่อดูตัวอย่างรีวิวจริง</div>
+      <div class="sub-h">เปรียบเทียบเสียงบวก กลาง และลบในแต่ละด้าน — กดแต่ละหัวข้อเพื่ออ่านรีวิวจริง</div>
     </div></div>
     <div class="asp-chart">
       {% for key, summary in a.aspect_summary.items() %}
@@ -159,15 +159,49 @@
       {% set neutral_pct = (summary.neutral / summary.total * 100) | round | int %}
       {% set negative_pct = 100 - positive_pct - neutral_pct %}
       {% set examples = aspect_examples.get(key, {}) %}
-      <div class="asp-row">
-        <div class="asp-name">{{ ASPECT_TH.get(key, key) }}</div>
-        <div class="asp-bar" aria-label="{{ ASPECT_TH.get(key, key) }}: บวก {{ positive_pct }}% กลาง {{ neutral_pct }}% ลบ {{ negative_pct }}%">
-          {% if positive_pct > 0 %}<div class="seg pos" style="width:{{ positive_pct }}%" title="เชิงบวก {{ positive_pct }}%{% if examples.get('positive') %} — เช่น: {{ examples.positive | join('  |  ') }}{% endif %}">{% if positive_pct >= 12 %}{{ positive_pct }}%{% endif %}</div>{% endif %}
-          {% if neutral_pct > 0 %}<div class="seg neu" style="width:{{ neutral_pct }}%" title="กลาง {{ neutral_pct }}%{% if examples.get('neutral') %} — เช่น: {{ examples.neutral | join('  |  ') }}{% endif %}">{% if neutral_pct >= 12 %}{{ neutral_pct }}%{% endif %}</div>{% endif %}
-          {% if negative_pct > 0 %}<div class="seg neg" style="width:{{ negative_pct }}%" title="เชิงลบ {{ negative_pct }}%{% if examples.get('negative') %} — เช่น: {{ examples.negative | join('  |  ') }}{% endif %}">{% if negative_pct >= 12 %}{{ negative_pct }}%{% endif %}</div>{% endif %}
+      <details class="asp-card">
+        <summary class="asp-row">
+          <span class="asp-label">
+            <strong class="asp-name">{{ ASPECT_TH.get(key, key) }}</strong>
+            <small>กดอ่านรีวิว</small>
+          </span>
+          <span class="asp-bar" aria-label="{{ ASPECT_TH.get(key, key) }}: บวก {{ positive_pct }}% กลาง {{ neutral_pct }}% ลบ {{ negative_pct }}%">
+            {% if positive_pct > 0 %}<span class="seg pos" style="width:{{ positive_pct }}%" title="เชิงบวก {{ positive_pct }}%">{% if positive_pct >= 12 %}{{ positive_pct }}%{% endif %}</span>{% endif %}
+            {% if neutral_pct > 0 %}<span class="seg neu" style="width:{{ neutral_pct }}%" title="กลาง {{ neutral_pct }}%">{% if neutral_pct >= 12 %}{{ neutral_pct }}%{% endif %}</span>{% endif %}
+            {% if negative_pct > 0 %}<span class="seg neg" style="width:{{ negative_pct }}%" title="เชิงลบ {{ negative_pct }}%">{% if negative_pct >= 12 %}{{ negative_pct }}%{% endif %}</span>{% endif %}
+          </span>
+          <span class="asp-total" title="ถูกพูดถึง {{ summary.total }} ครั้ง"><strong class="mono">{{ summary.total }}</strong><small>ครั้ง</small></span>
+          <svg class="asp-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m8 10 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </summary>
+        <div class="asp-detail">
+          <div class="asp-detail-head">
+            <div><strong>เสียงลูกค้าด้าน{{ ASPECT_TH.get(key, key) }}</strong><span>ตัวอย่างจากรีวิวจริง กดรายการเพื่ออ่านฉบับเต็ม</span></div>
+            <span class="asp-detail-count"><b class="mono">{{ summary.total }}</b> ครั้งที่กล่าวถึง</span>
+          </div>
+          <div class="asp-review-grid">
+            {% for sentiment, label in [('positive','เสียงบวก'),('neutral','เสียงกลาง'),('negative','เสียงลบ')] %}
+            {% set reviews = examples.get(sentiment, []) %}
+            <section class="asp-review-group {{ sentiment }}">
+              <header><span class="asp-sentiment-dot"></span><strong>{{ label }}</strong><b class="mono">{{ summary.get(sentiment, 0) }}</b></header>
+              {% if reviews %}
+              <div class="asp-review-list">
+                {% for review in reviews %}
+                <button class="asp-review-snippet evidence-trigger" type="button"
+                        data-evidence="{{ review.review_id or '' }}"
+                        data-evidence-query="รีวิวด้าน{{ ASPECT_TH.get(key, key) }}"
+                        {% if not review.review_id %}disabled{% endif %}>
+                  <span class="asp-review-meta"><b class="mono">{{ review.review_id or '—' }}</b>{% if review.rating %}<span>★ {{ review.rating }}</span>{% endif %}</span>
+                  <span class="asp-review-text">{{ review.text }}</span>
+                  <span class="asp-review-open">อ่านรีวิวเต็ม <b aria-hidden="true">→</b></span>
+                </button>
+                {% endfor %}
+              </div>
+              {% else %}<p class="asp-review-empty">ยังไม่มีตัวอย่างรีวิวในกลุ่มนี้</p>{% endif %}
+            </section>
+            {% endfor %}
+          </div>
         </div>
-        <div class="asp-total mono" title="ถูกพูดถึง {{ summary.total }} ครั้ง">{{ summary.total }}</div>
-      </div>
+      </details>
       {% endif %}
       {% endfor %}
     </div>
