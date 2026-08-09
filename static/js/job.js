@@ -2,6 +2,12 @@
   const card = document.getElementById("jobCard");
   if (!card) return;
 
+  window.AnalysisJobTracker?.register({
+    id: card.dataset.jobId,
+    apiUrl: card.dataset.apiUrl,
+    statusUrl: card.dataset.statusUrl,
+  });
+
   const title = document.getElementById("jobTitle");
   const message = document.getElementById("jobMessage");
   const spinner = document.getElementById("jobSpinner");
@@ -50,6 +56,7 @@
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const job = await response.json();
+      window.AnalysisJobTracker?.update(job);
       consecutiveErrors = 0;
       const progressValue = Math.max(0, Math.min(100, Number(job.progress) || 0));
       if (progress) progress.value = progressValue;

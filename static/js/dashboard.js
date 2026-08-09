@@ -14,6 +14,7 @@
       const selected = tab.dataset.persona === persona;
       tab.classList.toggle("active", selected);
       tab.setAttribute("aria-selected", selected ? "true" : "false");
+      tab.tabIndex = selected ? 0 : -1;
     });
     Object.entries(personaViews).forEach(([name, view]) => {
       view.hidden = name !== persona;
@@ -23,11 +24,16 @@
   personaTabs.forEach((tab) => {
     tab.addEventListener("click", () => setPersona(tab.dataset.persona));
     tab.addEventListener("keydown", (event) => {
-      if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
       event.preventDefault();
       const current = personaTabs.indexOf(tab);
-      const delta = event.key === 'ArrowRight' ? 1 : -1;
-      const next = personaTabs[(current + delta + personaTabs.length) % personaTabs.length];
+      let next;
+      if (event.key === 'Home') next = personaTabs[0];
+      else if (event.key === 'End') next = personaTabs[personaTabs.length - 1];
+      else {
+        const delta = event.key === 'ArrowRight' ? 1 : -1;
+        next = personaTabs[(current + delta + personaTabs.length) % personaTabs.length];
+      }
       next.focus();
       next.click();
     });

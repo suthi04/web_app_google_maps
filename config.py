@@ -37,6 +37,12 @@ def _load_dotenv():
 
 _load_dotenv()
 
+# SQLite อยู่ในโฟลเดอร์โปรเจกต์ตอนพัฒนา และย้ายไป persistent disk ได้ตอน
+# deploy ด้วย DATABASE_PATH โดยไม่ผูกโค้ดกับผู้ให้บริการรายใดรายหนึ่ง
+DATABASE_PATH = os.path.abspath(os.path.expanduser(
+    os.environ.get("DATABASE_PATH", os.path.join(BASE_DIR, "insightreview.db"))
+))
+
 
 def _env_int(name: str, default: int, minimum: int, maximum: int) -> int:
     """Read a bounded integer environment variable without breaking startup."""

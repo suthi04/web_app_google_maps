@@ -17,7 +17,9 @@
 {% block content %}
 <div class="job-wrap">
   <div class="panel job-card" id="jobCard"
-       data-api-url="{{ url_for('api_job_status', job_id=job.id) }}">
+       data-job-id="{{ job.id }}"
+       data-api-url="{{ url_for('api_job_status', job_id=job.id) }}"
+       data-status-url="{{ url_for('job_status', job_id=job.id) }}">
     <div class="job-spinner {{ 'failed' if job.status == 'failed' }}" id="jobSpinner" aria-hidden="true"></div>
     <div class="eyebrow-label">กำลังประมวลผลเบื้องหลัง</div>
     <h1 id="jobTitle">

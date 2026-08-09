@@ -58,6 +58,12 @@ class TestDatabaseLifecycle(unittest.TestCase):
     def test_healthcheck_queries_database(self):
         self.assertTrue(database.healthcheck())
 
+    def test_connection_creates_parent_directory_for_persistent_volume(self):
+        nested_path = os.path.join(self.temp_dir.name, "volume", "app.db")
+        with mock.patch.object(database, "_DB_PATH", nested_path):
+            database.init_db()
+            self.assertTrue(os.path.isfile(nested_path))
+
     def test_job_lifecycle(self):
         job_id = database.create_job("https://maps.google.com/maps")
         queued = database.get_job(job_id)

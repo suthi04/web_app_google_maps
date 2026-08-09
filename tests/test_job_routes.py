@@ -20,6 +20,8 @@ class TestJobRoutes(unittest.TestCase):
             response = self.client.get("/jobs/abc123")
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"/api/jobs/abc123", response.data)
+        self.assertIn(b'data-job-id="abc123"', response.data)
+        self.assertIn(b'data-status-url="/jobs/abc123"', response.data)
         self.assertIn(b"js/job.js", response.data)
 
     def test_completed_job_page_redirects_to_dashboard(self):

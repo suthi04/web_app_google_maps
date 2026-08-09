@@ -15,6 +15,31 @@
   </div>
 </div>
 
+{% if page == 'history' %}
+<section class="history-active-job" id="historyActiveJob" aria-live="polite" hidden>
+  <span class="history-job-icon" aria-hidden="true">
+    <span class="history-job-spinner"></span>
+    <svg class="history-job-check" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 12 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg class="history-job-error" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7l10 10M17 7 7 17" stroke-linecap="round"/></svg>
+  </span>
+  <div class="history-job-content">
+    <div class="history-job-heading">
+      <span id="historyJobEyebrow">กำลังประมวลผล</span>
+      <strong id="historyJobTitle">งานวิเคราะห์ล่าสุด</strong>
+    </div>
+    <div class="history-job-progress-row">
+      <progress id="historyJobProgress" max="100" value="0">0%</progress>
+      <span class="mono" id="historyJobPercent">0%</span>
+    </div>
+    <small id="historyJobStage">กำลังเตรียมงาน</small>
+  </div>
+  <a class="btn btn-ghost history-job-link" id="historyJobLink" href="#">
+    <span>ดูสถานะ</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+</section>
+{% endif %}
+
 {% if items %}
 <div class="hist-toolbar">
   <label class="search-sm">
@@ -80,7 +105,7 @@
 
 {% else %}
 <!-- empty state เมื่อยังไม่มีข้อมูลเลย -->
-<div class="empty-state">
+<div class="empty-state" id="historyEmptyState">
   <div class="ill">
     {% if page=='saved' %}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 4h12v16l-6-4-6 4V4z" stroke-linecap="round" stroke-linejoin="round"/></svg>

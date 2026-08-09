@@ -92,6 +92,20 @@ revision `finetuned@wisesight_sentiment` (4 คลาส — โค้ดแม�
 
 ดูค่าทั้งหมดได้ที่ `.env.example`
 
+### Deploy ด้วย Docker บน Render
+
+โปรเจกต์มี `Dockerfile` และ `render.yaml` สำหรับสร้าง Web Service แบบ 1 instance
+ใน region สิงคโปร์ พร้อม health check ที่ `/healthz` และ persistent disk สำหรับ SQLite
+
+ค่าที่ต้องใส่ในหน้า Render ระหว่างสร้าง Blueprint คือ `APIFY_TOKEN` และ
+`GEMINI_API_KEY` ส่วน `SECRET_KEY` ให้ Render สร้างค่าสุ่มที่ปลอดภัยอัตโนมัติ
+ฐานข้อมูล production จะอยู่ที่ `/var/data/insightreview.db` ผ่านตัวแปร
+`DATABASE_PATH` เพื่อให้ประวัติและรายการโปรดไม่หายเมื่อ deploy รุ่นใหม่
+
+การตั้งค่านี้ตั้งใจให้รันเพียง 1 instance เพราะ SQLite, rate limit และคิวงานวิเคราะห์
+ยังอยู่ในโปรเซสเดียว หากต้องการ scale หลาย instance ต้องย้ายฐานข้อมูลและคิวงานออกไป
+เป็นบริการกลางก่อน
+
 ---
 
 ## 🔬 วิธีการสกัดวลีความเห็น (Methodology — Review Insight)
