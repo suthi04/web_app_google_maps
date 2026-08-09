@@ -15,10 +15,12 @@ class TestHomeRoute(unittest.TestCase):
 
         self.assertIn('class="landing-copy"', html)
         self.assertIn('class="composer-topline"', html)
-        self.assertEqual(html.count('<label class="landing-option'), 3)
+        self.assertEqual(html.count('<details class="landing-picker'), 3)
         self.assertIn('class="landing-benefits"', html)
         self.assertIn('class="btn btn-primary btn-pill analyze-btn"', html)
         self.assertEqual(html.count("data-select-display"), 3)
+        self.assertIn('class="landing-picker-menu"', html)
+        self.assertIn('class="landing-picker-choice"', html)
         self.assertIn("วิเคราะห์อารมณ์", html)
         self.assertIn("สกัดประเด็น", html)
         self.assertIn("ตรวจสอบจากรีวิวจริง", html)

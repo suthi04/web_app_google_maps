@@ -114,10 +114,10 @@ function wireAnalysisPreferences() {
           : field.value;
         if (current) saved[name] = current;
         try { localStorage.setItem(ANALYSIS_PREFS_KEY, JSON.stringify(saved)); } catch (_) {}
-        syncLandingSelect(field);
+        syncLandingPicker(field);
         syncModelMenuLabel(form);
       }));
-      fields.forEach(syncLandingSelect);
+      fields.forEach(syncLandingPicker);
     });
     syncModelMenuLabel(form);
   });
@@ -133,13 +133,30 @@ function wireAnalysisPreferences() {
       }
     });
   });
+
+  document.querySelectorAll(".landing-picker").forEach((picker) => {
+    document.addEventListener("click", (event) => {
+      if (!picker.contains(event.target)) picker.open = false;
+    });
+    picker.querySelectorAll("input").forEach((input) => input.addEventListener("change", () => {
+      picker.open = false;
+    }));
+    picker.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        picker.open = false;
+        picker.querySelector("summary")?.focus();
+      }
+    });
+  });
 }
 
-function syncLandingSelect(field) {
-  if (field?.tagName !== "SELECT") return;
-  const display = field.closest(".landing-option")?.querySelector("[data-select-display]");
-  const selected = field.options[field.selectedIndex];
-  if (display && selected) display.textContent = selected.textContent;
+function syncLandingPicker(field) {
+  const picker = field?.closest(".landing-picker");
+  if (!picker) return;
+  const display = picker.querySelector("[data-select-display]");
+  const selected = picker.querySelector(`input[name="${field.name}"]:checked`);
+  const label = selected?.closest(".landing-picker-choice")?.querySelector("span");
+  if (display && label) display.textContent = label.textContent;
 }
 
 function syncModelMenuLabel(form) {
