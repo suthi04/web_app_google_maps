@@ -145,8 +145,43 @@
     {{ evidence_button(consumer.lazy_summary.evidence_review_ids, '', 'ตรวจสอบจาก') }}
   </section>
 
-  <section class="panel consumer-section caution-section">
+  {% if (a.aspect_summary.values() | selectattr('total') | list) %}
+  <section class="panel consumer-section aspect-summary-section">
     <div class="section-number">03</div>
+    <div class="panel-head"><div>
+      <h3>ร้านนี้เด่น/ด้อยเรื่องอะไร</h3>
+      <div class="sub-h">เปรียบเทียบเสียงบวก กลาง และลบในแต่ละด้าน — ชี้ที่แถบเพื่อดูตัวอย่างรีวิวจริง</div>
+    </div></div>
+    <div class="asp-chart">
+      {% for key, summary in a.aspect_summary.items() %}
+      {% if summary.total %}
+      {% set positive_pct = (summary.positive / summary.total * 100) | round | int %}
+      {% set neutral_pct = (summary.neutral / summary.total * 100) | round | int %}
+      {% set negative_pct = 100 - positive_pct - neutral_pct %}
+      {% set examples = aspect_examples.get(key, {}) %}
+      <div class="asp-row">
+        <div class="asp-name">{{ ASPECT_TH.get(key, key) }}</div>
+        <div class="asp-bar" aria-label="{{ ASPECT_TH.get(key, key) }}: บวก {{ positive_pct }}% กลาง {{ neutral_pct }}% ลบ {{ negative_pct }}%">
+          {% if positive_pct > 0 %}<div class="seg pos" style="width:{{ positive_pct }}%" title="เชิงบวก {{ positive_pct }}%{% if examples.get('positive') %} — เช่น: {{ examples.positive | join('  |  ') }}{% endif %}">{% if positive_pct >= 12 %}{{ positive_pct }}%{% endif %}</div>{% endif %}
+          {% if neutral_pct > 0 %}<div class="seg neu" style="width:{{ neutral_pct }}%" title="กลาง {{ neutral_pct }}%{% if examples.get('neutral') %} — เช่น: {{ examples.neutral | join('  |  ') }}{% endif %}">{% if neutral_pct >= 12 %}{{ neutral_pct }}%{% endif %}</div>{% endif %}
+          {% if negative_pct > 0 %}<div class="seg neg" style="width:{{ negative_pct }}%" title="เชิงลบ {{ negative_pct }}%{% if examples.get('negative') %} — เช่น: {{ examples.negative | join('  |  ') }}{% endif %}">{% if negative_pct >= 12 %}{{ negative_pct }}%{% endif %}</div>{% endif %}
+        </div>
+        <div class="asp-total mono" title="ถูกพูดถึง {{ summary.total }} ครั้ง">{{ summary.total }}</div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    <div class="asp-legend">
+      <span><span class="dot positive"></span>บวก</span>
+      <span><span class="dot neutral"></span>กลาง</span>
+      <span><span class="dot negative"></span>ลบ</span>
+      <span class="asp-hint">ตัวเลขขวาสุด = จำนวนครั้งที่ด้านนั้นถูกพูดถึง</span>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="panel consumer-section caution-section">
+    <div class="section-number">04</div>
     <div class="panel-head"><div><h3>ข้อควรระวัง</h3><div class="sub-h">ไม่ได้แปลว่าจะเกิดกับทุกคน แต่เป็นสัญญาณลบที่พบในรีวิวจริง</div></div></div>
     {% if consumer.cautions %}
     <div class="caution-list">

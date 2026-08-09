@@ -73,6 +73,17 @@ class TestAudienceDashboard(unittest.TestCase):
         self.assertIn("รีวิวทั้งหมด", html)
         self.assertIn("R001", html)
 
+    def test_renders_aspect_strengths_and_weaknesses_in_original_dashboard(self):
+        payload = _payload()
+        payload["aspect_summary"] = {
+            "food": {"positive": 6, "neutral": 1, "negative": 3, "total": 10}
+        }
+        html = _get_dashboard(payload)
+        self.assertIn("ร้านนี้เด่น/ด้อยเรื่องอะไร", html)
+        self.assertIn('class="asp-chart"', html)
+        self.assertIn("เชิงบวก 60%", html)
+        self.assertIn('class="section-number">04</div>', html)
+
     def test_operator_watchlist_closes_the_report(self):
         html = _get_dashboard(_payload())
         self.assertLess(
