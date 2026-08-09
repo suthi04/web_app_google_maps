@@ -11,21 +11,20 @@ def _ph(concept, label, aspect, sentiment):
 
 class TestAggregate(unittest.TestCase):
     def test_shape_and_counts(self):
-        # aggregate uses dashboard contract keys (food/service/ambience/value/parking);
+        # aggregate uses dashboard contract keys (food/service/ambience);
         # pipeline maps "atmosphere" -> "ambience" before this stage.
         phrases = [
             _ph("อาหารอร่อย", "อาหารอร่อย", "food", "positive"),
             _ph("อาหารอร่อย", "อาหารอร่อย", "food", "positive"),
-            _ph("price_good", "ราคาคุ้มค่า", "value", "positive"),
+            _ph("price_good", "ราคาคุ้มค่า", "food", "positive"),
             _ph("รอนาน", "รอนาน", "service", "negative"),
         ]
         out = aggregate.build(phrases)
-        self.assertEqual(set(out), {"food", "service", "ambience", "value", "parking"})
+        self.assertEqual(set(out), {"food", "service", "ambience"})
         self.assertEqual(set(out["food"]), {"positive", "neutral", "negative"})
         food_pos = {d["word"]: d["count"] for d in out["food"]["positive"]}
         self.assertEqual(food_pos["อาหารอร่อย"], 2)
-        value_pos = {d["word"]: d["count"] for d in out["value"]["positive"]}
-        self.assertEqual(value_pos["ราคาคุ้มค่า"], 1)
+        self.assertEqual(food_pos["ราคาคุ้มค่า"], 1)
 
     def test_same_concept_splits_across_sentiment(self):
         phrases = [
@@ -62,6 +61,20 @@ class TestAggregate(unittest.TestCase):
         self.assertEqual(neg[0]["count"], 3)
         # label = most frequent display ("รอนาน" appears 2x vs "รออาหารนาน" 1x)
         self.assertEqual(neg[0]["word"], "รอนาน")
+
+    def test_evidence_counts_unique_reviews_not_occurrences(self):
+        phrases = [
+            self._mk("food", "positive", "ราคาไม่แพง", "ราคาไม่แพง"),
+            self._mk("food", "positive", "ราคาไม่แพง", "ราคาไม่แพง"),
+            self._mk("food", "positive", "ราคาไม่แพง", "ราคาดี"),
+        ]
+        phrases[0].review_index = 0
+        phrases[1].review_index = 0
+        phrases[2].review_index = 4
+        item = aggregate.build(phrases)["food"]["positive"][0]
+        self.assertEqual(item["count"], 3)
+        self.assertEqual(item["review_count"], 2)
+        self.assertEqual(item["evidence_review_ids"], ["R001", "R005"])
 
 
 if __name__ == "__main__":

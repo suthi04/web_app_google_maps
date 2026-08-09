@@ -32,6 +32,22 @@ class TestLLMExtract(unittest.TestCase):
         neg = contract["service"]["negative"]
         self.assertEqual(neg[0]["word"], "รอนาน")
         self.assertEqual(neg[0]["count"], 2)   # merged across the two reviews
+        self.assertEqual(neg[0]["review_count"], 2)
+        self.assertEqual(neg[0]["evidence_review_ids"], ["R001", "R002"])
+
+    def test_payload_occurrences_preserve_valid_review_index(self):
+        payload = {"reviews": [
+            {"index": 3, "phrases": [
+                {"phrase": "บริการช้า", "aspect": "service", "sentiment": "negative"}
+            ]},
+            {"index": -1, "phrases": [
+                {"phrase": "ต้องข้าม", "aspect": "food", "sentiment": "positive"}
+            ]},
+        ]}
+        self.assertEqual(llm_extract.payload_occurrences(payload), [{
+            "index": 3, "text": "บริการช้า",
+            "aspect": "service", "sentiment": "negative",
+        }])
 
     def test_long_sentences_are_dropped(self):
         """Gemini sometimes leaks a whole sentence instead of a concise phrase —

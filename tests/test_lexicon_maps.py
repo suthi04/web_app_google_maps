@@ -5,14 +5,13 @@ from core import lexicon
 
 class TestLexiconMaps(unittest.TestCase):
     def test_noun_to_aspect(self):
-        self.assertEqual(lexicon.NOUN_TO_ASPECT["ราคา"], "value")   # ราคา -> หมวดความคุ้มค่า
+        self.assertEqual(lexicon.NOUN_TO_ASPECT["ราคา"], "food")   # Price-into-Food
         self.assertEqual(lexicon.NOUN_TO_ASPECT["พนักงาน"], "service")
         self.assertEqual(lexicon.NOUN_TO_ASPECT["บรรยากาศ"], "atmosphere")
 
     def test_aspect_head_noun(self):
         self.assertEqual(lexicon.ASPECT_HEAD_NOUN["food"], "อาหาร")
-        self.assertEqual(set(lexicon.ASPECT_HEAD_NOUN),
-                         {"food", "service", "atmosphere", "value", "parking"})
+        self.assertEqual(set(lexicon.ASPECT_HEAD_NOUN), {"food", "service", "atmosphere"})
 
     def test_idioms(self):
         self.assertEqual(lexicon.IDIOMS["ติดริมน้ำ"]["aspect"], "atmosphere")
@@ -30,7 +29,7 @@ class TestLexiconMaps(unittest.TestCase):
     def test_synonym_groups_and_reverse(self):
         self.assertIn("ราคาไม่แพง", lexicon.SYNONYM_GROUPS["price_good"]["members"])
         key, label, aspect = lexicon.MEMBER_TO_CONCEPT["คุ้มค่า"]
-        self.assertEqual((key, aspect), ("price_good", "value"))
+        self.assertEqual((key, aspect), ("price_good", "food"))
         self.assertNotEqual(
             lexicon.MEMBER_TO_CONCEPT["ราคาแพง"][0],
             lexicon.MEMBER_TO_CONCEPT["ราคาไม่แพง"][0],

@@ -11,6 +11,8 @@ sentiment.py
 
 ใช้แบบ singleton: โมเดลถูกโหลดครั้งเดียวตอนเรียกครั้งแรก (lazy load)
 """
+import logging
+
 import config
 from core.lexicon import SENTIMENT_WORDS
 from core.negation import starts_with_negator, word_polarity
@@ -29,6 +31,7 @@ _WISESIGHT_MAP = {
 _model_pipe = None    # cache โมเดล
 _model_status = None  # None=ยังไม่ลอง, "ok"=โหลดได้, "failed"=โหลดไม่สำเร็จ
 _unknown_label_warned = False  # เตือนเรื่อง label ที่แมปไม่ได้ครั้งเดียวพอ
+log = logging.getLogger(__name__)
 
 
 def _load_model():
@@ -47,19 +50,30 @@ def _load_model():
     return _model_pipe
 
 
-def _predict_model(clean_text: str) -> str:
+def _label_from_output(output: dict) -> str:
+    """แปลงผลจาก Hugging Face pipeline เป็น contract 3 คลาสของระบบ"""
     global _unknown_label_warned
-    pipe = _load_model()
-    out = pipe(clean_text[:512])          # ตัดความยาวกัน token เกิน
-    raw = out[0]["label"].lower()
+    raw_label = str(output.get("label", ""))
+    raw = raw_label.lower()
     if raw not in _WISESIGHT_MAP and not _unknown_label_warned:
         # กันบั๊กเงียบ: ถ้า checkpoint คืน label แบบ LABEL_0/1/2 (ไม่มี id2label)
         # ทุกอย่างจะถูกแมปเป็น neutral โดยไม่มี error -> ผล F1 เพี้ยนทั้งชุด
         _unknown_label_warned = True
-        print(f"[sentiment] ⚠️  โมเดลคืน label ที่ไม่รู้จัก: {out[0]['label']!r} "
-              f"-> แมปเป็น neutral. ตรวจ id2label ของ checkpoint "
-              f"({config.MODEL_NAME}@{config.MODEL_REVISION})")
+        log.warning(
+            "Unknown sentiment label %r; mapping to neutral. Check %s@%s id2label",
+            raw_label,
+            config.MODEL_NAME,
+            config.MODEL_REVISION,
+        )
     return _WISESIGHT_MAP.get(raw, "neutral")
+
+
+def _predict_model(clean_text: str) -> str:
+    pipe = _load_model()
+    # ให้ tokenizer เป็นผู้ตัดตามจำนวน token จริง; การ slice 512 ตัวอักษรไม่รับประกัน
+    # ว่าจะไม่เกิน model context โดยเฉพาะข้อความภาษาไทย
+    out = pipe(clean_text, truncation=True, max_length=512)
+    return _label_from_output(out[0])
 
 
 def _predict_lexicon(tokens: list) -> str:
@@ -83,24 +97,24 @@ def _predict_lexicon(tokens: list) -> str:
     return "neutral"
 
 
-def predict(review: dict) -> str:
+def predict(review: dict, use_model: bool | None = None) -> str:
     """
     จำแนกอารมณ์รีวิว 1 รายการ
     review ต้องมี key: clean, tokens (จาก preprocess)
     """
     global _model_status
-    if config.get_use_model():
+    model_enabled = config.get_use_model() if use_model is None else use_model
+    if model_enabled and _model_status != "failed":
         try:
             return _predict_model(review["clean"])
         except Exception as e:        # ถ้าโมเดลโหลด/ทำงานไม่ได้ -> fallback กันระบบล่ม
             if _model_status != "failed":
                 _model_status = "failed"
-                print(f"[sentiment] โหลด WangchanBERTa ไม่สำเร็จ ใช้ lexicon แทน: {e}")
-                print("[sentiment] แก้: pip install -r requirements-model.txt")
+                log.warning("WangchanBERTa unavailable; using lexicon: %s", e)
     return _predict_lexicon(review["tokens"])
 
 
-def analyze_all(reviews: list) -> list:
+def analyze_all(reviews: list, use_model: bool | None = None) -> list:
     """
     ใส่ key 'sentiment' ให้รีวิวทุกรายการ (ระดับรีวิว — ใช้กับ donut/ตาราง)
     และให้ทุกอนุประโยค (ระดับ clause — ใช้กับสรุปอารมณ์ราย aspect ที่แม่นขึ้น)
@@ -108,23 +122,51 @@ def analyze_all(reviews: list) -> list:
     ออกแบบให้ระดับรีวิวยังทำงานเหมือนเดิม (อารมณ์รวมของทั้งรีวิว) เพื่อไม่ให้
     ภาพรวม/การกระจายอารมณ์เปลี่ยนพฤติกรรม ส่วนการแยกราย aspect ใช้อารมณ์ราย clause
     """
+    global _model_status
+    model_enabled = config.get_use_model() if use_model is None else use_model
+    targets = []
     for r in reviews:
-        r["sentiment"] = predict(r)
-        for c in r.get("clauses", []):
-            c["sentiment"] = predict(c)
+        targets.append(r)
+        targets.extend(r.get("clauses", []))
+
+    # ส่งทั้งรีวิวและ clause ใน batch เดียว ลด Python/model overhead อย่างมาก
+    # และทำให้ failure เกิดครั้งเดียวแทนการลองโหลดโมเดลซ้ำทุกข้อความ
+    if model_enabled and _model_status != "failed" and targets:
+        try:
+            pipe = _load_model()
+            outputs = pipe(
+                [item["clean"] for item in targets],
+                truncation=True,
+                max_length=512,
+                batch_size=16,
+            )
+            if len(outputs) != len(targets):
+                raise RuntimeError(
+                    f"โมเดลคืนผล {len(outputs)} รายการ แต่ส่งไป {len(targets)} รายการ"
+                )
+            for item, output in zip(targets, outputs):
+                item["sentiment"] = _label_from_output(output)
+            return reviews
+        except Exception as e:
+            _model_status = "failed"
+            log.warning("WangchanBERTa batch failed; using lexicon: %s", e)
+
+    for item in targets:
+        item["sentiment"] = _predict_lexicon(item["tokens"])
     return reviews
 
 
-def engine_name() -> str:
+def engine_name(use_model: bool | None = None) -> str:
     """บอกว่าตอนนี้ใช้เครื่องยนต์ไหนจริง ๆ (รายงานตามสถานะจริง ไม่หลอก)"""
-    if not config.get_use_model():
+    model_enabled = config.get_use_model() if use_model is None else use_model
+    if not model_enabled:
         return "lexicon (พจนานุกรมคำ)"
     if _model_status == "failed":
         return "lexicon (WangchanBERTa โหลดไม่สำเร็จ)"
     return "WangchanBERTa"
 
 
-def classify_phrase(phrase) -> str:
+def classify_phrase(phrase, use_model: bool | None = None) -> str:
     """Stage 6 — sentiment for one phrase occurrence, independent of extraction.
 
     A phrase with a CLEAR polarity of its own (negation-aware) keeps that polarity —
@@ -150,11 +192,12 @@ def classify_phrase(phrase) -> str:
         return cached
 
     # 2b) no cached clause sentiment (e.g. clause-less phrase) -> compute now
-    if config.get_use_model():
+    model_enabled = config.get_use_model() if use_model is None else use_model
+    if model_enabled and _model_status != "failed":
         try:
             return _predict_model(clause.get("clean", phrase.surface))
         except Exception as e:
             if _model_status != "failed":
                 _model_status = "failed"
-                print(f"[sentiment] WangchanBERTa unavailable, using lexicon: {e}")
+                log.warning("WangchanBERTa unavailable; using lexicon: %s", e)
     return _predict_lexicon(clause.get("tokens") or phrase.descriptor_tokens)
