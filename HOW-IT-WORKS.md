@@ -47,7 +47,8 @@ core/                  ← ตรรกะการวิเคราะห์�
     aggregate.py       ←   stage 7: นับความถี่ → คำสำคัญ top 6 ต่อหมวด/อารมณ์
     llm_extract.py     ←   ทางเลือก: ใช้ Gemini สกัดวลีแทน rule-based
   insights.py          ← ขั้น 5b: สร้างข้อสรุป rule-based ต่อ aspect
-  narrative.py         ← ขั้น 5c: เรียบเรียงเนื้อหา 2 แท็บ (Gemini + fallback)
+  practical_rules.py   ← ขั้น 5c: เรื่องที่ควรรู้ก่อนไปจากกฎ + รีวิวอ้างอิง
+  narrative.py         ← ขั้น 5d: เรียบเรียงเนื้อหา 2 แท็บ (Gemini + fallback)
   pipeline.py          ← ★ ร้อยทุกขั้นเข้าด้วยกัน = run_analysis()
   export.py            ← ทำไฟล์ CSV/JSON ส่งออก (งานวิจัย)
 
@@ -176,9 +177,13 @@ URL
  ├─(5b) insights.generate_insights(summary, keywords) → ข้อสรุป rule-based ต่อหมวด
  │        เกณฑ์: บวก≥65%=จุดแข็ง / ลบ≥30%=ควรปรับปรุง / ต้องมี≥5 รีวิวถึงสรุป
  │
- ├─(5c) narrative.build({...}) → เนื้อหา 2 แท็บ (Gemini เรียบเรียง / rule-based)
+ ├─(5c) practical_rules.enrich_result({...}) → ข้อมูลวางแผนก่อนไปที่ตรวจสอบได้
+ │        จัดกลุ่มคิว/ที่จอด/ราคา/การเดินทาง/ข้อจำกัด พร้อม review_id อ้างอิง
+ │
+ ├─(5d) narrative.build({...}) → เนื้อหา 2 แท็บ (Gemini เรียบเรียง / rule-based)
  │        consumer: tl_dr, top_mentions, things_to_know, warnings
  │        entrepreneur: critical_points, actionable_insights (What/Why/How)
+ │        โดย things_to_know ถูก sync จาก practical_rules เสมอ ไม่ให้ AI แต่งใหม่
  │
  └─(6) ประกอบผลลัพธ์เป็น dict เดียว (ดูข้อ 5) → คืนให้ analyze() เก็บ DB
 ```
@@ -212,11 +217,15 @@ URL
     "consumer": { "tl_dr", "top_mentions", "things_to_know", "warnings" },
     "entrepreneur": { "critical_points", "actionable_insights" }
   },
+  "practical_insights": [       // ข้อมูลก่อนไปจากกฎ พร้อมหลักฐาน
+    {"topic", "title", "advice", "status", "evidence_review_ids"}
+  ],
+  "practical_insights_meta": {"topic_count", "evidence_review_count"},
   "distribution": { "counts": {...}, "total": 30, "pct": {...} },  // %รวม 100 เป๊ะ
   "aspect_summary": { "food": {...}, "service": {...}, "ambience": {...} },
   "keywords": { "food": {"positive":[{word,count}], ...}, ... },
   "insights": [ {aspect, level, message, ...} ],   // ข้อสรุป rule-based
-  "reviews": [ {text, rating, review_date, sentiment, aspects} ]
+  "reviews": [ {review_id, text, rating, review_date, sentiment, aspects} ]
 }
 ```
 
@@ -241,8 +250,10 @@ URL
 
 **`dashboard.html` แบ่ง 2 แท็บ** (สลับด้วยปุ่ม `.vtab` → `dashboard.js`):
 
-**แท็บผู้บริโภค** (อ่านจาก `a.narrative.consumer`)
-- TL;DR (สรุปสั้น) · จุดเด่นที่ลูกค้าชอบ · รู้ไว้ก่อนไป · ข้อควรระวัง (แดง)
+**แท็บผู้บริโภค** (ผสาน `a.narrative.consumer` กับ `a.practical_insights`)
+- Narrative ดูแล TL;DR · จุดเด่นที่ลูกค้าชอบ · ข้อควรระวัง
+- Practical rules ดูแล “เรื่องที่ควรรู้ก่อนไป” พร้อมสถานะ คำแนะนำ และรหัสรีวิวอ้างอิง
+- เมื่อไม่มี narrative เก่า ระบบยังคำนวณ practical rules ตอนเปิดหน้าได้
 
 **แท็บผู้ประกอบการ**
 - การ์ด % + โดนัท (CSS conic-gradient ล้วน ไม่ใช้ JS วาด)
@@ -279,8 +290,9 @@ URL
   - ถ้า `available()` (มี key + SDK) → เรียก Gemini แบบ **มี retry** เมื่อโดน
     rate-limit ชั่วคราว (`_generate`), บังคับ JSON ตาม schema, แล้ว `_sanitize`
   - ถ้า Gemini ล้ม/โควตาหมด (429) → ตกไป `_fallback()` = **rule-based**
-    (สร้าง TL;DR/warnings/What-Why-How จากคีย์เวิร์ด + ตัวช่วยธีม `_FIX_HINTS`,
-     derive "รู้ไว้ก่อนไป" จาก `_KNOW_HINTS`)
+    (สร้าง TL;DR/warnings/What-Why-How จากคีย์เวิร์ด + ตัวช่วยธีม `_FIX_HINTS`)
+  - ไม่ว่า Gemini หรือ fallback จะทำงาน `things_to_know` จะถูก sync จาก
+    `practical_rules` ชุดเดียวเสมอ จึงไม่ขัดกับการ์ดหลักฐานบน Dashboard
   - ติดป้าย `engine: "gemini"` หรือ `"rule"` เสมอ (โปร่งใส ไม่โม้)
 - **ปุ่ม Regenerate** (`/regenerate/<id>`): ใช้ข้อมูลที่เก็บใน DB สร้าง narrative ใหม่
   โดย **ไม่ดึงรีวิว/รัน pipeline ซ้ำ** → ประหยัดโควตา Gemini + เครดิต Apify
@@ -300,7 +312,7 @@ URL
      │
      ▼
 [pipeline] scraper → preprocess → sentiment → aspect → phrases
-                    → insights → narrative → รวมเป็น result dict
+                    → insights → practical rules → narrative → รวมเป็น result dict
      │
      ▼
 [database.save_analysis]  เก็บลง SQLite → คืน id

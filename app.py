@@ -178,6 +178,7 @@ def regenerate(aid):
     a = database.get_analysis(aid)
     if not a:
         abort(404)
+    practical_rules.enrich_result(a)
     if not narrative.available():
         return jsonify({"ok": False, "reason": "gemini_unavailable"})
 
@@ -187,6 +188,7 @@ def regenerate(aid):
         "aspect_summary": a.get("aspect_summary", {}),
         "keywords": a.get("keywords", {}),
         "reviews": a.get("reviews", []),
+        "practical_insights": a.get("practical_insights", []),
     }
     try:
         story = narrative.build(core)

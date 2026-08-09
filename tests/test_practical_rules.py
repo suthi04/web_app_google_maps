@@ -1,7 +1,7 @@
 import unittest
 from unittest import mock
 
-from core import practical_rules
+from core import narrative, practical_rules
 import app as webapp
 
 
@@ -98,6 +98,43 @@ class TestPracticalRules(unittest.TestCase):
         self.assertIn("เรื่องที่ควรรู้ก่อนไป", html)
         self.assertIn("อาจต้องรอคิว", html)
         self.assertIn("R001, R002", html)
+        self.assertIn("practical-only", html)
+        self.assertIn("<details", html)
+
+    def test_narrative_uses_verified_rules_instead_of_unchecked_copy(self):
+        core = {
+            "reviews": [
+                {"review_id": "R001", "text": "ที่จอดรถน้อย หาที่จอดยาก", "sentiment": "negative"},
+            ],
+        }
+        data = {
+            "consumer": {
+                "things_to_know": ["มีที่จอดรถสะดวกแน่นอน"],
+            },
+        }
+        narrative._sync_verified_consumer_content(data, core)
+        self.assertEqual(
+            data["consumer"]["things_to_know"],
+            ["ที่จอดรถอาจหายาก — ควรถามร้านหรือหาจุดจอดใกล้ ๆ ก่อนมา"],
+        )
+        self.assertEqual(
+            data["consumer"]["things_to_know_source"],
+            "practical_rules",
+        )
+
+    def test_rule_fallback_ranks_positive_mentions_across_aspects(self):
+        core = {
+            "distribution": {"pct": {"positive": 80, "negative": 10}},
+            "aspect_summary": {},
+            "keywords": {
+                "food": {"positive": [{"word": "อาหารอร่อย", "count": 2}], "negative": []},
+                "service": {"positive": [{"word": "บริการดี", "count": 5}], "negative": []},
+            },
+            "reviews": [],
+            "practical_insights": [],
+        }
+        data = narrative._fallback(core)
+        self.assertEqual(data["consumer"]["top_mentions"][0]["name"], "บริการดี")
 
 
 if __name__ == "__main__":

@@ -151,8 +151,10 @@
   </div>
   {% endif %}
 
-  <div class="consumer-grid">
+  {% set practical = a.practical_insights or [] %}
+  <div class="consumer-grid hybrid-summary-grid{% if practical and not consumer.get('top_mentions') %} practical-only{% endif %}">
     <!-- Top Mentions -->
+    {% if consumer.get('top_mentions') or not practical %}
     <div class="panel">
       <div class="panel-head"><div>
         <h3><svg class="h-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z" stroke-linejoin="round"/></svg> จุดเด่นที่ลูกค้าชอบ</h3>
@@ -168,6 +170,7 @@
       </ol>
       {% else %}<div class="kw-empty">ยังไม่มีเมนูที่ถูกพูดถึงเด่นชัด</div>{% endif %}
     </div>
+    {% endif %}
 
     <!-- Things to know before you go -->
     <div class="panel rule-before-panel">
@@ -175,7 +178,6 @@
         <h3><svg class="h-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1" stroke-linecap="round" stroke-linejoin="round"/></svg> เรื่องที่ควรรู้ก่อนไป</h3>
         <div class="sub-h">Rule-based จากข้อความรีวิวจริง ไม่เติมข้อมูลจากการคาดเดา</div>
       </div></div>
-      {% set practical = a.practical_insights or [] %}
       {% if practical %}
       <div class="rule-topic-summary">
         <span><b>{{ a.practical_insights_meta.topic_count }}</b> หัวข้อ</span>
@@ -186,18 +188,25 @@
       </div>
       <div class="rule-topic-list">
         {% for item in practical %}
-        <article class="rule-topic-card status-{{ item.status }}">
-          <div class="rule-topic-head">
-            <span class="rule-rank">{{ "%02d"|format(item.rank) }}</span>
-            <span class="rule-topic">{{ item.topic_label }}</span>
+        <details class="rule-topic-card status-{{ item.status }}"{% if loop.first and item.action_tier == 'plan' %} open{% endif %}>
+          <summary>
+            <span class="rule-topic-main">
+              <span class="rule-topic-head">
+                <span class="rule-rank">{{ "%02d"|format(item.rank) }}</span>
+                <span class="rule-topic">{{ item.topic_label }}</span>
+              </span>
+              <strong>{{ item.title }}</strong>
+            </span>
             <span class="rule-status">{{ item.status_label }}</span>
+            <span class="rule-chevron" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="rule-topic-detail">
+            <p>{{ item.summary }}</p>
+            {% if item.context_text %}<div class="rule-context">{{ item.context_text }}</div>{% endif %}
+            <div class="rule-advice"><span>แนะนำก่อนเดินทาง</span>{{ item.advice }}</div>
+            <div class="rule-evidence">{{ item.evidence_label }} · อ้างอิง {{ item.evidence_review_ids|join(', ') }}</div>
           </div>
-          <strong>{{ item.title }}</strong>
-          <p>{{ item.summary }}</p>
-          {% if item.context_text %}<div class="rule-context">{{ item.context_text }}</div>{% endif %}
-          <div class="rule-advice"><span>แนะนำก่อนเดินทาง</span>{{ item.advice }}</div>
-          <div class="rule-evidence">{{ item.evidence_label }} · อ้างอิง {{ item.evidence_review_ids|join(', ') }}</div>
-        </article>
+        </details>
         {% endfor %}
       </div>
       {% elif consumer.get('things_to_know') %}

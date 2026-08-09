@@ -85,6 +85,13 @@ class TestPipelineSmoke(unittest.TestCase):
         )
         for item in self.result["practical_insights"]:
             self.assertTrue(item["evidence_review_ids"])
+        self.assertEqual(
+            self.result["narrative"]["consumer"]["things_to_know"],
+            [
+                f"{item['title']} — {item['advice']}"
+                for item in self.result["practical_insights"]
+            ],
+        )
 
 
 if __name__ == "__main__":

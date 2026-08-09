@@ -14,7 +14,8 @@ narrative.py
 keyword/insight แบบ rule-based เพื่อให้แดชบอร์ดยังมีเนื้อหาแสดง (โหมด demo ก็รันได้)
 
 ฟังก์ชันหลัก: build(core) -> dict {"consumer": {...}, "entrepreneur": {...}, "engine": "..."}
-โดย core = {store_name, distribution, aspect_summary, keywords, reviews}
+โดย core = {store_name, distribution, aspect_summary, keywords, reviews,
+practical_insights}
 """
 import json
 import re
@@ -22,6 +23,7 @@ import time
 
 import config
 from core import insights as _insights
+from core import practical_rules as _practical_rules
 from core.lexicon import ASPECT_LABELS_TH
 
 # retry เมื่อโดน rate-limit ชั่วคราว (per-minute) — โควตารายวันรอไปก็ 429 ซ้ำ จึงไม่รอ
@@ -215,14 +217,26 @@ def _build_prompt(core: dict) -> str:
     lines.append("\nตัวอย่างรีวิว (เรียง negative ก่อน):")
     lines.extend(_sample_reviews(core.get("reviews", [])))
 
+    practical = core.get("practical_insights") or []
+    lines.append("\nหัวข้อก่อนไปที่ผ่านกฎตรวจหลักฐานแล้ว:")
+    if practical:
+        for item in practical:
+            lines.append(
+                f"- {item.get('topic_label')}: {item.get('title')} | "
+                f"คำแนะนำ: {item.get('advice')} | "
+                f"หลักฐาน {item.get('review_count', 0)} รีวิว"
+            )
+    else:
+        lines.append("- ไม่พบหัวข้อที่มีหลักฐานตรงจากรีวิว")
+
     lines.append(
         "\nงาน: เขียน JSON ตาม schema เป็นภาษาไทย\n"
         "consumer.tl_dr: 2-3 ประโยค สรุปว่าร้านนี้เป็นยังไง เหมาะกับใคร\n"
         "consumer.top_mentions: จุดเด่นที่ลูกค้าชอบ/พูดถึงบ่อยในแง่ดี (name=จุดเด่นหรือธีม เช่น "
         "'รสชาติจัดจ้าน' 'ปริมาณคุ้มราคา'; ถ้ามีชื่อเมนูจริงในรีวิว เช่น 'ต้มยำกุ้ง' ให้ใช้ชื่อเมนูนั้น, "
         "reason=ทำไมคนชอบ) เอาเฉพาะที่มีในรีวิวจริง สูงสุด 5 รายการ\n"
-        "consumer.things_to_know: เกร็ดก่อนไป เช่น ที่จอดรถ/ต้องจอง/ช่วงคนเยอะ/เสียงดัง เฉพาะที่รีวิวพูดถึง "
-        "(ถ้าไม่มีให้เป็น list ว่าง)\n"
+        "consumer.things_to_know: ใช้เฉพาะหัวข้อก่อนไปที่ผ่านกฎตรวจหลักฐานด้านบน "
+        "ห้ามเพิ่มข้อเท็จจริงใหม่ (ถ้าไม่มีให้เป็น list ว่าง)\n"
         "consumer.warnings: ข้อควรระวังจากรีวิวเชิงลบ สั้น ๆ\n"
         "entrepreneur.critical_points: จุดที่ต้องแก้ด่วน (title, cause=สาเหตุอ้างคีย์เวิร์ด, "
         "strategy=วิธีรับมือทันที, severity) เรียง high ก่อน\n"
@@ -289,16 +303,6 @@ def _sanitize(payload: dict) -> dict:
 # ---------------------------------------------------------------------------
 # rule-based fallback (โหมด demo / เมื่อ LLM ไม่พร้อม)
 # ---------------------------------------------------------------------------
-# เกร็ด "รู้ไว้ก่อนไป" ที่ derive ได้จากคำในรีวิว (trigger substrings -> ข้อความ)
-_KNOW_HINTS = [
-    (("จอดรถ", "ที่จอด", "ลานจอด"), "เรื่องที่จอดรถถูกพูดถึงในรีวิว — เผื่อเวลาหาที่จอด"),
-    (("จอง", "คิว", "รอโต๊ะ", "รอนาน", "รอคิว"), "ช่วงคนเยอะอาจต้องรอคิว จองล่วงหน้าจะสบายกว่า"),
-    (("เสียงดัง",), "ร้านค่อนข้างเสียงดังในบางช่วง"),
-    (("คนเยอะ", "แน่น", "เต็มร้าน"), "ช่วงพีคคนค่อนข้างเยอะ ลองเลี่ยงชั่วโมงเร่งด่วน"),
-    (("เผ็ด",), "บางเมนูรสจัด/เผ็ด สั่งเผื่อบอกระดับความเผ็ด"),
-    (("แพง", "ราคา"), "เรื่องราคาถูกพูดถึงบ่อย — ดูเมนู/ราคาก่อนไปได้"),
-]
-
 # กลยุทธ์แก้ไขตามธีมของคำติ (trigger substrings -> วิธีที่จับต้องได้)
 _FIX_HINTS = [
     (("รอ", "ช้า", "นาน", "คิว"),
@@ -337,17 +341,54 @@ def _tone_phrase(pos, neg):
     return "ความเห็นค่อนข้างหลากหลาย"
 
 
+def _verified_practical_items(core: dict) -> list[dict]:
+    """คืนหัวข้อก่อนไปจากกฎที่มีรีวิวอ้างอิงเท่านั้น"""
+    if "practical_insights" in core:
+        return core.get("practical_insights") or []
+    payload = {"reviews": core.get("reviews") or []}
+    _practical_rules.enrich_result(payload)
+    return payload["practical_insights"]
+
+
+def _verified_practical_lines(core: dict) -> list[str]:
+    return [
+        f"{item['title']} — {item['advice']}"
+        for item in _verified_practical_items(core)
+    ]
+
+
+def _sync_verified_consumer_content(data: dict, core: dict) -> dict:
+    """บังคับให้ Gemini และ fallback ใช้ข้อเท็จจริงก่อนไปจากกฎชุดเดียวกัน"""
+    consumer = data.setdefault("consumer", {})
+    consumer["things_to_know"] = _verified_practical_lines(core)
+    consumer["things_to_know_source"] = "practical_rules"
+    return data
+
+
 def _fallback(core: dict) -> dict:
     kws = core.get("keywords", {})
     summary = core.get("aspect_summary", {})
     dist = core.get("distribution", {}).get("pct", {})
     pos_pct, neg_pct = dist.get("positive", 0), dist.get("negative", 0)
 
-    # จุดเด่นที่ลูกค้าชอบ: คำชมของหมวดอาหาร (บ่อยสุดก่อน) — ธีม ไม่ใช่ชื่อเมนูตายตัว
-    food_pos = (kws.get("food", {}).get("positive") or [])[:5]
+    # จุดเด่นที่ลูกค้าชอบ: รวมทุกหมวด ไม่บังคับว่าต้องเป็นชื่อเมนู
+    positive_candidates = []
+    for aspect, buckets in kws.items():
+        aspect_th = ASPECT_LABELS_TH.get(aspect, aspect)
+        for item in (buckets.get("positive") or [])[:5]:
+            positive_candidates.append((
+                int(item.get("count") or 0),
+                str(item.get("word") or ""),
+                aspect_th,
+            ))
+    positive_candidates.sort(key=lambda item: (-item[0], item[1]))
     top_mentions = [
-        {"name": k["word"], "reason": f"ลูกค้าพูดถึงในแง่ดี {k['count']} ครั้ง"}
-        for k in food_pos
+        {
+            "name": word,
+            "reason": f"ถูกพูดถึงในแง่ดีด้าน{aspect_th} {count} ครั้ง",
+        }
+        for count, word, aspect_th in positive_candidates[:5]
+        if word
     ]
 
     # คำติเด่น ๆ ทุกหมวดรวมกัน (ใช้ทั้ง warnings และ things_to_know)
@@ -358,13 +399,8 @@ def _fallback(core: dict) -> dict:
     neg_all.sort(reverse=True)
     warnings = [f"ระวังเรื่อง{w} — พบในรีวิวด้าน{th} {c} ครั้ง" for c, th, w in neg_all[:5]]
 
-    # รู้ไว้ก่อนไป: derive จากคำในรีวิว+คีย์เวิร์ดทั้งหมด (เฉพาะที่มีสัญญาณจริง)
-    all_words = [w for _, _, w in neg_all]
-    for a, kw in kws.items():
-        for pol in ("positive", "neutral", "negative"):
-            all_words += [k["word"] for k in (kw.get(pol) or [])]
-    all_words += [(r.get("text") or "") for r in core.get("reviews", [])]
-    things_to_know = _match_hints(all_words, _KNOW_HINTS)[:4]
+    # ใช้กฎชุดเดียวกับการ์ดหลักฐาน เพื่อไม่ให้ข้อความใหม่ขัดกับกฎเดิม
+    things_to_know = _verified_practical_lines(core)
 
     # TL;DR ที่อ่านเป็นประโยค ไม่ใช่ตัวเลขล้วน
     tl_dr = f"{_tone_phrase(pos_pct, neg_pct)} (บวก {pos_pct}%). "
@@ -435,11 +471,12 @@ def build(core: dict) -> dict:
         try:
             resp = _generate(_client(), _build_prompt(core))
             data = _sanitize(json.loads(resp.text))
+            _sync_verified_consumer_content(data, core)
             data["engine"] = "gemini"
             return data
         except Exception as e:   # โควต้า/พาร์ส/เน็ต -> ตกไป rule-based กันแดชบอร์ดว่าง
             print(f"[narrative] Gemini failed, using rule-based fallback: {e}")
 
-    data = _fallback(core)
+    data = _sync_verified_consumer_content(_fallback(core), core)
     data["engine"] = "rule"
     return data

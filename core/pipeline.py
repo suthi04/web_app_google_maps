@@ -102,6 +102,10 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
     # 4) จัดหมวด aspect
     reviews = aspect.tag_aspects(reviews)
 
+    # 4b) สร้างหัวข้อก่อนไปจากหลักฐาน ก่อนเรียบเรียง narrative ทุกโหมด
+    practical_payload = {"reviews": reviews}
+    practical_rules.enrich_result(practical_payload)
+
     # 5) สรุป + สกัด keyword + insight
     distribution = _sentiment_distribution(reviews)
     aspect_summary = aspect.aspect_sentiment_summary(reviews)
@@ -115,6 +119,7 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
         "aspect_summary": aspect_summary,
         "keywords": kw,
         "reviews": reviews,
+        "practical_insights": practical_payload["practical_insights"],
     })
 
     # 6) ประกอบผลลัพธ์
@@ -126,12 +131,15 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
         "engine": sentiment.engine_name(),
         "extract_engine": extract_engine,
         "narrative": story,                   # เนื้อหา 2 แท็บ + engine ที่ใช้จริง
+        "practical_insights": practical_payload["practical_insights"],
+        "practical_insights_meta": practical_payload["practical_insights_meta"],
         "distribution": distribution,        # %, counts
         "aspect_summary": aspect_summary,     # นับอารมณ์ราย aspect
         "keywords": kw,                       # keyword ราย aspect/sentiment
         "insights": actionable,               # ข้อสรุปเชิงปฏิบัติ
         "reviews": [                          # ตารางรีวิว (All)
             {
+                "review_id": r["review_id"],
                 "text": r["text"],
                 "rating": r["rating"],
                 "review_date": r["review_date"],
@@ -141,4 +149,4 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
             for r in reviews
         ],
     }
-    return practical_rules.enrich_result(result)
+    return result
