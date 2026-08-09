@@ -1,446 +1,440 @@
 {% extends "base.html" %}
 {% set active = '' %}
-{% set ASPECTS = [('food','อาหาร'),('service','บริการ'),('ambience','บรรยากาศ')] %}
-{% set ASPECT_TH = {'food':'อาหาร','service':'บริการ','ambience':'บรรยากาศ'} %}
-{% set LEVEL_TH = {'improve':'ควรแก้ไข','strength':'ควรรักษาไว้','neutral':'ควรติดตาม','insufficient':'ข้อมูลยังน้อย'} %}
-{% macro evidence_button(ids, claim='', label='ดูรีวิวอ้างอิง') -%}
-  {% set refs = ids or [] %}
-  <button class="evidence-link" type="button"
-          data-evidence="{{ refs|join(',') }}" data-evidence-query="{{ claim }}"
-          {% if not refs %}disabled title="ผลวิเคราะห์เดิมไม่มีตำแหน่งหลักฐาน กรุณาวิเคราะห์ร้านใหม่"{% endif %}>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13Z"/><path d="M8 8h8M8 12h6" stroke-linecap="round"/></svg>
-    {% if refs %}{{ label }} {{ refs|length }} รีวิว{% else %}ยังไม่มีหลักฐานตรงสำหรับผลเดิม{% endif %}
-  </button>
-{%- endmacro %}
+{% set ASPECTS = [('food','อาหาร'),('service','บริการ'),('ambience','บรรยากาศ'),('value','ความคุ้มค่า'),('parking','ที่จอดรถ')] %}
+{% set LEVEL_TH = {'improve':'ควรปรับปรุง','strength':'จุดแข็ง','neutral':'ปานกลาง','insufficient':'ข้อมูลน้อย'} %}
+{% set SEV_TH = {'high':'ด่วนมาก','medium':'ควรแก้','low':'เฝ้าระวัง'} %}
+{% set narr = a.narrative or {} %}
+{% set consumer = narr.get('consumer') or {} %}
+{% set entre = narr.get('entrepreneur') or {} %}
+{# ดาวเฉลี่ยจากรีวิวที่มีคะแนน #}
+{% set rated = (a.reviews or []) | selectattr('rating') | map(attribute='rating') | list %}
+{% set avg_rating = ((rated | sum) / (rated | length)) if rated else None %}
+{# ป้ายหมวดสำหรับกราฟ (วนตามหมวดที่มีจริง รองรับหมวดใหม่ในอนาคต) #}
+{% set ASPECT_TH = {'food':'รสชาติอาหาร','service':'การบริการ','ambience':'บรรยากาศ/ความสะอาด','value':'ความคุ้มค่า','parking':'ที่จอดรถ/เดินทาง'} %}
+{% set SENT_TH3 = {'positive':'บวก','neutral':'กลาง','negative':'ลบ'} %}
 {% block title %}{{ a.store_name }} — InsightReview{% endblock %}
 
 {% block topbar %}
-  <form class="analysis-composer compact" method="post" action="{{ url_for('analyze') }}" id="analyzeForm" data-guard-submit>
-    <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
-    <div class="search-box">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>
-      <input type="url" name="url" placeholder="วิเคราะห์ร้านใหม่ — วาง URL ที่นี่" maxlength="2048" inputmode="url" autocomplete="url" aria-label="ลิงก์ร้านอาหารจาก Google Maps">
-      <details class="model-menu">
-        <summary aria-label="เลือกเครื่องมือวิเคราะห์" title="เลือกเครื่องมือวิเคราะห์">
-          <span class="model-menu-label">{{ 'WangchanBERTa' if analysis_defaults.use_model else 'Lexicon' }} + {{ 'Gemini' if analysis_defaults.extract_engine == 'llm' else 'Rule-based' }}</span>
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor"><path d="m6 8 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </summary>
-        <div class="model-menu-popover">
-          <fieldset>
-            <legend>วิเคราะห์อารมณ์</legend>
-            <label class="model-choice"><input type="radio" name="engine" value="model" data-analysis-setting {{ 'checked' if analysis_defaults.use_model }}><span><b>WangchanBERTa</b><small>เข้าใจบริบทภาษาไทยได้ลึกกว่า</small></span></label>
-            <label class="model-choice"><input type="radio" name="engine" value="lexicon" data-analysis-setting {{ 'checked' if not analysis_defaults.use_model }}><span><b>Lexicon</b><small>เร็ว ออฟไลน์ และอธิบายผลได้ง่าย</small></span></label>
-          </fieldset>
-          <fieldset>
-            <legend>สกัดประเด็น</legend>
-            <label class="model-choice"><input type="radio" name="extract_engine" value="llm" data-analysis-setting {{ 'checked' if analysis_defaults.extract_engine == 'llm' }}><span><b>Gemini</b><small>ยืดหยุ่นกับภาษาธรรมชาติ</small></span></label>
-            <label class="model-choice"><input type="radio" name="extract_engine" value="rule" data-analysis-setting {{ 'checked' if analysis_defaults.extract_engine == 'rule' }}><span><b>Rule-based</b><small>ประมวลผลในระบบและตรวจสอบกฎได้</small></span></label>
-          </fieldset>
-          <label class="model-count">จำนวนรีวิว
-            <select name="max_reviews" data-analysis-setting aria-label="จำนวนรีวิว">
-              {% for count in range(min_reviews, max_reviews_cap + 1, 10) %}
-              <option value="{{ count }}" {{ 'selected' if count == analysis_defaults.max_reviews }}>{{ count }} รีวิว</option>
-              {% endfor %}
-            </select>
-          </label>
-          <p>Gemini จะส่งข้อความรีวิวไปประมวลผลที่ Google Gemini</p>
-        </div>
-      </details>
-      <button class="btn btn-primary btn-pill" type="submit" aria-label="เริ่มวิเคราะห์ร้านใหม่">วิเคราะห์
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-    </div>
+  <form class="search-box" method="post" action="{{ url_for('analyze') }}" id="analyzeForm">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>
+    <input type="text" name="url" placeholder="วิเคราะห์ร้านใหม่ — วาง URL ที่นี่">
+    {% include "_model_picker.html" %}
+    <button class="btn btn-primary btn-pill" type="submit">Analyze
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
   </form>
 {% endblock %}
 
 {% block content %}
 <div class="dash-head">
   <div>
-    <div class="eyebrow-label">ภาพรวมการวิเคราะห์</div>
+    <div class="eyebrow-label">Analysis overview</div>
     <div class="store-name">{{ a.store_name }}</div>
     <div class="meta-row">
+      {% if avg_rating %}
+      <span class="rating-hero" title="ดาวเฉลี่ยจาก {{ rated|length }} รีวิวที่มีคะแนน">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg>
+        <b class="mono">{{ avg_rating | round(1) }}</b><span class="rh-max">/ 5.0</span>
+      </span>
+      {% endif %}
       <span class="meta-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span class="mono">{{ "{:,}".format(a.total_reviews) }}</span> รีวิวที่วิเคราะห์
       </span>
       {% if a.fetched_reviews and a.fetched_reviews > a.total_reviews %}
       <span class="chip-soft" title="ดึงมา {{ a.fetched_reviews }} รีวิว แต่วิเคราะห์เฉพาะรีวิวภาษาไทย (รีวิวภาษาอื่น/ซ้ำ ถูกคัดออก)">
-        จาก <span class="mono">{{ "{:,}".format(a.fetched_reviews) }}</span> รีวิวที่ดึงมา · เฉพาะภาษาไทย
+        จาก <span class="mono">{{ "{:,}".format(a.fetched_reviews) }}</span> ที่ดึงมา · เฉพาะภาษาไทย
       </span>
       {% endif %}
-      {% if a.engine %}
-      <span class="chip-soft" title="เครื่องยนต์วิเคราะห์อารมณ์ที่สร้างผลลัพธ์นี้">
-        วิเคราะห์อารมณ์ · {{ a.engine }}
+      {% if narr.get('engine') %}
+      <span class="chip-soft" title="เนื้อหาเชิงเล่าเรื่องสร้างโดย {{ narr.get('engine') }}">
+        เนื้อหา: {{ 'Gemini' if narr.get('engine') == 'gemini' else 'rule-based' }}
       </span>
       {% endif %}
-      {% set extract_engine = a.get('extract_engine', 'rule') %}
-      <span class="chip-soft" title="เครื่องยนต์สกัดวลีที่สร้างผลลัพธ์นี้">
-        สกัดประเด็น · {{ 'Gemini' if extract_engine == 'llm' else 'Rule-based' }}
-      </span>
     </div>
   </div>
   <div class="actions">
     <div class="dropdown">
-      <button class="btn btn-ghost" id="exportBtn" type="button" aria-haspopup="menu" aria-controls="exportMenu" aria-expanded="false">
+      <button class="btn btn-ghost" id="exportBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v12M8 11l4 4 4-4M5 21h14" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        ส่งออก
+        Export
       </button>
-      <div class="dropdown-menu" id="exportMenu" role="menu">
+      <div class="dropdown-menu" id="exportMenu">
         <a class="mi" href="{{ url_for('export_reviews', aid=a.id) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h12l4 4v12H4z" stroke-linejoin="round"/><path d="M14 4v5h5" stroke-linejoin="round"/></svg>รีวิวทั้งหมด (CSV)</a>
         <a class="mi" href="{{ url_for('export_summary', aid=a.id) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h12l4 4v12H4z" stroke-linejoin="round"/><path d="M8 13h8M8 17h5" stroke-linecap="round"/></svg>สรุปผล (CSV)</a>
         <div class="sep"></div>
         <a class="mi" href="{{ url_for('export_labeling', aid=a.id) }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3 8-8" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9" stroke-linecap="round"/></svg>รีวิวสำหรับติด label (JSON)</a>
       </div>
     </div>
-    <button class="btn btn-ghost" id="saveBtn" type="button" data-id="{{ a.id }}" data-saved="{{ '1' if a.is_saved else '0' }}" aria-pressed="{{ 'true' if a.is_saved else 'false' }}">
+    <button class="btn btn-ghost" id="saveBtn" data-id="{{ a.id }}" data-saved="{{ '1' if a.is_saved else '0' }}">
       <svg viewBox="0 0 24 24" fill="{{ 'currentColor' if a.is_saved else 'none' }}" stroke="currentColor"><path d="M6 4h12v16l-6-4-6 4V4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span id="saveLabel">{{ 'บันทึกแล้ว' if a.is_saved else 'บันทึก' }}</span>
     </button>
   </div>
 </div>
 
-<div class="persona-switch" role="tablist" aria-label="เลือกมุมมองผลวิเคราะห์">
-  <button class="persona-tab active" id="consumerTab" type="button" role="tab" aria-selected="true" aria-controls="consumerView" data-persona="consumer">
-    สำหรับผู้บริโภค
-    <span>เลือกกินอย่างมั่นใจ</span>
-  </button>
-  <button class="persona-tab" id="operatorTab" type="button" role="tab" aria-selected="false" aria-controls="operatorView" data-persona="operator">
-    สำหรับผู้ประกอบการ
-    <span>วิเคราะห์และวางกลยุทธ์</span>
+{% if narr.get('engine') != 'gemini' %}
+<div class="ai-banner" id="aiBanner">
+  <span class="ab-ic">✨</span>
+  <div class="ab-text">
+    <b>เนื้อหานี้สร้างแบบ rule-based</b>
+    <span>{{ 'ผลนี้บันทึกก่อนมีฟีเจอร์ AI' if not narr.get('engine') else 'Gemini โควตาหมด/ปิดอยู่ตอนวิเคราะห์' }} — กดให้ AI เรียบเรียงใหม่ ไม่ต้องดึงรีวิวซ้ำ</span>
+  </div>
+  <button class="btn btn-primary btn-pill" id="regenBtn" data-id="{{ a.id }}" type="button">
+    สร้างเนื้อหา AI ใหม่
   </button>
 </div>
+{% endif %}
 
-<section class="persona-view" id="consumerView" role="tabpanel" aria-labelledby="consumerTab">
-  {% set consumer = a.consumer_summary %}
-  <div class="consumer-grid single">
-    <section class="panel consumer-section">
-      <div class="section-number">01</div>
-      <div class="panel-head"><div><h3>เรื่องที่ควรรู้ก่อนไป</h3><div class="sub-h">ประเด็นสำคัญที่ช่วยให้วางแผนได้ง่ายขึ้น</div></div></div>
-      {% if consumer.things_to_know %}
-      <div class="know-grid">
-        {% for item in consumer.things_to_know %}
-        <button class="know-item evidence-trigger {{ item.sentiment }}" type="button"
-                data-evidence="{{ item.evidence_review_ids|join(',') }}"
-                data-evidence-query="{{ item.text }}"
-                {% if not item.evidence_review_ids %}disabled title="ผลวิเคราะห์เดิมไม่มีตำแหน่งหลักฐาน กรุณาวิเคราะห์ร้านใหม่"{% endif %}>
-          <span class="know-dot"></span>
-          <span><strong>{{ item.text }}</strong><small>{{ item.aspect_th }} · พบ {{ item.count }} ครั้ง จาก {{ item.review_count }} รีวิวไม่ซ้ำ</small></span>
-          <span class="know-reference">ดูอ้างอิง →</span>
-        </button>
+<!-- ===== View switcher: ผู้บริโภค / ผู้ประกอบการ ===== -->
+<div class="view-switch">
+  <div class="seg lg">
+    <button class="vtab active" data-view="consumer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 12 0v1" stroke-linecap="round"/></svg>
+      สำหรับผู้บริโภค
+    </button>
+    <button class="vtab" data-view="entrepreneur">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 12h1M14 12h1M9 16h1M14 16h1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      สำหรับผู้ประกอบการ
+    </button>
+  </div>
+</div>
+
+<!-- =========================================================== -->
+<!-- CONSUMER VIEW                                                -->
+<!-- =========================================================== -->
+<div id="view-consumer" class="view">
+
+  {% if consumer.get('tl_dr') %}
+  <div class="panel tldr-panel">
+    <span class="tldr-badge">TL;DR</span>
+    <div class="panel-head"><div>
+      <h3><svg class="h-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2 3 14h7l-1 8 10-12h-7z" stroke-linejoin="round"/></svg> สรุปสั้น ๆ ก่อนตัดสินใจ</h3>
+      <div class="sub-h">สำหรับคนไม่มีเวลาอ่านรีวิวยาว ๆ</div>
+    </div></div>
+    <p class="tldr-text">{{ consumer.get('tl_dr') }}</p>
+  </div>
+  {% endif %}
+
+  <!-- กราฟเทียบรายหมวด (100% stacked แนวนอน + tooltip ตัวอย่างรีวิว) -->
+  {% if (a.aspect_summary.values() | selectattr('total') | list) %}
+  <div class="panel">
+    <div class="panel-head"><div>
+      <h3><svg class="h-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18M7 15l3-4 3 3 4-6" stroke-linecap="round" stroke-linejoin="round"/></svg> ร้านนี้เด่น/ด้อยเรื่องอะไร</h3>
+      <div class="sub-h">สัดส่วนความเห็นแต่ละด้าน — นำเมาส์ชี้ที่แถบเพื่อดูตัวอย่างรีวิวจริง</div>
+    </div></div>
+    <div class="asp-chart">
+      {% for key, s in a.aspect_summary.items() %}
+      {% if s.total %}
+      {% set p = (s.positive / s.total * 100) | round | int %}
+      {% set nu = (s.neutral / s.total * 100) | round | int %}
+      {% set ng = 100 - p - nu %}
+      {% set ex = aspect_examples.get(key, {}) %}
+      <div class="asp-row">
+        <div class="asp-name">{{ ASPECT_TH.get(key, key) }}</div>
+        <div class="asp-bar">
+          {% if p > 0 %}<div class="seg pos" style="width:{{ p }}%" title="เชิงบวก {{ p }}%{% if ex.get('positive') %} — เช่น: {{ ex.positive | join('  |  ') }}{% endif %}">{% if p >= 12 %}{{ p }}%{% endif %}</div>{% endif %}
+          {% if nu > 0 %}<div class="seg neu" style="width:{{ nu }}%" title="กลาง {{ nu }}%{% if ex.get('neutral') %} — เช่น: {{ ex.neutral | join('  |  ') }}{% endif %}">{% if nu >= 12 %}{{ nu }}%{% endif %}</div>{% endif %}
+          {% if ng > 0 %}<div class="seg neg" style="width:{{ ng }}%" title="เชิงลบ {{ ng }}%{% if ex.get('negative') %} — เช่น: {{ ex.negative | join('  |  ') }}{% endif %}">{% if ng >= 12 %}{{ ng }}%{% endif %}</div>{% endif %}
+        </div>
+        <div class="asp-total mono" title="ถูกพูดถึง {{ s.total }} ครั้ง">{{ s.total }}</div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    <div class="asp-legend">
+      <span><span class="dot" style="background:var(--pos)"></span>บวก</span>
+      <span><span class="dot" style="background:var(--neu)"></span>กลาง</span>
+      <span><span class="dot" style="background:var(--neg)"></span>ลบ</span>
+      <span class="tl-hint">ตัวเลขขวาสุด = จำนวนครั้งที่ด้านนั้นถูกพูดถึง</span>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="consumer-grid">
+    <!-- Top Mentions -->
+    <div class="panel">
+      <div class="panel-head"><div>
+        <h3><svg class="h-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z" stroke-linejoin="round"/></svg> จุดเด่นที่ลูกค้าชอบ</h3>
+        <div class="sub-h">ธีม/เมนูที่ถูกพูดถึงบ่อยในรีวิวเชิงบวก</div>
+      </div></div>
+      {% if consumer.get('top_mentions') %}
+      <ol class="mentions">
+        {% for m in consumer.get('top_mentions') %}
+        <li><span class="rank">{{ loop.index }}</span>
+          <div><div class="m-name">{{ m.name }}</div><div class="m-reason">{{ m.reason }}</div></div>
+        </li>
+        {% endfor %}
+      </ol>
+      {% else %}<div class="kw-empty">ยังไม่มีเมนูที่ถูกพูดถึงเด่นชัด</div>{% endif %}
+    </div>
+
+    <!-- Things to know before you go -->
+    <div class="panel">
+      <div class="panel-head"><div>
+        <h3><svg class="h-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1" stroke-linecap="round" stroke-linejoin="round"/></svg> รู้ไว้ก่อนไป</h3>
+        <div class="sub-h">เกร็ดจากรีวิวที่ช่วยให้เตรียมตัวถูก</div>
+      </div></div>
+      {% if consumer.get('things_to_know') %}
+      <ul class="ticks">
+        {% for t in consumer.get('things_to_know') %}
+        <li><svg class="tk" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{{ t }}</span></li>
+        {% endfor %}
+      </ul>
+      {% else %}<div class="kw-empty">ไม่มีเกร็ดพิเศษจากรีวิวชุดนี้</div>{% endif %}
+    </div>
+  </div>
+
+  <!-- เสียงจริงจากลูกค้า (Pros/Cons จากรีวิวจริง) -->
+  {% set pros = (a.reviews or []) | selectattr('sentiment','equalto','positive') | list %}
+  {% set cons = (a.reviews or []) | selectattr('sentiment','equalto','negative') | list %}
+  {% if pros or cons %}
+  <div class="panel">
+    <div class="panel-head"><div>
+      <h3><svg class="h-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 10h8M8 14h5M21 12a9 9 0 0 1-9 9 9 9 0 0 1-4-1l-5 1 1-5a9 9 0 1 1 17-4z" stroke-linecap="round" stroke-linejoin="round"/></svg> เสียงจริงจากลูกค้า</h3>
+      <div class="sub-h">ประโยคจากรีวิวจริง แยกข้อดีและข้อควรระวัง</div>
+    </div></div>
+    <div class="proscons">
+      <div class="pc-col">
+        <div class="pc-h up">👍 ข้อดี</div>
+        {% for r in pros[:3] %}
+        <blockquote class="quote pos">{{ r.text | truncate(140, True, '…') }}</blockquote>
+        {% else %}<div class="kw-empty">ยังไม่มีรีวิวเชิงบวกเด่น</div>{% endfor %}
+      </div>
+      <div class="pc-col">
+        <div class="pc-h down">👎 ข้อควรระวัง</div>
+        {% for r in cons[:3] %}
+        <blockquote class="quote neg">{{ r.text | truncate(140, True, '…') }}</blockquote>
+        {% else %}<div class="kw-empty">ยังไม่มีรีวิวเชิงลบเด่น</div>{% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Warnings -->
+  {% if consumer.get('warnings') %}
+  <div class="panel warn-panel">
+    <div class="panel-head"><div>
+      <h3 class="warn-title"><svg class="h-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke-linejoin="round"/><path d="M12 9v4M12 17h.01" stroke-linecap="round"/></svg> ข้อควรระวัง</h3>
+      <div class="sub-h">ประเด็นที่มีลูกค้าติจากรีวิวเชิงลบ</div>
+    </div></div>
+    <ul class="warn-list">
+      {% for w in consumer.get('warnings') %}<li>{{ w }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if not (consumer.get('tl_dr') or consumer.get('top_mentions') or consumer.get('things_to_know') or consumer.get('warnings')) %}
+  <div class="panel"><div class="kw-empty">
+    เนื้อหาสรุปโดย AI (สรุปสั้น / จุดเด่น / ข้อควรระวัง) ยังไม่มีในผลนี้ — กด “สร้างเนื้อหา AI ใหม่” ด้านบน หรือดูกราฟและเสียงลูกค้าจริงข้างต้นได้เลย
+  </div></div>
+  {% endif %}
+</div>
+
+<!-- =========================================================== -->
+<!-- ENTREPRENEUR VIEW (แดชบอร์ดเดิม + จุดวิกฤต + What/Why/How)   -->
+<!-- =========================================================== -->
+<div id="view-entrepreneur" class="view" style="display:none">
+
+  <!-- Metric cards -->
+  <div class="metrics">
+    <div class="metric pos">
+      <div class="top"><span class="tag"><span class="dot"></span>Positive</span><span class="count mono">{{ a.distribution.counts.positive }} รีวิว</span></div>
+      <div class="val mono">{{ a.distribution.pct.positive }}%</div>
+      <div class="track"><div class="fill" style="width:{{ a.distribution.pct.positive }}%"></div></div>
+    </div>
+    <div class="metric neu">
+      <div class="top"><span class="tag"><span class="dot"></span>Neutral</span><span class="count mono">{{ a.distribution.counts.neutral }} รีวิว</span></div>
+      <div class="val mono">{{ a.distribution.pct.neutral }}%</div>
+      <div class="track"><div class="fill" style="width:{{ a.distribution.pct.neutral }}%"></div></div>
+    </div>
+    <div class="metric neg">
+      <div class="top"><span class="tag"><span class="dot"></span>Negative</span><span class="count mono">{{ a.distribution.counts.negative }} รีวิว</span></div>
+      <div class="val mono">{{ a.distribution.pct.negative }}%</div>
+      <div class="track"><div class="fill" style="width:{{ a.distribution.pct.negative }}%"></div></div>
+    </div>
+  </div>
+
+  <!-- Critical Points (จุดวิกฤต — สีแดง) -->
+  {% if entre.get('critical_points') %}
+  <div class="panel critical-panel">
+    <div class="panel-head"><div>
+      <h3 class="warn-title">🚨 จุดวิกฤต — ต้องแก้ด่วน</h3>
+      <div class="sub-h">ประเด็นเชิงลบที่ควรจัดการก่อน พร้อมสาเหตุและกลยุทธ์รับมือ</div>
+    </div></div>
+    <div class="crit-list">
+      {% for c in entre.get('critical_points') %}
+      <article class="crit {{ c.severity }}">
+        <div class="crit-head">
+          <span class="sev {{ c.severity }}">{{ SEV_TH.get(c.severity, c.severity) }}</span>
+          <h4>{{ c.title }}</h4>
+        </div>
+        <div class="crit-body">
+          <div><span class="ck">สาเหตุ</span><p>{{ c.cause }}</p></div>
+          <div><span class="ck">กลยุทธ์รับมือ</span><p>{{ c.strategy }}</p></div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Lower grid: donut + analysis result (collapsed) -->
+  <div class="lower">
+    <div class="panel">
+      <div class="panel-head"><div><h3>Sentiment distribution</h3></div></div>
+      <div class="donut" style="background:conic-gradient(var(--pos) 0 {{ a.distribution.pct.positive }}%, var(--neg) {{ a.distribution.pct.positive }}% {{ a.distribution.pct.positive + a.distribution.pct.negative }}%, var(--neu) {{ a.distribution.pct.positive + a.distribution.pct.negative }}% 100%)">
+        <div class="hole"><span class="num mono">{{ "{:,}".format(a.total_reviews) }}</span><span class="lbl">reviews</span></div>
+      </div>
+      <div class="legend">
+        <div class="item"><span class="nm"><span class="swatch" style="background:var(--pos)"></span>Positive</span><span class="n mono">{{ a.distribution.counts.positive }}</span></div>
+        <div class="item"><span class="nm"><span class="swatch" style="background:var(--neu)"></span>Neutral</span><span class="n mono">{{ a.distribution.counts.neutral }}</span></div>
+        <div class="item"><span class="nm"><span class="swatch" style="background:var(--neg)"></span>Negative</span><span class="n mono">{{ a.distribution.counts.negative }}</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div><h3>Analysis result</h3><div class="sub-h">รีวิวรายรายการ และคำสำคัญแยกตามหมวด</div></div>
+        <div class="tools">
+          <div class="seg">
+            <button class="tab active" data-tab="all">All</button>
+            <button class="tab" data-tab="keywords">Keywords</button>
+          </div>
+          <div class="dropdown">
+            <button class="icon-btn" id="filterBtn" title="กรองตามอารมณ์" aria-label="กรอง">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 5h18l-7 8v6l-4-2v-4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="dropdown-menu" id="filterMenu">
+              <button class="mi active" data-filter="all">ทั้งหมด</button>
+              <div class="sep"></div>
+              <button class="mi" data-filter="positive"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--pos)"></span>Positive</button>
+              <button class="mi" data-filter="neutral"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--neu)"></span>Neutral</button>
+              <button class="mi" data-filter="negative"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--neg)"></span>Negative</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All (แสดงบางส่วน + ปุ่มแสดงเพิ่มเติม) -->
+      <div id="view-all" class="tbl-wrap">
+        <table class="reviews">
+          <thead><tr><th>Review</th><th class="r">Sentiment</th></tr></thead>
+          <tbody>
+            {% for r in a.reviews %}
+            <tr class="rev-row" data-sentiment="{{ r.sentiment }}">
+              <td>
+                {% if r.rating %}<span class="rating"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg> <span class="mono" style="font-size:11.5px;color:var(--neu-ink)">{{ r.rating }}.0</span></span>{% endif %}
+                <div class="review-text">{{ r.text }}</div>
+              </td>
+              <td class="sent-cell">
+                {% if r.sentiment == 'positive' %}<span class="badge pos"><span class="bdot"></span>Positive</span>
+                {% elif r.sentiment == 'negative' %}<span class="badge neg"><span class="bdot"></span>Negative</span>
+                {% else %}<span class="badge neu"><span class="bdot"></span>Neutral</span>{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div class="show-more-wrap">
+          <button class="btn btn-ghost" id="showMoreReviews" type="button">
+            <span id="showMoreLabel">แสดงเพิ่มเติม</span>
+            <svg id="showMoreCaret" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Keywords -->
+      <div id="view-keywords" style="display:none;margin-top:8px">
+        {% for key, label in ASPECTS %}
+        {% set kw = (a.keywords or {}).get(key) or {} %}
+        {% set kw_pos = kw.get('positive', []) %}
+        {% set kw_neg = kw.get('negative', []) %}
+        {% set kw_neu = kw.get('neutral', []) %}
+        {% set total_kw = kw_pos|length + kw_neu|length + kw_neg|length %}
+        <div class="kw-aspect">
+          <div class="title">
+            <span class="ai">
+              {% if key=='food' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 10v11M18 3c-2 0-3 2-3 5s1 4 3 4v9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              {% elif key=='service' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 4a3 3 0 0 1 0 6M21 21v-2a4 4 0 0 0-3-3.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              {% elif key=='value' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M14.5 9.3c-.5-.9-1.5-1.3-2.5-1.3-1.4 0-2.5.8-2.5 2s1.1 2 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1 0-2-.4-2.5-1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              {% elif key=='parking' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 13l1.5-4.5A2 2 0 0 1 8.4 7h7.2a2 2 0 0 1 1.9 1.5L19 13v5h-2v-2H7v2H5z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="14.5" r="1"/><circle cx="16.5" cy="14.5" r="1"/></svg>
+              {% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endif %}
+            </span>
+            {{ label }}
+            <span class="cnt">{{ total_kw }} วลี</span>
+          </div>
+          {% if kw_pos %}
+          <div class="kw-group">
+            <div class="kw-glabel up">จุดที่ลูกค้าชม</div>
+            <div class="chips">{% for k in kw_pos %}<span class="chip pos" data-sentiment="positive"><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.count }}</i></span>{% endfor %}</div>
+          </div>
+          {% endif %}
+          {% if kw_neg %}
+          <div class="kw-group">
+            <div class="kw-glabel down">จุดที่ควรปรับปรุง</div>
+            <div class="chips">{% for k in kw_neg %}<span class="chip neg" data-sentiment="negative"><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.count }}</i></span>{% endfor %}</div>
+          </div>
+          {% endif %}
+          {% if kw_neu %}
+          <div class="kw-group">
+            <div class="kw-glabel">กล่าวถึงทั่วไป</div>
+            <div class="chips">{% for k in kw_neu %}<span class="chip neu" data-sentiment="neutral"><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.count }}</i></span>{% endfor %}</div>
+          </div>
+          {% endif %}
+          {% if total_kw == 0 %}<span class="kw-empty">ยังไม่พบคำสำคัญในหมวดนี้</span>{% endif %}
+        </div>
         {% endfor %}
       </div>
-      {% else %}<p class="consumer-empty">รีวิวชุดนี้ยังไม่มีข้อมูลเชิงปฏิบัติก่อนไปที่เด่นชัด</p>{% endif %}
-    </section>
+    </div>
   </div>
 
-  <section class="consumer-hero panel">
-    <div class="section-number">02</div>
-    <div class="consumer-kicker">บทสรุปสั้น ๆ · สำหรับคนไม่อยากอ่านทุกรีวิว</div>
-    <h2>{{ consumer.lazy_summary.verdict }}</h2>
-    <p>{{ consumer.lazy_summary.detail }}</p>
-    <div class="consumer-score">
-      <strong class="mono">{{ a.distribution.pct.positive }}%</strong>
-      <span>เสียงเชิงบวก {{ a.distribution.counts.positive }} จาก {{ a.total_reviews }} รีวิวภาษาไทย</span>
-    </div>
-    {{ evidence_button(consumer.lazy_summary.evidence_review_ids, '', 'ตรวจสอบจาก') }}
-  </section>
+  <!-- Actionable insights: สถานการณ์ / สาเหตุ / แนวทาง -->
+  <div class="panel" style="margin-top:14px">
+    <div class="panel-head"><div>
+      <h3>ข้อเสนอแนะเชิงกลยุทธ์</h3>
+      <div class="sub-h">มองครบ 3 มุม: สถานการณ์ · สาเหตุ · แนวทาง</div>
+    </div></div>
 
-  <section class="panel consumer-section caution-section">
-    <div class="section-number">03</div>
-    <div class="panel-head"><div><h3>ข้อควรระวัง</h3><div class="sub-h">ไม่ได้แปลว่าจะเกิดกับทุกคน แต่เป็นสัญญาณลบที่พบในรีวิวจริง</div></div></div>
-    {% if consumer.cautions %}
-    <div class="caution-list">
-      {% for item in consumer.cautions %}
-      <article class="caution-item {{ item.severity }}">
-        <span class="caution-mark">!</span>
-        <div><h4>{{ item.text }}</h4><p>{{ item.aspect_th }} · พบ {{ item.count }} ครั้ง จาก {{ item.review_count }} รีวิวไม่ซ้ำ · ความเห็นด้านนี้เป็นลบ {{ item.negative_pct }}%</p>{{ evidence_button(item.evidence_review_ids, item.text) }}</div>
-        <span class="severity-label">{{ 'พบซ้ำหลายรีวิว' if item.severity == 'critical' else 'สัญญาณเบื้องต้น' }}</span>
+    {% if entre.get('actionable_insights') %}
+    <div class="wwh-grid">
+      {% for it in entre.get('actionable_insights') %}
+      <article class="wwh {{ it.kind }}">
+        <div class="wwh-head">
+          <span class="wtag {{ it.kind }}">{{ 'จุดแข็ง' if it.kind == 'strength' else 'จุดอ่อน' }}</span>
+          <span class="wasp">ด้าน{{ it.aspect }}</span>
+        </div>
+        <div class="wwh-body">
+          <div class="w"><span class="wk">สถานการณ์</span><p>{{ it.what }}</p></div>
+          <div class="w"><span class="wk why">สาเหตุ</span><p>{{ it.why }}</p></div>
+          <div class="w"><span class="wk how">แนวทาง</span><p>{{ it.how }}</p></div>
+        </div>
       </article>
       {% endfor %}
     </div>
-    {% else %}<p class="consumer-empty positive-empty">ยังไม่พบประเด็นลบเด่นชัดจากรีวิวชุดนี้</p>{% endif %}
-  </section>
-
-  <section class="panel consumer-section consumer-reviews" id="consumerReviews">
-    <div class="consumer-review-head">
-      <div>
-        <div class="consumer-review-kicker">เสียงจริงจากลูกค้า</div>
-        <div class="consumer-review-title"><h3>รีวิวทั้งหมด</h3><span class="review-total mono">{{ a.reviews|length }}</span></div>
-        <p>ค้นหาและอ่านความคิดเห็นต้นฉบับ พร้อมดูบริบทของแต่ละรีวิวได้ในที่เดียว</p>
-      </div>
-      <div class="consumer-review-overview" aria-label="สรุปจำนวนรีวิวตามอารมณ์">
-        <div class="positive"><span class="overview-dot"></span><strong class="mono">{{ a.distribution.counts.positive }}</strong><small>เชิงบวก</small></div>
-        <div class="neutral"><span class="overview-dot"></span><strong class="mono">{{ a.distribution.counts.neutral }}</strong><small>เป็นกลาง</small></div>
-        <div class="negative"><span class="overview-dot"></span><strong class="mono">{{ a.distribution.counts.negative }}</strong><small>เชิงลบ</small></div>
-      </div>
-    </div>
-    <div class="consumer-review-controls">
-      <label class="consumer-review-search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4" stroke-linecap="round"/></svg>
-        <span class="sr-only">ค้นหาในรีวิวทั้งหมด</span>
-        <input id="consumerReviewSearch" type="search" placeholder="ค้นหาในรีวิว เช่น ราคา บริการ ที่จอดรถ" autocomplete="off">
-      </label>
-      <div class="consumer-review-tools" role="group" aria-label="กรองรีวิวสำหรับผู้บริโภค">
-        <button class="review-filter active" type="button" data-consumer-filter="all" aria-pressed="true"><span>ทั้งหมด</span><b class="mono">{{ a.reviews|length }}</b></button>
-        <button class="review-filter" type="button" data-consumer-filter="positive" aria-pressed="false"><span>เชิงบวก</span><b class="mono">{{ a.distribution.counts.positive }}</b></button>
-        <button class="review-filter" type="button" data-consumer-filter="neutral" aria-pressed="false"><span>กลาง</span><b class="mono">{{ a.distribution.counts.neutral }}</b></button>
-        <button class="review-filter" type="button" data-consumer-filter="negative" aria-pressed="false"><span>เชิงลบ</span><b class="mono">{{ a.distribution.counts.negative }}</b></button>
-      </div>
-    </div>
-    <div class="consumer-review-resultbar">
-      <span id="consumerReviewVisibleCount" aria-live="polite">แสดง {{ a.reviews|length }} รีวิว</span>
-      <span>เลื่อนเพื่ออ่านรีวิวทั้งหมด</span>
-    </div>
-    <div class="consumer-review-list" id="consumerReviewList" tabindex="0" aria-label="รายการรีวิวทั้งหมด">
-      {% for r in a.reviews %}
-      <article class="consumer-review-card" id="consumer-review-{{ r.review_id }}"
-               data-review-id="{{ r.review_id }}" data-sentiment="{{ r.sentiment }}"
-               data-review-text="{{ r.text }}">
-        <header class="consumer-review-card-head">
-          <div class="consumer-review-id">
-            <span class="review-quote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9.5 11H5a5 5 0 0 1 5-5v2a3 3 0 0 0-3 3h2.5v6H4v-6M20 11h-4.5a5 5 0 0 1 5-5v2a3 3 0 0 0-3 3H20v6h-5.5v-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-            <div><small>รีวิว</small><strong class="mono">{{ r.review_id }}</strong></div>
-          </div>
-          <span class="review-sentiment {{ r.sentiment }}">{{ {'positive':'เชิงบวก','neutral':'กลาง','negative':'เชิงลบ'}[r.sentiment] }}</span>
-        </header>
-        <p class="consumer-review-text">{{ r.text }}</p>
-        <footer class="consumer-review-card-foot">
-          <div class="consumer-review-facts">
-            {% if r.rating %}<span class="review-rating"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg><strong class="mono">{{ r.rating }}.0</strong></span>{% endif %}
-            {% if r.review_date %}<time datetime="{{ r.review_date }}">{{ r.review_date[:10] }}</time>{% endif %}
-          </div>
-          {% if r.aspects %}<div class="consumer-review-aspects">{% for aspect in r.aspects %}<span>{{ ASPECT_TH.get(aspect, aspect) }}</span>{% endfor %}</div>{% endif %}
-        </footer>
-      </article>
-      {% endfor %}
-    </div>
-    <p class="consumer-review-empty" id="consumerReviewEmpty" hidden>ไม่พบรีวิวที่ตรงกับตัวกรองหรือคำค้นหา</p>
-  </section>
-</section>
-
-<section class="persona-view" id="operatorView" role="tabpanel" aria-labelledby="operatorTab" hidden>
-<!-- Metric cards -->
-<div class="metrics">
-  <div class="metric pos">
-    <div class="top">
-      <span class="tag"><span class="dot"></span>เชิงบวก</span>
-      <span class="count mono">{{ a.distribution.counts.positive }} รีวิว</span>
-    </div>
-    <div class="val mono">{{ a.distribution.pct.positive }}%</div>
-    <div class="track"><div class="fill" style="width:{{ a.distribution.pct.positive }}%"></div></div>
-    {{ evidence_button(a.sentiment_evidence.positive, '', 'ดู') }}
-  </div>
-  <div class="metric neu">
-    <div class="top">
-      <span class="tag"><span class="dot"></span>เป็นกลาง</span>
-      <span class="count mono">{{ a.distribution.counts.neutral }} รีวิว</span>
-    </div>
-    <div class="val mono">{{ a.distribution.pct.neutral }}%</div>
-    <div class="track"><div class="fill" style="width:{{ a.distribution.pct.neutral }}%"></div></div>
-    {{ evidence_button(a.sentiment_evidence.neutral, '', 'ดู') }}
-  </div>
-  <div class="metric neg">
-    <div class="top">
-      <span class="tag"><span class="dot"></span>เชิงลบ</span>
-      <span class="count mono">{{ a.distribution.counts.negative }} รีวิว</span>
-    </div>
-    <div class="val mono">{{ a.distribution.pct.negative }}%</div>
-    <div class="track"><div class="fill" style="width:{{ a.distribution.pct.negative }}%"></div></div>
-    {{ evidence_button(a.sentiment_evidence.negative, '', 'ดู') }}
-  </div>
-</div>
-
-<!-- Lower grid -->
-<div class="lower">
-  <!-- Donut -->
-  <div class="panel sentiment-panel">
-    <div class="panel-head"><div><h3>สัดส่วนความคิดเห็น</h3></div></div>
-    <div class="donut" style="background:conic-gradient(var(--pos) 0 {{ a.distribution.pct.positive }}%, var(--neg) {{ a.distribution.pct.positive }}% {{ a.distribution.pct.positive + a.distribution.pct.negative }}%, var(--neu) {{ a.distribution.pct.positive + a.distribution.pct.negative }}% 100%)">
-      <div class="hole">
-        <span class="num mono">{{ "{:,}".format(a.total_reviews) }}</span>
-        <span class="lbl">รีวิว</span>
-      </div>
-    </div>
-    <div class="legend">
-      <div class="item"><span class="nm"><span class="swatch" style="background:var(--pos)"></span>เชิงบวก</span><span class="n mono">{{ a.distribution.counts.positive }}</span></div>
-      <div class="item"><span class="nm"><span class="swatch" style="background:var(--neu)"></span>เป็นกลาง</span><span class="n mono">{{ a.distribution.counts.neutral }}</span></div>
-      <div class="item"><span class="nm"><span class="swatch" style="background:var(--neg)"></span>เชิงลบ</span><span class="n mono">{{ a.distribution.counts.negative }}</span></div>
-    </div>
-  </div>
-
-  <!-- Result panel -->
-  <div class="panel result-panel">
-    <div class="panel-head">
-      <div>
-        <h3>ผลการวิเคราะห์</h3>
-        <div class="sub-h">รีวิวรายรายการ และคำสำคัญแยกตามหมวด</div>
-      </div>
-      <div class="tools">
-        <div class="seg" role="tablist" aria-label="มุมมองผลวิเคราะห์">
-          <button class="tab active" type="button" role="tab" aria-selected="true" aria-controls="view-all" data-tab="all">รีวิวทั้งหมด</button>
-          <button class="tab" type="button" role="tab" aria-selected="false" aria-controls="view-keywords" data-tab="keywords">คำสำคัญ</button>
+    {% else %}
+    <!-- fallback: ผลเก่าที่ไม่มี narrative -> ใช้ insight แบบเดิม -->
+    <div class="insights-grid">
+      {% for ins in a.insights %}
+      <div class="insight {{ ins.level }}">
+        <div class="ic">
+          {% if ins.level=='improve' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {% elif ins.level=='strength' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6 9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          {% elif ins.level=='neutral' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14" stroke-linecap="round"/></svg>
+          {% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01" stroke-linecap="round"/></svg>{% endif %}
         </div>
-        <div class="dropdown">
-          <button class="icon-btn" id="filterBtn" type="button" title="กรองตามอารมณ์" aria-label="กรอง" aria-haspopup="menu" aria-controls="filterMenu" aria-expanded="false">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 5h18l-7 8v6l-4-2v-4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <div class="dropdown-menu" id="filterMenu" role="menu">
-            <button class="mi active" type="button" data-filter="all">ทั้งหมด</button>
-            <div class="sep"></div>
-            <button class="mi" type="button" data-filter="positive"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--pos)"></span>เชิงบวก</button>
-            <button class="mi" type="button" data-filter="neutral"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--neu)"></span>เป็นกลาง</button>
-            <button class="mi" type="button" data-filter="negative"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--neg)"></span>เชิงลบ</button>
-          </div>
+        <div>
+          <div class="a-name">{{ ins.aspect_th }} <span class="tagline">{{ LEVEL_TH[ins.level] }}</span></div>
+          <div class="msg">{{ ins.message }}</div>
         </div>
-      </div>
-    </div>
-
-    <!-- All -->
-    <div id="view-all" class="tbl-wrap result-scroll" role="tabpanel">
-      <table class="reviews">
-        <thead><tr><th>รีวิว</th><th class="r">อารมณ์</th></tr></thead>
-        <tbody>
-          {% for r in a.reviews %}
-          <tr class="rev-row" data-sentiment="{{ r.sentiment }}">
-            <td>
-              {% if r.rating %}<span class="rating"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg> <span class="mono" style="font-size:11.5px;color:var(--neu-ink)">{{ r.rating }}.0</span></span>{% endif %}
-              <div class="review-text">{{ r.text }}</div>
-            </td>
-            <td class="sent-cell">
-              {% if r.sentiment == 'positive' %}<span class="badge pos"><span class="bdot"></span>เชิงบวก</span>
-              {% elif r.sentiment == 'negative' %}<span class="badge neg"><span class="bdot"></span>เชิงลบ</span>
-              {% else %}<span class="badge neu"><span class="bdot"></span>เป็นกลาง</span>{% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Keywords -->
-    <div id="view-keywords" class="result-scroll" role="tabpanel" hidden>
-      {% for key, label in ASPECTS %}
-      {% set kw = (a.keywords or {}).get(key) or {} %}
-      {% set kw_pos = kw.get('positive', []) %}
-      {% set kw_neg = kw.get('negative', []) %}
-      {% set kw_neu = kw.get('neutral', []) %}
-      {% set total_kw = kw_pos|length + kw_neu|length + kw_neg|length %}
-      <div class="kw-aspect">
-        <div class="title">
-          <span class="ai">
-            {% if key=='food' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 10v11M18 3c-2 0-3 2-3 5s1 4 3 4v9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            {% elif key=='service' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 4a3 3 0 0 1 0 6M21 21v-2a4 4 0 0 0-3-3.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            {% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endif %}
-          </span>
-          {{ label }}
-          <span class="cnt">{{ total_kw }} วลี</span>
-        </div>
-
-        {% if kw_pos %}
-        <div class="kw-group">
-          <div class="kw-glabel up">จุดที่ลูกค้าชม</div>
-          <div class="chips">
-            {% for k in kw_pos %}<button class="chip pos evidence-trigger" type="button" data-sentiment="positive" data-evidence="{{ k.evidence_review_ids|join(',') }}" data-evidence-query="{{ k.word }}"{% if not k.evidence_review_ids %} disabled{% endif %}><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.review_count or k.count }} รีวิว</i></button>{% endfor %}
-          </div>
-        </div>
-        {% endif %}
-
-        {% if kw_neg %}
-        <div class="kw-group">
-          <div class="kw-glabel down">จุดที่ควรปรับปรุง</div>
-          <div class="chips">
-            {% for k in kw_neg %}<button class="chip neg evidence-trigger" type="button" data-sentiment="negative" data-evidence="{{ k.evidence_review_ids|join(',') }}" data-evidence-query="{{ k.word }}"{% if not k.evidence_review_ids %} disabled{% endif %}><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.review_count or k.count }} รีวิว</i></button>{% endfor %}
-          </div>
-        </div>
-        {% endif %}
-
-        {% if kw_neu %}
-        <div class="kw-group">
-          <div class="kw-glabel">กล่าวถึงทั่วไป</div>
-          <div class="chips">
-            {% for k in kw_neu %}<button class="chip neu evidence-trigger" type="button" data-sentiment="neutral" data-evidence="{{ k.evidence_review_ids|join(',') }}" data-evidence-query="{{ k.word }}"{% if not k.evidence_review_ids %} disabled{% endif %}><span class="cdot"></span>{{ k.word }}<i class="kc">{{ k.review_count or k.count }} รีวิว</i></button>{% endfor %}
-          </div>
-        </div>
-        {% endif %}
-
-        {% if total_kw == 0 %}<span class="kw-empty">ยังไม่พบคำสำคัญในหมวดนี้</span>{% endif %}
       </div>
       {% endfor %}
     </div>
+    {% endif %}
   </div>
 </div>
 
-<!-- Insights -->
-<div class="panel actionable-panel" style="margin-top:14px">
-  <div class="panel-head">
-    <div>
-      <div class="actionable-kicker">สรุปสำหรับเจ้าของร้าน</div>
-      <h3>แนวทางพัฒนาร้าน</h3>
-      <div class="sub-h">คำแนะนำจากเสียงของลูกค้า แยกตามแต่ละด้านของร้าน</div>
-    </div>
-  </div>
-  <div class="insights-grid">
-    {% for ins in a.insights %}
-    <article class="insight {{ ins.level }}">
-      <header class="insight-card-head">
-        <div class="insight-identity">
-          <div class="ic">
-            {% if ins.aspect=='food' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 10v11M18 3c-2 0-3 2-3 5s1 4 3 4v9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            {% elif ins.aspect=='service' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 4a3 3 0 0 1 0 6M21 21v-2a4 4 0 0 0-3-3.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            {% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endif %}
-          </div>
-          <div><span class="insight-aspect-label">ด้านที่วิเคราะห์</span><h4 class="insight-title">{{ ins.aspect_th }}</h4></div>
-        </div>
-        <div class="insight-meta">
-          <span class="tagline">{{ LEVEL_TH[ins.level] }}</span>
-        </div>
-      </header>
-      <div class="insight-strategy"><strong>สิ่งที่ร้านทำได้</strong><p>{{ ins.strategy }}</p></div>
-      <div class="insight-reason"><strong>เสียงจากลูกค้า</strong><p>{{ ins.reason or ins.message }}</p></div>
-      {% if ins.evidence %}<div class="insight-evidence-wrap"><span>ประเด็นที่ถูกพูดถึง</span><div class="insight-evidence">{% for ev in ins.evidence %}<button class="evidence-trigger" type="button" data-evidence="{{ ev.evidence_review_ids|join(',') }}" data-evidence-query="{{ ev.text }}"{% if not ev.evidence_review_ids %} disabled{% endif %}>{{ ev.text }} <b class="mono">{{ ev.review_count or ev.count }}</b></button>{% endfor %}</div></div>{% endif %}
-      <div class="insight-footer">{{ evidence_button(ins.evidence_review_ids, '', 'เปิดดูรีวิวจริง') }}</div>
-    </article>
-    {% endfor %}
-  </div>
-</div>
-
-<!-- Priority watchlist intentionally closes the operator report -->
-<section class="panel critical-panel report-ending">
-  <div class="panel-head">
-    <div><div class="panel-kicker">รายการที่ต้องติดตาม · ท้ายรายงาน</div><h3>จุดวิกฤตและจุดเฝ้าระวัง</h3><div class="sub-h">สิ่งที่ร้านควรกลับมาตรวจหลังเห็นภาพรวมทั้งหมด พร้อมกลยุทธ์แก้ไขที่วัดผลได้</div></div>
-    <span class="critical-count mono">{{ a.critical_issues|length }} สัญญาณ</span>
-  </div>
-  {% if a.critical_issues %}
-  <div class="critical-grid">
-    {% for issue in a.critical_issues %}
-    <article class="critical-card {{ issue.severity }}">
-      <div class="critical-top"><span class="severity-pill">{{ 'จุดวิกฤต' if issue.severity == 'critical' else 'เฝ้าระวัง' }}</span><span>{{ issue.aspect_th }}</span></div>
-      <h4>{{ issue.text }}</h4>
-      <p class="critical-why">{{ issue.why }}</p>
-      {{ evidence_button(issue.evidence_review_ids, issue.text) }}
-      <div class="strategy-box"><strong>กลยุทธ์แนะนำ</strong><p>{{ issue.strategy }}</p></div>
-    </article>
-    {% endfor %}
-  </div>
-  {% else %}<p class="consumer-empty positive-empty">ยังไม่พบสัญญาณลบที่มีหลักฐานเพียงพอในรอบนี้ ควรติดตามรีวิวใหม่อย่างต่อเนื่อง</p>{% endif %}
-</section>
-</section>
-
-<div class="evidence-drawer-shell" id="evidenceDrawer" hidden>
-  <button class="evidence-backdrop" type="button" data-evidence-close aria-label="ปิดหลักฐานอ้างอิง"></button>
-  <aside class="evidence-drawer" role="dialog" aria-modal="true" aria-labelledby="evidenceDrawerTitle">
-    <div class="evidence-drawer-head">
-      <div><div class="panel-kicker">หลักฐาน · ตรวจสอบย้อนกลับได้</div><h3 id="evidenceDrawerTitle">รีวิวอ้างอิง</h3><p id="evidenceDrawerMeta"></p></div>
-      <button class="icon-btn" id="evidenceCloseBtn" type="button" aria-label="ปิดหลักฐานอ้างอิง" data-evidence-close>×</button>
-    </div>
-    <div class="evidence-drawer-list" id="evidenceDrawerList"></div>
-    <div class="evidence-drawer-actions">
-      <button class="btn btn-primary" id="evidenceJumpBtn" type="button">ดูในรีวิวทั้งหมด</button>
-      <button class="btn btn-ghost" type="button" data-evidence-close>ปิด</button>
-    </div>
-  </aside>
-</div>
-
+<script id="analysis-data" type="application/json">{{ a | tojson }}</script>
 {% endblock %}
 
 {% block scripts %}

@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/bin/python -c ' *)",
+      "Bash(npm --version)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(.venv/bin/python --version)",
+      "Bash(.venv/bin/python3.11 -c ' *)",
+      "Bash(APIFY_TOKEN='' GEMINI_API_KEY='' .venv/bin/python3.11 -c ' *)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:5000/api/analysis/4)",
+      "Read(//private/tmp/**)",
+      "Bash(pkill -f \"app.py\")",
+      "Bash(.venv/bin/python3.11 -m pytest -q)",
+      "Bash(python3.11 -m pytest -q)",
+      "Bash(.venv/bin/python3.11 -m pip install pytest -q)",
+      "Bash(APIFY_TOKEN='' .venv/bin/python3.11 -c ' *)",
+      "Bash(.venv/bin/python3.11 -c \"import app, core.narrative, db.database; print\\('imports OK'\\)\")",
+      "Bash(.venv/bin/python3.11 -m pytest tests/test_save_settings_route.py tests/test_config_engine.py tests/test_config_secret.py tests/test_config_gemini.py tests/test_pipeline_isolation.py -q)"
+    ]
+  }
+}

@@ -11,12 +11,12 @@ class TestRouteAspect(unittest.TestCase):
 
     def test_tier1_synonym_concept(self):
         p = Phrase(surface="คุ้มค่า", canonical="คุ้มค่า", concept="price_good")
-        self.assertEqual(aspect.route_aspect(p, [])[0], "food")
+        self.assertEqual(aspect.route_aspect(p, [])[0], "value")
 
     def test_tier2_head_noun(self):
         p = Phrase(surface="ราคา ไม่ แพง", head_noun="ราคา",
                    descriptor_tokens=["ไม่", "แพง"], concept="x")
-        self.assertEqual(aspect.route_aspect(p, ["service"])[0], "food")
+        self.assertEqual(aspect.route_aspect(p, ["service"])[0], "value")
 
     def test_tier3_single_clause_aspect(self):
         p = Phrase(surface="หยาบคาย", descriptor_tokens=["หยาบคาย"], concept="x")

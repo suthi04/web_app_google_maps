@@ -43,7 +43,7 @@ class TestAspectDetection(unittest.TestCase):
         self.assertEqual(detect(["พนักงานบริการ", "ดี"]), {"service"})
 
     def test_multiword_aspect_noun_exact(self):
-        self.assertEqual(detect(["ที่จอดรถ", "น้อย"]), {"ambience"})
+        self.assertEqual(detect(["ที่จอดรถ", "น้อย"]), {"parking"})
 
     def test_uncategorized(self):
         self.assertEqual(detect(["เปิด", "สาม", "ทุ่ม"]), set())

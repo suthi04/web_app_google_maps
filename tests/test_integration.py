@@ -19,11 +19,7 @@ from core import pipeline
 
 class TestPipelineSmoke(unittest.TestCase):
     def setUp(self):
-        for name, val in (
-            ("get_apify_token", ""),
-            ("get_use_model", False),
-            ("get_extract_engine", "rule"),
-        ):
+        for name, val in (("get_apify_token", ""), ("get_use_model", False)):
             p = mock.patch.object(config, name, return_value=val)
             p.start()
             self.addCleanup(p.stop)
@@ -44,10 +40,10 @@ class TestPipelineSmoke(unittest.TestCase):
         pct = self.result["distribution"]["pct"]
         self.assertEqual(pct["positive"] + pct["neutral"] + pct["negative"], 100)
 
-    def test_aspect_summary_has_three_aspects(self):
+    def test_aspect_summary_has_five_aspects(self):
         self.assertEqual(
             set(self.result["aspect_summary"].keys()),
-            {"food", "service", "ambience"},
+            {"food", "service", "ambience", "value", "parking"},
         )
 
     def test_negation_keyword_flows_to_output(self):
@@ -65,14 +61,6 @@ class TestPipelineSmoke(unittest.TestCase):
         aspects = {i["aspect"] for i in self.result["insights"]}
         self.assertTrue({"food", "service", "ambience"}.issubset(aspects))
 
-    def test_audience_views_are_built_from_the_same_analysis(self):
-        consumer = self.result["consumer_summary"]
-        self.assertEqual(
-            set(consumer),
-            {"things_to_know", "lazy_summary", "cautions"},
-        )
-        self.assertIn("critical_issues", self.result)
-
     def test_keywords_are_phrases_not_bare_nouns(self):
         bad = {"อาหาร", "เมนู", "ร้าน", "ดี", "อร่อย", "ชอบ", "แนะนำ"}
         words = []
@@ -84,38 +72,9 @@ class TestPipelineSmoke(unittest.TestCase):
 
     def test_keywords_contract_shape(self):
         kw = self.result["keywords"]
-        self.assertEqual(set(kw), {"food", "service", "ambience"})
+        self.assertEqual(set(kw), {"food", "service", "ambience", "value", "parking"})
         for asp in kw.values():
             self.assertEqual(set(asp), {"positive", "neutral", "negative"})
-
-    def test_every_phrase_evidence_points_to_a_stable_review_id(self):
-        valid_ids = {review["review_id"] for review in self.result["reviews"]}
-        self.assertEqual(
-            valid_ids,
-            {f"R{index:03d}" for index in range(1, len(valid_ids) + 1)},
-        )
-        evidence_items = [
-            item
-            for aspect in self.result["keywords"].values()
-            for bucket in aspect.values()
-            for item in bucket
-        ]
-        self.assertTrue(evidence_items)
-        for item in evidence_items:
-            self.assertEqual(item["review_count"], len(item["evidence_review_ids"]))
-            self.assertTrue(set(item["evidence_review_ids"]).issubset(valid_ids))
-
-    def test_progress_callback_reports_ordered_pipeline_stages(self):
-        events = []
-        pipeline.run_analysis("", progress_callback=lambda stage, pct: events.append((stage, pct)))
-        self.assertEqual(
-            [stage for stage, _pct in events],
-            [
-                "fetching_reviews", "preprocessing", "sentiment", "aspects",
-                "phrases", "insights", "finalizing",
-            ],
-        )
-        self.assertEqual([pct for _stage, pct in events], sorted(pct for _stage, pct in events))
 
 
 if __name__ == "__main__":

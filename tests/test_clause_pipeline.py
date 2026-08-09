@@ -88,9 +88,9 @@ class TestAspectLevelSummary(_LexiconEngineMixin, unittest.TestCase):
         }
         reviews = aspect.tag_aspects(sentiment.analyze_all([review]))
         summary = aspect.aspect_sentiment_summary(reviews)
-        # บรรยากาศ (ที่จอดรถ) ต้องไม่ถูกนับเป็นบวกจากการชมอาหาร
-        self.assertEqual(summary["ambience"]["positive"], 0)
-        self.assertEqual(summary["ambience"]["neutral"], 1)
+        # ที่จอดรถ (หมวด parking) ต้องไม่ถูกนับเป็นบวกจากการชมอาหาร
+        self.assertEqual(summary["parking"]["positive"], 0)
+        self.assertEqual(summary["parking"]["neutral"], 1)
 
 
 if __name__ == "__main__":

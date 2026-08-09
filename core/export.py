@@ -14,44 +14,27 @@ import io
 import json
 
 _SENT_TH = {"positive": "บวก", "neutral": "กลาง", "negative": "ลบ"}
-_ASPECT_TH = {"food": "อาหาร", "service": "บริการ",
-              "ambience": "บรรยากาศ", "uncategorized": "อื่น ๆ"}
-
-# Excel/LibreOffice อาจตีความ cell ที่ขึ้นต้นด้วยอักขระเหล่านี้เป็นสูตร แม้ค่าจะ
-# มาจาก CSV ที่ quote แล้วก็ตาม จึง prefix apostrophe ก่อนส่งออกทุก cell ที่เสี่ยง
-_FORMULA_PREFIXES = ("=", "+", "-", "@", "\t", "\r", "\n")
-
-
-def _safe_cell(value):
-    if not isinstance(value, str) or not value:
-        return value
-    candidate = value.lstrip(" \t\r\n")
-    if candidate.startswith(_FORMULA_PREFIXES):
-        return "'" + value
-    return value
-
-
-def _safe_row(row):
-    return [_safe_cell(value) for value in row]
+_ASPECT_TH = {"food": "อาหาร", "service": "บริการ", "ambience": "บรรยากาศ",
+              "value": "ความคุ้มค่า", "parking": "ที่จอดรถ", "uncategorized": "อื่น ๆ"}
 
 
 def _to_csv(header: list, rows: list) -> str:
     buf = io.StringIO()
     buf.write("\ufeff")                 # BOM ให้ Excel อ่านไทยถูก
     w = csv.writer(buf)
-    w.writerow(_safe_row(header))
-    w.writerows(_safe_row(row) for row in rows)
+    w.writerow(header)
+    w.writerows(rows)
     return buf.getvalue()
 
 
 def reviews_csv(a: dict) -> str:
     """ตารางรีวิวรายรายการ"""
-    header = ["รหัสอ้างอิง", "รีวิว", "คะแนนดาว", "วันที่", "อารมณ์ (ทำนาย)", "หมวดที่กล่าวถึง"]
+    header = ["ลำดับ", "รีวิว", "คะแนนดาว", "วันที่", "อารมณ์ (ทำนาย)", "หมวดที่กล่าวถึง"]
     rows = []
     for i, r in enumerate(a.get("reviews", []), 1):
         aspects = ", ".join(_ASPECT_TH.get(x, x) for x in r.get("aspects", []))
         rows.append([
-            r.get("review_id") or f"R{i:03d}",
+            i,
             r.get("text", ""),
             r.get("rating") or "",
             r.get("review_date") or "",
@@ -96,7 +79,7 @@ def summary_csv(a: dict) -> str:
     buf.write("\ufeff")
     w = csv.writer(buf)
     for row in rows:
-        w.writerow(_safe_row(row))
+        w.writerow(row)
     return buf.getvalue()
 
 
@@ -104,12 +87,6 @@ def labeling_json(a: dict) -> str:
     """รีวิวล้วน ๆ สำหรับนำไปติด label (กินกับ eval/label_tool.py)"""
     payload = {
         "_comment": f"รีวิวจริงจาก '{a.get('store_name','')}' — นำไปติด label ด้วย eval/label_tool.py",
-        "reviews": [
-            {
-                "review_id": r.get("review_id") or f"R{index:03d}",
-                "text": r.get("text", ""),
-            }
-            for index, r in enumerate(a.get("reviews", []), 1)
-        ],
+        "reviews": [{"text": r.get("text", "")} for r in a.get("reviews", [])],
     }
     return json.dumps(payload, ensure_ascii=False, indent=2)

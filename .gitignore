@@ -9,14 +9,9 @@ venv/
 insightreview.db
 server.log
 .env
-data/phrase_annotations_*.json
-eval/phrase_report.json
-eval/phrase_report.txt
-eval/phrase_errors.json
-data/phrase_splits/
+data/settings.json
 
 # OS / editor
 .DS_Store
-.claude/
 .idea/
 .vscode/

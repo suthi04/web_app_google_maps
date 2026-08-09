@@ -59,18 +59,11 @@ def _fetch_from_apify(url: str, max_reviews: int) -> dict:
         # 401=token ผิด, 402=เครดิตหมด, 400=input ผิด, 408=timeout ฝั่ง Apify
         raise RuntimeError(f"Apify ตอบกลับ error {resp.status_code}: {resp.text[:200]}")
 
-    try:
-        items = resp.json()
-    except requests.JSONDecodeError as e:
-        raise RuntimeError("Apify ตอบกลับมาเป็นข้อมูลที่ไม่ใช่ JSON") from e
-    if not isinstance(items, list):
-        raise RuntimeError("Apify ตอบกลับมาในรูปแบบที่ไม่ถูกต้อง (ต้องเป็นรายการรีวิว)")
+    items = resp.json()
 
     reviews = []
     store_name = None
     for it in items:
-        if not isinstance(it, dict):
-            continue
         # field ที่ actor คืนมา (ปรับชื่อ key ให้ตรง actor จริงได้)
         text = it.get("text") or it.get("reviewText") or ""
         if not text.strip():
@@ -106,11 +99,6 @@ def fetch_reviews(url: str, max_reviews: int = None) -> dict:
     """
     if max_reviews is None:
         max_reviews = config.get_max_reviews()
-    try:
-        max_reviews = int(max_reviews)
-    except (TypeError, ValueError, OverflowError):
-        max_reviews = config.get_max_reviews()
-    max_reviews = max(1, min(config.MAX_REVIEWS_CAP, max_reviews))
 
     if config.get_apify_token():
         return _fetch_from_apify(url, max_reviews)

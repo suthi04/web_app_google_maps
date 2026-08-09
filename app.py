@@ -5,7 +5,7 @@ Flask application — จุดเข้าของเว็บทั้งห�
 
 Routes:
   GET  /                 หน้าแรก (ช่องวาง URL + ปุ่ม Analyze)
-  POST /analyze          รับ URL -> เข้าคิว background -> redirect ไปหน้าสถานะงาน
+  POST /analyze          รับ URL -> รัน pipeline -> เก็บ DB -> redirect ไป dashboard
   GET  /dashboard/<id>   หน้าแสดงผลวิเคราะห์
   GET  /history          ประวัติการวิเคราะห์
   GET  /saved            รายการโปรด
@@ -17,101 +17,57 @@ Routes:
 ถูกครอบด้วย error handling เพื่อไม่ให้ผู้ใช้เจอหน้า 500 ดิบ ๆ
 """
 import logging
-from urllib.parse import parse_qs, urlparse
-
 from flask import (
     Flask, render_template, request, redirect, url_for, jsonify, abort, flash,
     Response,
 )
 
 import config
-from background_jobs import BackgroundJobRunner
-from core import pipeline, export, audience_insights, insights
+from core import pipeline, export, narrative
 from db import database
-from request_limits import SlidingWindowRateLimiter
-from web_security import add_security_headers, csrf_token, protect_csrf
 
 app = Flask(__name__)
 app.secret_key = config.SECRET_KEY
-app.config.update(
-    MAX_CONTENT_LENGTH=1024 * 1024,
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=config.SESSION_COOKIE_SECURE,
-)
 database.init_db()
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("insightreview")
-recovered_jobs = database.recover_interrupted_jobs()
-if recovered_jobs:
-    log.warning("Marked %s interrupted analysis jobs as failed", recovered_jobs)
-database.prune_finished_jobs(config.JOB_RETENTION_DAYS)
-
-analysis_limiter = SlidingWindowRateLimiter(
-    max_requests=config.ANALYZE_MAX_REQUESTS,
-    window_seconds=config.ANALYZE_WINDOW_SECONDS,
-)
-job_runner = BackgroundJobRunner(
-    pipeline.run_analysis,
-    database,
-    max_workers=config.ANALYZE_MAX_CONCURRENT,
-    max_queued=config.ANALYZE_MAX_QUEUED,
-)
-
-app.before_request(protect_csrf)
-app.after_request(add_security_headers)
 
 
 @app.context_processor
 def inject_globals():
-    return {
-        "demo_mode": not config.get_apify_token(),
-        "csrf_token": csrf_token(),
-        "analysis_defaults": config.get_settings(),
-        "min_reviews": config.MIN_REVIEWS,
-        "max_reviews_cap": config.MAX_REVIEWS_CAP,
-    }
+    # user_settings + เพดานจำนวนรีวิว ให้ทุกหน้าเข้าถึงได้ (ตัวเลือกในช่องวางลิงก์ใช้ค่าปัจจุบันมาโชว์)
+    return {"demo_mode": not config.get_apify_token(),
+            "user_settings": config.get_settings(),
+            "review_caps": {"min": config.MIN_REVIEWS, "max": config.MAX_REVIEWS_CAP}}
+
+
+def _persist_picked_engines(form):
+    """บันทึกตัวเลือกการวิเคราะห์ที่ผู้ใช้เลือกจาก 'ช่องวางลิงก์' (สะดวก ไม่ต้องเข้า Settings).
+
+    รับ engine (โมเดลอารมณ์) + extract_engine (สกัดวลี) + max_reviews (จำนวนรีวิว) เท่าที่ส่งมา
+    แล้ว persist ผ่าน config.save_settings เพื่อให้มีผลกับการวิเคราะห์ครั้งนี้และครั้งถัดไป.
+    """
+    picked = {}
+    if form.get("engine") in ("model", "lexicon"):
+        picked["use_model"] = form.get("engine") == "model"
+    if form.get("extract_engine") in ("rule", "llm"):
+        picked["extract_engine"] = form.get("extract_engine")
+    try:
+        picked["max_reviews"] = int(form.get("max_reviews", ""))   # config บีบเข้าเพดานเอง
+    except (TypeError, ValueError):
+        pass
+    if picked:
+        config.save_settings(picked)
 
 
 def _looks_like_maps_url(url: str) -> bool:
-    """ตรวจว่า URL ชี้ไปยัง Google Maps host/path ที่รองรับจริง
-
-    ห้ามตรวจด้วย substring อย่างเดียว เพราะ URL เช่น ``evil.com/?cid=1`` หรือ
-    ``maps.google.com.evil.com`` สามารถผ่านได้และทำให้เสีย Apify quota โดยเปล่าประโยชน์
-    """
-    try:
-        parsed = urlparse((url or "").strip())
-    except ValueError:
-        return False
-
-    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
-        return False
-
-    host = parsed.hostname.lower().rstrip(".")
-    path = parsed.path.lower()
-
-    if host == "maps.app.goo.gl":
-        return bool(path and path != "/")
-    if host == "goo.gl":
-        return path.startswith("/maps/")
-
-    is_google = (
-        host in {"google.com", "google.co.th"}
-        or host.endswith(".google.com")
-        or host.endswith(".google.co.th")
-    )
-    if not is_google:
-        return False
-
-    # maps.google.* เป็น host สำหรับ Maps โดยตรง ส่วน google.* ต้องมี /maps หรือ cid
-    if host.startswith("maps."):
-        return True
-    return (
-        path == "/maps"
-        or path.startswith("/maps/")
-        or "cid" in parse_qs(parsed.query, keep_blank_values=True)
-    )
+    """ตรวจคร่าว ๆ ว่าเป็นลิงก์ Google Maps จริงไหม (กันยิง Apify ทิ้งเปล่า)"""
+    u = url.lower()
+    return any(s in u for s in (
+        "google.com/maps", "google.co.th/maps", "maps.google",
+        "goo.gl/maps", "maps.app.goo.gl", "/maps/place", "?cid=",
+    ))
 
 
 @app.route("/")
@@ -119,47 +75,9 @@ def index():
     return render_template("index.html")
 
 
-def _analysis_unavailable(status: int, title: str, message: str, retry_after: int):
-    return (
-        render_template(
-            "error.html", code=str(status), title=title, message=message
-        ),
-        status,
-        {"Retry-After": str(max(1, retry_after))},
-    )
-
-
-def _analysis_options_from_form() -> dict:
-    """Validate per-job analysis choices without mutating shared settings."""
-    defaults = config.get_settings()
-    sentiment_engine = request.form.get("engine")
-    if sentiment_engine not in {"model", "lexicon"}:
-        sentiment_engine = "model" if defaults["use_model"] else "lexicon"
-
-    extract_engine = request.form.get("extract_engine")
-    if extract_engine not in {"rule", "llm"}:
-        extract_engine = defaults["extract_engine"]
-
-    try:
-        max_reviews = int(request.form.get("max_reviews", defaults["max_reviews"]))
-    except (TypeError, ValueError, OverflowError):
-        max_reviews = defaults["max_reviews"]
-    max_reviews = max(config.MIN_REVIEWS, min(config.MAX_REVIEWS_CAP, max_reviews))
-    return {
-        "use_model": sentiment_engine == "model",
-        "extract_engine": extract_engine,
-        "max_reviews": max_reviews,
-    }
-
-
 @app.route("/analyze", methods=["POST"])
 def analyze():
     url = (request.form.get("url") or "").strip()
-    analysis_options = _analysis_options_from_form()
-
-    if len(url) > 2048:
-        flash("ลิงก์ยาวเกินไป กรุณาใช้ลิงก์ Google Maps โดยตรง", "err")
-        return redirect(url_for("index"))
 
     # โหมดจริง (มี Apify token): ต้องมี URL และต้องเป็นลิงก์ Maps
     if config.get_apify_token():
@@ -170,61 +88,41 @@ def analyze():
             flash("ลิงก์ไม่ถูกต้อง — ใช้ลิงก์ร้านอาหารจาก Google Maps เท่านั้น", "err")
             return redirect(url_for("index"))
 
-    if not job_runner.reserve():
-        return _analysis_unavailable(
-            503,
-            "คิววิเคราะห์เต็ม",
-            "มีงานกำลังรอหรือประมวลผลครบจำนวนแล้ว กรุณารอสักครู่ก่อนส่งรายการใหม่",
-            5,
-        )
+    # บันทึกตัวเลือกโมเดลที่ผู้ใช้เลือกจากช่องวางลิงก์ (ถ้ามี) ก่อนเริ่มวิเคราะห์
+    _persist_picked_engines(request.form)
 
-    allowed, retry_after = analysis_limiter.consume(request.remote_addr or "unknown")
-    if not allowed:
-        job_runner.cancel_reservation()
-        return _analysis_unavailable(
-            429,
-            "วิเคราะห์บ่อยเกินไป",
-            "กรุณารอตามเวลาที่กำหนดแล้วจึงเริ่มวิเคราะห์รายการใหม่",
-            retry_after,
-        )
-
+    # รัน pipeline แบบกัน error: ถ้าพัง ผู้ใช้ต้องเห็นข้อความที่เข้าใจได้ ไม่ใช่ 500 ดิบ
     try:
-        job_id = database.create_job(url)
-    except Exception as e:  # noqa: BLE001 - release reserved queue capacity
-        job_runner.cancel_reservation()
-        log.exception("Could not create analysis job: %s", e)
-        flash("สร้างงานวิเคราะห์ไม่สำเร็จ กรุณาลองใหม่", "err")
+        result = pipeline.run_analysis(url)
+    except Exception as e:  # noqa: BLE001 (จับกว้างเพื่อกัน user เจอ traceback)
+        log.exception("analyze failed: %s", e)
+        flash("วิเคราะห์ไม่สำเร็จ — อาจดึงรีวิวไม่ได้หรือบริการขัดข้อง ลองใหม่อีกครั้ง", "err")
         return redirect(url_for("index"))
 
-    if not job_runner.submit_reserved(job_id, url, analysis_options):
-        database.delete_job(job_id)
-        return _analysis_unavailable(
-            503, "เริ่มตัวประมวลผลไม่สำเร็จ", "กรุณารอสักครู่แล้วลองใหม่", 5
-        )
-    return redirect(url_for("job_status", job_id=job_id))
+    # ไม่มีรีวิวภาษาไทยให้วิเคราะห์เลย
+    if result.get("total_reviews", 0) == 0:
+        flash("ไม่พบรีวิวภาษาไทยที่ร้านนี้ ลองร้านอื่นหรือเพิ่มจำนวนรีวิว", "err")
+        return redirect(url_for("index"))
+
+    aid = database.save_analysis(result)
+    return redirect(url_for("dashboard", aid=aid))
 
 
-@app.route("/jobs/<job_id>")
-def job_status(job_id):
-    job = database.get_job(job_id)
-    if not job:
-        abort(404)
-    if job["status"] == "completed" and job.get("analysis_id"):
-        return redirect(url_for("dashboard", aid=job["analysis_id"]))
-    return render_template("job.html", job=job)
-
-
-@app.route("/api/jobs/<job_id>")
-def api_job_status(job_id):
-    job = database.get_job(job_id)
-    if not job:
-        abort(404)
-    payload = dict(job)
-    if job["status"] == "completed" and job.get("analysis_id"):
-        payload["dashboard_url"] = url_for(
-            "dashboard", aid=job["analysis_id"]
-        )
-    return jsonify(payload)
+def _aspect_examples(data: dict, per_bucket: int = 2, max_len: int = 150) -> dict:
+    """ตัวอย่างประโยครีวิวจริง แยกตาม (หมวด × อารมณ์) — ใช้ทำ tooltip บนกราฟ.
+    ใช้อารมณ์ระดับรีวิว + หมวดที่รีวิวนั้นกล่าวถึง (ข้อมูลที่เก็บใน payload)."""
+    out = {}
+    reviews = data.get("reviews", [])
+    for aspect in data.get("aspect_summary", {}):
+        buckets = {"positive": [], "neutral": [], "negative": []}
+        for r in reviews:
+            s = r.get("sentiment")
+            if aspect in (r.get("aspects") or []) and s in buckets and len(buckets[s]) < per_bucket:
+                text = (r.get("text") or "").strip()
+                if text:
+                    buckets[s].append(text[:max_len] + ("…" if len(text) > max_len else ""))
+        out[aspect] = buckets
+    return out
 
 
 @app.route("/dashboard/<int:aid>")
@@ -232,14 +130,8 @@ def dashboard(aid):
     data = database.get_analysis(aid)
     if not data:
         abort(404)
-    # Normalize provenance on every read so legacy analyses gain stable review
-    # IDs where exact evidence can be reconstructed. Presentation fields are
-    # deterministic and intentionally recomputed from the persisted analysis.
-    audience_insights.enrich_result(data)
-    data["insights"] = insights.generate_insights(
-        data.get("aspect_summary") or {}, data.get("keywords") or {}
-    )
-    return render_template("dashboard.html", a=data)
+    return render_template("dashboard.html", a=data,
+                           aspect_examples=_aspect_examples(data))
 
 
 @app.route("/history")
@@ -269,17 +161,41 @@ def saved():
 @app.route("/toggle-save/<int:aid>", methods=["POST"])
 def toggle_save(aid):
     is_saved = database.toggle_saved(aid)
-    if is_saved is None:
-        abort(404)
     return jsonify({"id": aid, "is_saved": is_saved})
 
 
 @app.route("/delete/<int:aid>", methods=["POST"])
 def delete(aid):
     ok = database.delete_analysis(aid)
-    if not ok:
-        abort(404)
     return jsonify({"id": aid, "deleted": ok})
+
+
+@app.route("/regenerate/<int:aid>", methods=["POST"])
+def regenerate(aid):
+    """สร้างเนื้อหา narrative ใหม่ด้วย Gemini จากข้อมูลที่บันทึกไว้แล้ว —
+    ไม่ดึงรีวิวซ้ำ ไม่รัน pipeline ใหม่ (ประหยัดโควตา Gemini + เครดิต Apify)."""
+    a = database.get_analysis(aid)
+    if not a:
+        abort(404)
+    if not narrative.available():
+        return jsonify({"ok": False, "reason": "gemini_unavailable"})
+
+    core = {
+        "store_name": a.get("store_name", ""),
+        "distribution": a.get("distribution", {}),
+        "aspect_summary": a.get("aspect_summary", {}),
+        "keywords": a.get("keywords", {}),
+        "reviews": a.get("reviews", []),
+    }
+    try:
+        story = narrative.build(core)
+    except Exception as e:   # noqa: BLE001
+        log.exception("regenerate failed: %s", e)
+        return jsonify({"ok": False, "reason": "error"})
+
+    database.update_narrative(aid, story)
+    # engine == "rule" ทั้งที่ available() -> แปลว่า Gemini ตอบไม่ได้ (มักโควตาหมด)
+    return jsonify({"ok": True, "engine": story.get("engine")})
 
 
 @app.route("/api/analysis/<int:aid>")
@@ -290,31 +206,21 @@ def api_analysis(aid):
     return jsonify(data)
 
 
-@app.route("/healthz")
-def healthz():
-    """Small dependency-free liveness/readiness probe for deployment."""
-    try:
-        database.healthcheck()
-    except Exception as e:  # noqa: BLE001 - health endpoint must report, not raise
-        log.error("database healthcheck failed: %s", e)
-        return jsonify({"status": "unhealthy", "database": "unavailable"}), 503
-    return jsonify({
-        "status": "ok",
-        "database": "ok",
-        "jobs": job_runner.snapshot(),
-    })
-
-
-# ---------- legacy settings compatibility (UI ย้ายไปอยู่ข้างช่อง URLแล้ว) ----------
+# ---------- settings ----------
+# ตัวเลือกทั้งหมด (โมเดล/สกัดวลี/จำนวนรีวิว) ย้ายไปอยู่ในช่องวางลิงก์แล้ว
+# คงเส้นทาง GET ไว้กันลิงก์/บุ๊กมาร์กเก่าพัง โดย redirect กลับหน้าวิเคราะห์
 @app.route("/settings")
 def settings():
-    flash("ย้ายตัวเลือกการวิเคราะห์มาไว้ข้างช่องวางลิงก์แล้ว", "info")
     return redirect(url_for("index"))
 
 
 @app.route("/settings", methods=["POST"])
 def save_settings():
-    changes = {"use_model": request.form.get("engine") == "model"}
+    # persist เฉพาะฟิลด์ที่ส่งมาจริง — ตัวเลือกโมเดลย้ายไปช่องวางลิงก์แล้ว (อาจไม่มีในฟอร์มนี้)
+    # ถ้ายังมีมา (จากฟอร์มเก่า) ก็ยังรองรับ
+    changes = {}
+    if request.form.get("engine") in ("model", "lexicon"):
+        changes["use_model"] = request.form.get("engine") == "model"
 
     engine = request.form.get("extract_engine")
     if engine in ("rule", "llm"):
@@ -327,8 +233,8 @@ def save_settings():
         pass
 
     config.save_settings(changes)
-    flash("บันทึกค่าเริ่มต้นแล้ว ตัวเลือกอยู่ข้างช่องวางลิงก์", "ok")
-    return redirect(url_for("index"))
+    flash("บันทึกการตั้งค่าแล้ว", "ok")
+    return redirect(url_for("settings"))
 
 
 # ---------- export (สำหรับงานวิจัย) ----------
@@ -364,27 +270,11 @@ def export_labeling(aid):
 
 
 # ---------- error pages (ไม่ให้เจอหน้า debug ดิบ) ----------
-@app.errorhandler(400)
-def bad_request(e):
-    return render_template("error.html",
-                           code="400", title="คำขอไม่ถูกต้อง",
-                           message="คำขอหมดอายุหรือไม่ผ่านการตรวจสอบความปลอดภัย กรุณารีเฟรชหน้าแล้วลองใหม่"), 400
-
-
 @app.errorhandler(404)
 def not_found(e):
-    if request.path.startswith("/api/"):
-        return jsonify({"error": "not_found", "status": 404}), 404
     return render_template("error.html",
                            code="404", title="ไม่พบหน้านี้",
                            message="หน้าที่คุณเปิดอาจถูกลบไปแล้ว หรือไม่เคยมีอยู่"), 404
-
-
-@app.errorhandler(413)
-def request_too_large(e):
-    return render_template("error.html",
-                           code="413", title="คำขอมีขนาดใหญ่เกินไป",
-                           message="ข้อมูลที่ส่งมาเกินขนาดที่ระบบรองรับ กรุณารีเฟรชหน้าแล้วลองใหม่"), 413
 
 
 @app.errorhandler(500)
@@ -395,4 +285,4 @@ def server_error(e):
 
 
 if __name__ == "__main__":
-    app.run(host=config.HOST, debug=config.DEBUG, port=config.PORT)
+    app.run(debug=config.DEBUG, port=config.PORT)

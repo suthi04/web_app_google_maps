@@ -1,7 +1,7 @@
 # InsightReview — รายงานวิเคราะห์ Repository เชิงลึก
 
-> จัดทำครั้งแรก: 2026-06-10 · **ปรับให้ตรงโค้ดปัจจุบัน: 2026-07-14**
-> วิธีวิเคราะห์: อ่านทุกไฟล์ใน workspace, รัน test suite จริง (243 เทสต์ ผ่านทั้งหมด), รัน pipeline จริงบนโหมด demo,
+> จัดทำครั้งแรก: 2026-06-10 · **ปรับให้ตรงโค้ดปัจจุบัน: 2026-06-12** · branch `feat/review-insight-phrase-extraction`
+> วิธีวิเคราะห์: อ่านทุกไฟล์ที่ track ใน git, รัน test suite จริง (135 เทสต์ ผ่านทั้งหมด), รัน pipeline จริงบนโหมด demo,
 > ตรวจ data/spec/plan, และตรวจสอบความถูกต้องของการเรียก Google Gemini API เทียบ SDK ทางการ
 > อ้างอิงจากโค้ดจริงทั้งหมด ไม่คาดเดา
 >
@@ -26,18 +26,17 @@
 (ดูเจตนาใน [docs/.../2026-06-09-review-insight-phrase-extraction-design.md](superpowers/specs/2026-06-09-review-insight-phrase-extraction-design.md))
 
 **กลุ่มผู้ใช้:**
-- **ผู้บริโภค** — ดูสิ่งที่ควรรู้ บทสรุปสั้น และข้อควรระวัง
-- **เจ้าของ/ผู้จัดการร้านอาหาร** — ดูแดชบอร์ดสรุปอารมณ์ จุดวิกฤต หลักฐาน และกลยุทธ์
+- **เจ้าของ/ผู้จัดการร้านอาหาร** — ดูแดชบอร์ดสรุปอารมณ์ + จุดแข็ง/ควรปรับปรุง
 - **ผู้ทำวิจัย (ตัวนักศึกษา)** — ใช้ฟังก์ชัน export + eval วัด F1 สำหรับเขียนวิทยานิพนธ์บทที่ 4
-- ผู้ใช้เลือก engine/จำนวนรีวิวต่อการวิเคราะห์ข้างช่อง URL ส่วน secret และเพดานอยู่ใน `.env`
+- มีการแบ่ง "ผู้ดูแลระบบ" (ตั้ง `.env`) vs "ผู้ใช้ทั่วไป" (ตั้งผ่านหน้า Settings) อย่างชัดเจน
+  ใน [config.py](../config.py)
 
-**Workflow หลัก** (จาก [app.py](../app.py), [background_jobs.py](../background_jobs.py) และ [core/pipeline.py](../core/pipeline.py)):
+**Workflow หลัก** (จาก [core/pipeline.py](../core/pipeline.py)):
 ```
-URL → บันทึก job ใน SQLite → bounded worker queue → scraper (Apify/sample)
-→ preprocess (คัดไทย+ตัดคำ+แบ่งอนุประโยค)
+URL → scraper (Apify/sample) → preprocess (คัดไทย+ตัดคำ+แบ่งอนุประโยค)
 → sentiment (WangchanBERTa/lexicon) → aspect (จัดหมวด)
-→ phrase pipeline (สกัดวลี: rule หรือ Gemini) → insights + audience insights
-→ เก็บผล SQLite → job completed → browser เปิด dashboard
+→ phrase pipeline (สกัดวลี: rule หรือ Gemini) → insights
+→ เก็บ SQLite → redirect ไป dashboard
 ```
 
 จุดออกแบบสำคัญที่สุด: ระบบรันได้ทันทีใน **"โหมด demo"** โดยไม่ต้องมี Apify token
@@ -55,7 +54,7 @@ URL → บันทึก job ใน SQLite → bounded worker queue → scrape
 | **API** | REST-ish routes + JSON endpoints ภายใน | [app.py](../app.py) |
 | **External** | Apify (`compass/google-maps-reviews-scraper`), Google Gemini API | [core/scraper.py](../core/scraper.py), [core/phrases/llm_extract.py](../core/phrases/llm_extract.py) |
 | **AI/ML** | WangchanBERTa (sentiment), Gemini (phrase extraction), PyThaiNLP (tokenize) | [core/sentiment.py](../core/sentiment.py), [core/phrases/llm_extract.py](../core/phrases/llm_extract.py), [core/preprocess.py](../core/preprocess.py) |
-| **3rd-party libs** | Flask, Waitress, requests, pythainlp, google-genai; (optional) transformers, torch, sentencepiece, matplotlib | [requirements.txt](../requirements.txt), [requirements-model.txt](../requirements-model.txt) |
+| **3rd-party libs** | Flask, requests, pythainlp, google-genai; (optional) transformers, torch, sentencepiece, matplotlib | [requirements.txt](../requirements.txt), [requirements-model.txt](../requirements-model.txt) |
 
 **หัวใจสถาปัตยกรรม:** pipeline แบบ **deterministic 7 ขั้นต่ออนุประโยค** ที่ทุกขั้นเป็น pure
 function ทำงานบน `Phrase` dataclass หนึ่งตัว (อธิบายได้ทุกขั้น — สำคัญสำหรับการสอบป้องกัน
@@ -68,7 +67,7 @@ function ทำงานบน `Phrase` dataclass หนึ่งตัว (อ�
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                          BROWSER (Jinja2 + vanilla JS)                    │
-│   index · dashboard(consumer/operator) · history · saved · error          │
+│   index · dashboard(donut CSS) · history · saved · settings · error       │
 │   static/js: common.js (toast/modal/loading) · dashboard.js · history.js   │
 └───────────────┬───────────────────────────────────────────────────────────┘
                 │ HTTP (form POST / fetch JSON)
@@ -103,13 +102,9 @@ function ทำงานบน `Phrase` dataclass หนึ่งตัว (อ�
 | ไฟล์ | หน้าที่ | เรียกจาก / ส่งต่อไป |
 |---|---|---|
 | [app.py](../app.py) | Flask routes ทั้งหมด, จุดเข้าระบบ | import `config`, `core.pipeline`, `core.export`, `db.database` |
-| [config.py](../config.py) | ค่ากลางจาก `.env` + ค่าเริ่มต้น compatibility (`data/settings.json`) | ทุกโมดูลเรียกใช้ |
-| [background_jobs.py](../background_jobs.py) | bounded worker queue + lifecycle ของงานวิเคราะห์ | เรียก pipeline แล้วอัปเดต `analysis_job` ผ่าน database |
-| [serve.py](../serve.py) | production entrypoint แบบ single-process | ให้ Waitress รับ HTTP หลาย threads โดยแชร์ in-process queue เดียว |
-| [request_limits.py](../request_limits.py) | sliding-window rate limiter + concurrency gate | `app.py` ใช้ครอบงาน `/analyze` |
-| [web_security.py](../web_security.py) | CSRF token + response security headers | Flask before/after request hooks |
+| [config.py](../config.py) | ค่ากลางจาก `.env` + settings ฝั่งผู้ใช้ (`data/settings.json`) | ทุกโมดูลเรียกใช้ |
 | [debug_apify.py](../debug_apify.py) | สคริปต์ตรวจการเชื่อมต่อ Apify 3 ขั้น (token → login → scrape) | สแตนด์อโลน, อ่าน `APIFY_TOKEN` |
-| [requirements.txt](../requirements.txt) / [requirements-model.txt](../requirements-model.txt) | dependency เว็บ+demo / +model | — |
+| [requirements.txt](../requirements.txt) / [requirements-model.txt](../requirements-model.txt) | dependency demo / +model | — |
 | [.env.example](../.env.example) | ตัวอย่าง config (Apify, USE_MODEL, GEMINI_API_KEY/MODEL) | — |
 
 ### core/ (ตรรกะวิเคราะห์)
@@ -125,7 +120,6 @@ function ทำงานบน `Phrase` dataclass หนึ่งตัว (อ�
 | [core/aspect.py](../core/aspect.py) | จัดหมวดระดับอนุประโยค + `route_aspect` 4 ชั้น | ใช้ lexicon; เรียกจาก pipeline |
 | [core/phrases/](../core/phrases/) | **★ การสกัดวลี (7 ขั้น) + เครื่องยนต์ Gemini** | ดูตารางถัดไป |
 | [core/insights.py](../core/insights.py) | ข้อสรุปเชิงปฏิบัติ rule-based ราย aspect | กิน `aspect_summary` + `keywords` |
-| [core/audience_insights.py](../core/audience_insights.py) | สรุปผู้บริโภค + จุดวิกฤต/กลยุทธ์ โดยอ้างหลักฐานและไม่เดาชื่อเมนู | กิน reviews/keywords/distribution |
 | [core/export.py](../core/export.py) | export CSV/JSON | เรียกจาก routes export |
 
 ### core/phrases/ (7 ขั้น + LLM)
@@ -142,10 +136,10 @@ function ทำงานบน `Phrase` dataclass หนึ่งตัว (อ�
 *(ขั้น 5 aspect routing อยู่ใน [aspect.py](../core/aspect.py) `route_aspect`, ขั้น 6 sentiment อยู่ใน [sentiment.py](../core/sentiment.py) `classify_phrase`)*
 
 ### templates/ · static/ · data/ · eval/ · scripts/ · docs/
-- `templates/`: `base.html` (layout+sidebar+modal+toast), `index`, `job`, `dashboard`, `history` (ใช้ซ้ำทั้ง history & saved), `error`
-- `static/css/style.css`, `static/js/`: common/job/dashboard/history
+- `templates/`: `base.html` (layout+sidebar+modal+toast), `index`, `dashboard`, `history` (ใช้ซ้ำทั้ง history & saved), `settings`, `error`
+- `static/css/style.css`, `static/js/`: common/dashboard/history
 - `data/`: `sample_reviews.json` (30), `labeled_reviews.json` (60, gold), `settings.json` (สร้างเมื่อ save)
-- `eval/`: sentiment metrics/label tool + phrase queue/schema/label/agreement/adjudication/dataset split/evaluation/error analysis
+- `eval/`: `evaluate.py` (metrics เอง ไม่พึ่ง sklearn), `label_tool.py`, `report.txt`, `confusion_matrix.csv/png`
 - `scripts/compare_engines.py`: เทียบ rule vs LLM (Gemini)
 - `docs/superpowers/`: spec + plan ของฟีเจอร์ (review-insight-phrase-extraction, gemini-extraction-engine, hybrid-keyword-extraction)
 
@@ -155,13 +149,12 @@ function ทำงานบน `Phrase` dataclass หนึ่งตัว (อ�
 
 ### 4.1 `core/pipeline.py` — orchestrator
 
-**`run_analysis(url, max_reviews=None, use_model=None, extract_engine=None, progress_callback=None) -> dict`** ([pipeline.py](../core/pipeline.py))
+**`run_analysis(url, max_reviews=None) -> dict`** ([pipeline.py](../core/pipeline.py))
 - **จุดประสงค์:** ร้อยทุกขั้นเป็นผลลัพธ์ก้อนเดียวที่พร้อมเก็บ DB + ส่ง dashboard
-- **Return:** dict หลัก — `store_name`, `source_url`, `total_reviews`, `fetched_reviews`, `engine`,
-  `extract_engine`, `distribution`, `aspect_summary`, `keywords`, `insights`, `reviews`,
-  `consumer_summary`, `critical_issues`
+- **Return:** dict 11 คีย์ — `store_name`, `source_url`, `total_reviews`, `fetched_reviews`, `engine`,
+  `extract_engine`, `distribution`, `aspect_summary`, `keywords`, `insights`, `reviews`
   *(หมายเหตุ: ไม่มี `topics` แล้ว — ฟีเจอร์ "ลูกค้าพูดถึงบ่อย" ถูกถอดออกใน commit `0d54a9f`)*
-- **Logic:** scrape → preprocess → sentiment.analyze_all → aspect.tag_aspects → distribution + aspect_summary + phrase pipeline → insights + audience insights
+- **Logic:** scrape → preprocess → sentiment.analyze_all → aspect.tag_aspects → distribution + aspect_summary + phrase pipeline + insights
 - **Edge case:** ถ้า `total_reviews == 0` (ไม่มีรีวิวไทย) app.py จะ flash error และ redirect กลับหน้าแรก
 
 **`_rule_phrase_pipeline(reviews) -> dict`** ([pipeline.py](../core/pipeline.py))
@@ -221,12 +214,12 @@ bare single descriptor conf ต่ำ→ทิ้ง (hallucination guard)
 
 1. `GET /` → [index.html](../templates/index.html); base.html inject `demo_mode=True`
 2. กด Analyze → JS `showLoading(true)` → `POST /analyze` พร้อม form `url`
-3. [app.py](../app.py) `analyze()`: ตรวจ URL/rate-limit/queue capacity → สร้าง `analysis_job` → redirect `/jobs/<job_id>`
-4. [background_jobs.py](../background_jobs.py) เปลี่ยนสถานะ queued→running แล้วเรียก `pipeline.run_analysis(url)` นอก HTTP request
-5. `run_analysis`: scraper.fetch_reviews → preprocess → sentiment → aspect → distribution/phrase pipeline/insights
-6. worker เรียก `database.save_analysis(result)` แล้วเปลี่ยน job เป็น completed พร้อม `analysis_id`
-7. pipeline บันทึก progress 7 ขั้นลง SQLite; [job.js](../static/js/job.js) poll ทุก 1.5 วินาที (backoff สูงสุด 15 วินาทีเมื่อเน็ตสะดุด) แสดง progress bar แล้วเปิด URL dashboard ที่ server ส่งมาอัตโนมัติ
-8. `dashboard()`: `get_analysis(aid)` → แสดง metric cards + donut + รีวิว + วลี + insights
+3. [app.py](../app.py) `analyze()`: โหมด demo ข้ามตรวจ URL → `pipeline.run_analysis(url)` ใน try/except
+4. `run_analysis`: scraper.fetch_reviews (อ่าน sample) → preprocess.filter_and_prepare → sentiment.analyze_all → aspect.tag_aspects → distribution + aspect_summary + _phrase_pipeline → generate_insights
+5. `database.save_analysis(result)` → INSERT + payload JSON, คืน `aid`
+6. `redirect → /dashboard/<aid>`
+7. `dashboard()`: `get_analysis(aid)` → render [dashboard.html](../templates/dashboard.html)
+8. แสดง metric cards + donut(CSS) + ตารางรีวิว + วลีแยกหมวด + insights; dashboard.js ผูก tab/filter/save/export
 9. **Save:** `fetch POST /toggle-save/<id>` → คืน JSON → JS อัปเดต UI
 
 กรณีโหมดจริงต่างที่ขั้น 3-4: ตรวจ `_looks_like_maps_url` → `_fetch_from_apify` (POST sync, รอได้ถึง 300s) และ sentiment เรียก WangchanBERTa; ถ้าเลือกเครื่องยนต์ Gemini จะส่งรีวิวทั้งชุดให้ Gemini ในขั้นสกัดวลี
@@ -250,11 +243,7 @@ PHRASE PIPELINE (ราย clause):
   raw_tokens ─extract─► Phrase[] ─quality─► ─canonicalize─► ─synonyms─►
    ─route_aspect─► ─classify_phrase─► collected[]
   ▼
-aggregate.build → keywords {aspect:{pos/neu/neg:[{word,count,review_count,evidence_review_ids}]}}
-
-`count` คือจำนวน occurrence ของวลี ส่วน `review_count` คือจำนวนรีวิวต้นทางที่ไม่ซ้ำ
-และ `evidence_review_ids` ใช้รหัสคงที่รูป `R001` เพื่อย้อนตรวจข้อความเต็มในแดชบอร์ด/ไฟล์ส่งออก
-การจัดระดับสัญญาณลบใช้จำนวนรีวิวไม่ซ้ำ ไม่ใช้เปอร์เซ็นต์ลบทั้ง aspect เพื่อยกระดับวลีที่พบครั้งเดียว
+aggregate.build → keywords {aspect:{pos/neu/neg:[{word,count}]}}
   ▼
 result dict → save_analysis (JSON blob) → get_analysis → dashboard.html
                                                           │
@@ -314,18 +303,17 @@ is_saved(0/1, default 0), payload(TEXT = JSON ทั้งก้อน)
 | Route | Method | Request | Response | Validation | Error handling |
 |---|---|---|---|---|---|
 | `/` | GET | — | index.html | — | — |
-| `/analyze` | POST | form `url`,`engine`,`extract_engine`,`max_reviews` | redirect ไป job / flash | URL + allowlist engine + บีบเพดาน | try/except, 0 รีวิว→job failed |
+| `/analyze` | POST | form `url` | redirect / flash | โหมดจริง: url + `_looks_like_maps_url` | try/except กว้าง, 0 รีวิว→flash |
 | `/dashboard/<int:aid>` | GET | path aid | dashboard.html | int converter | abort(404) |
 | `/history`,`/saved` | GET | — | history.html | — | — |
 | `/toggle-save/<int:aid>` | POST | — | JSON `{id,is_saved}` | int converter | คืน False เงียบถ้าไม่พบ |
 | `/delete/<int:aid>` | POST | — | JSON `{id,deleted}` | int converter | rowcount>0 |
 | `/api/analysis/<int:aid>` | GET | — | **JSON payload เต็ม** | int converter | abort(404) |
-| `/settings` | GET/POST | legacy compatibility | redirect หน้าแรก | engine allowlist, บีบเพดาน | try/except int |
+| `/settings` | GET/POST | form `engine`,`extract_engine`,`max_reviews` | render / redirect | engine ∈ {rule,llm}, บีบเพดาน | try/except int |
 | `/export/<aid>/{reviews,summary}.csv`,`labeling.json` | GET | — | ไฟล์ดาวน์โหลด | abort(404) | — |
 | 404/500 | — | — | error.html | — | หน้าเป็นมิตร ไม่โชว์ traceback |
 
-**ข้อสังเกต:** routes ที่เปลี่ยน state ตรวจ CSRF แล้ว แต่ระบบยังไม่มี authentication/
-การแยกข้อมูลรายผู้ใช้ตามขอบเขตของโครงงาน
+**ข้อสังเกต:** routes ที่เปลี่ยน state เป็น POST แต่**ไม่มี CSRF token** และ**ไม่มี authentication**
 
 ---
 
@@ -354,23 +342,21 @@ is_saved(0/1, default 0), payload(TEXT = JSON ทั้งก้อน)
 
 | ด้าน | สถานะ | รายละเอียด |
 |---|---|---|
-| Authentication | — ไม่มีตามขอบเขต | เว็บโครงงานแบบไม่สร้างบัญชีผู้ใช้/ผู้ดูแล |
-| Authorization | ⚠️ ข้อมูลร่วม | history/ผลวิเคราะห์เป็นระดับเครื่อง ไม่ได้แยกเจ้าของรายบุคคล |
-| Input validation | ✅ ดี | URL ตรวจ scheme/hostname/path และจำกัด 2,048 ตัวอักษร; request ไม่เกิน 1 MiB; env/settings บีบชนิดและช่วง |
+| Authentication | ❌ ไม่มี | ไม่มีระบบล็อกอิน (โดยตั้งใจ — เครื่องมือเดี่ยว/demo) |
+| Authorization | ❌ ไม่มี | ใครก็ดู/ลบ/save analysis ใด ๆ ได้ผ่าน id |
+| Input validation | ⚠️ บางส่วน | URL ตรวจคร่าว; int converter; max_reviews บีบช่วง |
 | SQL Injection | ✅ ปลอดภัย | parameterized queries ทุกที่ |
 | XSS | ✅ ปลอดภัย | Jinja2 autoescape; `{{ a\|tojson }}` escape `<>&` |
-| CSRF | ✅ ปลอดภัย | POST/PUT/PATCH/DELETE ตรวจ token จาก form หรือ `X-CSRF-Token` ทุก route |
+| CSRF | ⚠️ เสี่ยง | POST routes ไม่มี token (impact ต่ำ เพราะไม่มี auth/ข้อมูลอ่อนไหว) |
 | Secrets exposure | ✅ ดี | key จาก env เท่านั้น, ไม่ commit; debug_apify mask token |
 | API key handling | ✅ ดี | `GEMINI_API_KEY` อ่านสดผ่าน `get_gemini_api_key()`; `APIFY_TOKEN` ผ่าน query param |
 | Privacy (LLM) | ⚠️ พึงระวัง | โหมด Gemini ส่งข้อความรีวิวออกไปยัง Google (เป็น opt-in; rule-based ทำงานออฟไลน์) |
-| Abuse control | ✅ ระดับ single process | `/analyze` จำกัดต่อ IP พร้อม `Retry-After` และมี concurrency gate; ปิด/ปรับผ่าน env ได้ |
-| Browser policy | ✅ ดี | `HttpOnly`, `SameSite=Lax`, CSP, no-store, nosniff, frame deny, referrer/permissions/COOP headers |
 | Flask debug | ✅ ดี | ปิดเป็นค่าเริ่มต้น + คอมเมนต์อธิบาย RCE risk |
 | SECRET_KEY | ✅ ดี | env ถ้ามี ไม่งั้นสุ่ม + เตือน multi-worker |
 
 **เพิ่มเติม:** Apify token เป็น query param (อาจถูก log โดย proxy — เสี่ยงต่ำ); SSRF เสี่ยงต่ำ
-(ส่งให้ Apify + มี guard); งานหนักอยู่นอก request thread และคิวมีขนาดจำกัด
-โดยรวม: พร้อมขึ้น staging/ใช้สาธิตแบบไม่ล็อกอิน; หากรันหลาย process ต้องย้าย queue coordination/rate-limit ไป Redis/Celery/RQ และพิจารณาการแยกข้อมูลผู้ใช้
+(ส่งให้ Apify + มี guard); DoS: การวิเคราะห์ synchronous ในเธรด request
+โดยรวม: เหมาะบริบทโครงงาน/รันเฉพาะที่ **ไม่พร้อม deploy สาธารณะ** ถ้าจะ public ต้องเพิ่ม auth+CSRF+rate-limit+queue
 
 ---
 
@@ -378,13 +364,13 @@ is_saved(0/1, default 0), payload(TEXT = JSON ทั้งก้อน)
 
 | ประเด็น | การวิเคราะห์ |
 |---|---|
-| Bottleneck หลัก | โหมดจริง: Apify sync call (timeout 300s) + WangchanBERTa บน CPU; รันใน bounded background worker |
-| Model inference | `analyze_all` รวมทั้งรีวิว+ทุก clause เป็น batch เดียว; `classify_phrase` reuse clause cache แล้ว |
+| Bottleneck หลัก | โหมดจริง: Apify sync call (timeout 300s) + WangchanBERTa บน CPU; อยู่ในเธรด request เดียว |
+| Model inference ซ้ำ | `analyze_all` predict ทั้งรีวิว+ทุก clause; แต่ `classify_phrase` reuse clause cache แล้ว |
 | Expensive loops | substring loops ใน detect_aspects / _predict_lexicon — lexicon คงที่ จึง O(n) |
 | Unnecessary calls | `get_use_model()` → stat settings.json ต่อรีวิว (มี mtime cache, ต้นทุนน้อย) |
 | Memory | payload JSON ทั้งรีวิว — ที่ MAX_REVIEWS=100 ยังเล็ก |
-| Scalability | มี async job UI/queue ภายในโปรเซส; หากหลาย process ต้องใช้ external broker/shared limiter |
-| จุดดี | request ตอบเร็ว, job state คงอยู่ใน SQLite, queue bounded, recovery หลัง restart, batch inference, settings/DB lifecycle แข็งแรง |
+| Scalability | single process; SECRET_KEY สุ่มต่อโปรเซส → multi-worker session พัง; ไม่มี async/queue/cache |
+| จุดดี | settings cache by mtime, model singleton, clause sentiment reuse, ตัดคำครั้งเดียว, Gemini ส่งทั้ง batch เป็น request เดียว |
 
 ---
 
@@ -394,11 +380,11 @@ is_saved(0/1, default 0), payload(TEXT = JSON ทั้งก้อน)
 |---|---|---|
 | Readability | 9/10 | docstring ไทยอธิบาย "ทำไม"; โครงสร้าง 7 ขั้นเข้าใจง่าย |
 | Maintainability | 9/10 | lexicon source of truth จุดเดียว; pure functions; แยก display/agg_key |
-| Scalability | 7/10 | มี bounded async queue และ persistent status; ยังไม่ใช่ distributed queue |
-| Security | 8/10 | มี analysis rate-limit/concurrency gate, CSRF, input guard และ cookie/browser headers; ไม่มีการแยกสิทธิ์ผู้ใช้ตามขอบเขต |
-| Performance | 7/10 | งานหนักไม่ค้าง request และ batch inference แล้ว; CPU model/Apify ยังเป็น bottleneck |
+| Scalability | 5/10 | พอ single-user; ไม่มี async/queue; SQLite blob |
+| Security | 6/10 | พื้นฐานดี แต่ไม่มี auth/CSRF/rate-limit (รับได้ในบริบทโครงงาน) |
+| Performance | 6/10 | optimize สำคัญทำแล้ว; แต่ synchronous + CPU model ช้าโหมดจริง |
 | Documentation | 9/10 | README + spec/plan ละเอียด เหมาะวิทยานิพนธ์ |
-| Testing | 9/10 | **243 tests ผ่านทั้งหมด**, รวม audience views/evidence traceability/async demo E2E/background jobs/request guards/accessibility/phrase evaluation/security/config/DB/Apify boundaries |
+| Testing | 9/10 | **135 tests ผ่านทั้งหมด**, tagger-independent, ครอบทุกขั้น (รวม path fallback LLM→rule) |
 
 **รวมเชิงคุณภาพ: ~8/10** — สูงมากสำหรับโครงงานปริญญาตรี โดดเด่นที่ "อธิบายได้" และวินัยการทดสอบ
 
@@ -407,16 +393,17 @@ is_saved(0/1, default 0), payload(TEXT = JSON ทั้งก้อน)
 ## 14. Refactoring Opportunities (เรียงตาม Impact)
 
 **Quick Wins:**
-1. เพิ่ม shared broker (Redis/Celery/RQ) หากจะรันหลาย process/หลายเครื่อง
-2. เพิ่มการประมาณเวลาคงเหลือจากสถิติ duration ของแต่ละ stage หากมีข้อมูลใช้งานจริงเพียงพอ
+1. ใส่ CSRF protection บน POST routes (ถ้าจะ deploy นอกเครื่องส่วนตัว)
+2. เพิ่มข้อความเตือน privacy บนหน้า Settings เมื่อเลือกเครื่องยนต์ Gemini (ส่งข้อมูลออกภายนอก)
 
 **Medium:**
 3. ย้าย config ที่เกี่ยวกับ Gemini ให้รวมศูนย์ใน [config.py](../config.py) ครบถ้วน (ปัจจุบัน `GEMINI_MODEL` อยู่ใน config แล้ว, key อ่านสดผ่าน `get_gemini_api_key()`)
 4. ทบทวน spec รอบแรกที่บรรยาย POS-tagging (ไม่ได้ implement) ให้มีหมายเหตุ superseded
 
 **Major:**
-5. Phase 2 DB normalization (query/วิเคราะห์ข้ามร้าน)
-6. ติด label phrase gold set 2 คน + adjudicate (framework/metrics พร้อมแล้ว แต่ยังห้ามอ้าง Phrase F1 ก่อนมี gold จริง)
+5. Async analysis + job queue (แก้ bottleneck synchronous)
+6. Phase 2 DB normalization (query/วิเคราะห์ข้ามร้าน)
+7. Gold set ราย phrase (วัดคุณภาพ phrase เชิงปริมาณ — ปัจจุบันมีแต่ eval อารมณ์)
 
 > **หมายเหตุ:** รายการ refactor ในฉบับเดิมหลายข้อ **ทำเสร็จแล้ว** — percent rounding (largest-remainder, `b665b70`),
 > ลบ topics/`keywords.py` (`0d54a9f`), ลบ `clause.split_clauses` แบบ string (เหลือแค่ `split_clause_tokens`),
@@ -429,7 +416,7 @@ is_saved(0/1, default 0), payload(TEXT = JSON ทั้งก้อน)
 README **ตรงกับระบบจริงในระดับสูงมาก** หลังการอัปเดตล่าสุด:
 
 **✅ ตรง:** โครงสร้างโฟลเดอร์, ลำดับ pipeline, methodology, ตาราง routes, contract, engine fallback,
-security notes, **จำนวนเทสต์ 243** (รัน `python -m unittest discover -s tests` → `Ran 243 tests ... OK`),
+security notes, **จำนวนเทสต์ 135** (รัน `python -m unittest discover -s tests` → `Ran 135 tests ... OK`),
 `.env.example` มี `GEMINI_API_KEY`/`GEMINI_MODEL` ครบ, `MAX_REVIEWS` default 100 ตรงกันทั้ง config และ .env.example,
 เครื่องยนต์ LLM = Gemini ตรงทั้ง README/โค้ด/requirements
 
@@ -464,12 +451,12 @@ security notes, **จำนวนเทสต์ 243** (รัน `python -m uni
 ## สรุป
 
 InsightReview คุณภาพโค้ดและเอกสารสูงผิดปกติสำหรับโครงงานปริญญาตรี จุดเด่นคือ pipeline สกัดวลี
-แบบ deterministic อธิบายได้ทุกขั้น + background progress job + เครื่องยนต์คู่ (WangchanBERTa↔lexicon, Gemini↔rule) + fallback + วินัยการทดสอบ (243 เทสต์)
+แบบ deterministic อธิบายได้ทุกขั้น + เครื่องยนต์คู่ (WangchanBERTa↔lexicon, Gemini↔rule) + fallback อัตโนมัติ + วินัยการทดสอบ (135 เทสต์)
 
 **ความเสี่ยงที่ควรพิจารณา (เรียงความสำคัญ):**
 1. การจำแนกอารมณ์ใช้ checkpoint Wisesight แบบ off-the-shelf (ไม่ได้ fine-tune เฉพาะโดเมนรีวิวร้านอาหาร) — เป็นข้อจำกัดที่ควรระบุในเล่ม
-2. เครื่องมือ phrase-level evaluation พร้อมแล้ว แต่ gold set ยังต้องติด label อิสระ 2 คนและ adjudicate
-3. ไม่มี authentication/การแยกข้อมูลรายผู้ใช้ และโหมด Gemini ส่งข้อมูลออกภายนอก (มี disclosure และเป็น opt-in)
-4. background queue ปัจจุบันอยู่ในโปรเซสเดียว; ถ้ารันหลาย worker ต้องใช้ external broker
+2. การสกัดวลียังไม่มี gold set ราย phrase สำหรับวัดเชิงปริมาณ
+3. ไม่มี CSRF/auth + โหมด Gemini ส่งข้อมูลออกภายนอก (รับได้ถ้าไม่ public)
+4. สถาปัตยกรรม synchronous ไม่ scale (documented แล้ว)
 
 การเรียก Google Gemini API เขียนถูกต้องตาม SDK ปัจจุบัน (`client.models.generate_content` + `response_schema`) ไม่ต้องแก้

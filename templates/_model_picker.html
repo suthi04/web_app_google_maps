@@ -1,0 +1,46 @@
+{# ตัวเลือกโมเดล วางในฟอร์ม Analyze — เลือกโมเดลได้ตรงช่องวางลิงก์เลย
+   ใช้ hidden inputs ส่งไปกับฟอร์ม /analyze; JS (common.js) จัดการ toggle/active #}
+<div class="dropdown model-picker" data-picker>
+  <input type="hidden" name="engine"
+         value="{{ 'model' if user_settings.use_model else 'lexicon' }}">
+  <input type="hidden" name="extract_engine" value="{{ user_settings.extract_engine }}">
+
+  <button type="button" class="picker-btn" data-picker-toggle
+          title="เลือกเครื่องมือวิเคราะห์">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2zM9 18h6M10 22h4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span data-picker-label>{{ 'WangchanBERTa' if user_settings.use_model else 'Lexicon' }}</span>
+    <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+
+  <div class="dropdown-menu picker-menu" data-picker-menu>
+    <div class="pm-group">
+      <div class="pm-label">โมเดลวิเคราะห์อารมณ์</div>
+      <button type="button" class="mi" data-field="engine" data-value="model">
+        WangchanBERTa <span class="pm-tag rec">แม่นยำ</span>
+      </button>
+      <button type="button" class="mi" data-field="engine" data-value="lexicon">
+        Lexicon <span class="pm-tag">เร็ว</span>
+      </button>
+    </div>
+    <div class="sep"></div>
+    <div class="pm-group">
+      <div class="pm-label">การสกัดคำสำคัญ</div>
+      <button type="button" class="mi" data-field="extract_engine" data-value="rule">
+        Rule-based <span class="pm-tag">ออฟไลน์</span>
+      </button>
+      <button type="button" class="mi" data-field="extract_engine" data-value="llm">
+        Gemini (LLM) <span class="pm-tag rec">ฉลาดขึ้น</span>
+      </button>
+    </div>
+    <div class="sep"></div>
+    <div class="pm-group">
+      <div class="pm-label">จำนวนรีวิวที่วิเคราะห์</div>
+      <div class="pm-number-row">
+        <input type="number" name="max_reviews" class="pm-number"
+               min="{{ review_caps.min }}" max="{{ review_caps.max }}" step="10"
+               value="{{ user_settings.max_reviews }}">
+        <span class="pm-hint">{{ review_caps.min }}–{{ review_caps.max }} รายการ</span>
+      </div>
+    </div>
+  </div>
+</div>

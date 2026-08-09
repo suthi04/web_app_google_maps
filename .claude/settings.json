@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/bin/python3.11 -m pytest tests/test_save_settings_route.py tests/test_config_engine.py tests/test_config_secret.py tests/test_config_gemini.py tests/test_pipeline_isolation.py tests/test_aggregate.py -q)",
+      "Bash(awk '{print $5, $9}')",
+      "Bash(.venv/bin/python3.11 -c ' *)",
+      "Bash(APIFY_TOKEN='' GEMINI_API_KEY='' .venv/bin/python3.11 -c ' *)",
+      "Bash(.venv/bin/python3.11 -c \"import app, core.narrative; print\\('imports OK'\\)\")",
+      "Bash(.venv/bin/python3.11 -m pytest tests/test_save_settings_route.py tests/test_config_engine.py tests/test_pipeline_isolation.py -q)",
+      "Bash(.venv/bin/python3.11 -c \"import app, core.trends; print\\('imports OK'\\)\")",
+      "Bash(.venv/bin/python3.11 -m pytest tests/test_pipeline_isolation.py tests/test_save_settings_route.py tests/test_integration.py -q)",
+      "Bash(.venv/bin/python3.11 -c \"import json; d=json.load\\(open\\('data/labeled_reviews.json',encoding='utf-8'\\)\\); print\\(type\\(d\\), len\\(d\\) if isinstance\\(d,list\\) else d.keys\\(\\)\\)\")",
+      "Bash(.venv/bin/python3.11 -m pytest tests/test_aggregate.py tests/test_lexicon_maps.py tests/test_aspect.py tests/test_aspect_route.py tests/test_clause_pipeline.py tests/test_synonyms.py -q)"
+    ]
+  }
+}

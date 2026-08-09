@@ -17,5 +17,4 @@ class Phrase:
     aspect: str | None = None                     # internal: food|service|atmosphere; mapped to ambience for the dashboard
     aspect_conf: str = "low"                      # "high" | "medium" | "low"
     sentiment: str | None = None                  # positive | neutral | negative (stage 6)
-    review_index: int | None = None                # zero-based source review index for traceability
     clause: dict = field(default_factory=dict)    # source clause for context sentiment

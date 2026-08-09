@@ -6,7 +6,6 @@ from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import config
 from core import pipeline
 from core.phrases import extract
 
@@ -25,7 +24,6 @@ class TestPipelineIsolation(unittest.TestCase):
                 raise RuntimeError("boom")
             return real_extract(clause)
 
-        with mock.patch.object(config, "get_extract_engine", return_value="rule"), \
-             mock.patch.object(extract, "extract", side_effect=boom):
+        with mock.patch.object(extract, "extract", side_effect=boom):
             out, _ = pipeline._phrase_pipeline([bad, good])   # must not raise
         self.assertIn("food", out)   # good review still produced output
