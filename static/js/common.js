@@ -114,8 +114,10 @@ function wireAnalysisPreferences() {
           : field.value;
         if (current) saved[name] = current;
         try { localStorage.setItem(ANALYSIS_PREFS_KEY, JSON.stringify(saved)); } catch (_) {}
+        syncLandingSelect(field);
         syncModelMenuLabel(form);
       }));
+      fields.forEach(syncLandingSelect);
     });
     syncModelMenuLabel(form);
   });
@@ -131,6 +133,13 @@ function wireAnalysisPreferences() {
       }
     });
   });
+}
+
+function syncLandingSelect(field) {
+  if (field?.tagName !== "SELECT") return;
+  const display = field.closest(".landing-option")?.querySelector("[data-select-display]");
+  const selected = field.options[field.selectedIndex];
+  if (display && selected) display.textContent = selected.textContent;
 }
 
 function syncModelMenuLabel(form) {

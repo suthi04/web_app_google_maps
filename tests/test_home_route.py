@@ -18,6 +18,7 @@ class TestHomeRoute(unittest.TestCase):
         self.assertEqual(html.count('<label class="landing-option'), 3)
         self.assertIn('class="landing-benefits"', html)
         self.assertIn('class="btn btn-primary btn-pill analyze-btn"', html)
+        self.assertEqual(html.count("data-select-display"), 3)
         self.assertIn("วิเคราะห์อารมณ์", html)
         self.assertIn("สกัดประเด็น", html)
         self.assertIn("ตรวจสอบจากรีวิวจริง", html)
