@@ -50,6 +50,73 @@ class TestPracticalRules(unittest.TestCase):
         crowd = next(item for item in items if item["topic"] == "crowd_noise")
         self.assertEqual(crowd["context_labels"], ["ช่วงเย็น", "วันหยุด"])
 
+    def test_bare_hard_to_find_does_not_imply_store_access(self):
+        items = practical_rules.build_practical_insights([
+            {
+                "review_id": "R001",
+                "text": "รสชาติแบบนี้หายากจริง ๆ อร่อยมาก",
+                "sentiment": "positive",
+            },
+        ])
+        self.assertNotIn("access", {item["topic"] for item in items})
+
+    def test_phrase_sentiment_does_not_upgrade_a_factual_mention(self):
+        items = practical_rules.build_practical_insights(
+            reviews=[{
+                "review_id": "R001",
+                "text": "พนักงานบอกที่จอดรถให้และบริการดีมาก",
+                "sentiment": "positive",
+            }],
+            phrase_items=[{
+                "text": "บอกที่จอดรถให้",
+                "sentiment": "positive",
+                "evidence_review_ids": ["R001"],
+            }],
+        )
+        parking = next(item for item in items if item["topic"] == "parking")
+        self.assertEqual(parking["status"], "neutral")
+        self.assertEqual(parking["title"], "มีความเห็นเรื่องที่จอดรถ")
+
+    def test_explicit_parking_limit_is_negative(self):
+        items = practical_rules.build_practical_insights([
+            {
+                "review_id": "R001",
+                "text": "ช่วงเย็นที่จอดเต็ม ต้องวนรถหลายรอบ",
+                "sentiment": "negative",
+            },
+        ])
+        parking = next(item for item in items if item["topic"] == "parking")
+        self.assertEqual(parking["status"], "negative")
+
+    def test_family_and_senior_phrases_have_explicit_direction(self):
+        items = practical_rules.build_practical_insights([
+            {
+                "review_id": "R001",
+                "text": "ยกให้เป็นร้านประจำของครอบครัวเลยค่ะ",
+                "sentiment": "positive",
+            },
+            {
+                "review_id": "R002",
+                "text": "ทางขึ้นชัน ไม่เหมาะกับผู้สูงอายุ",
+                "sentiment": "negative",
+            },
+        ])
+        group = next(item for item in items if item["topic"] == "group_accessibility")
+        self.assertEqual(group["status"], "mixed")
+        self.assertEqual(group["positive_review_count"], 1)
+        self.assertEqual(group["negative_review_count"], 1)
+
+    def test_completed_takeaway_action_is_positive_evidence(self):
+        items = practical_rules.build_practical_insights([
+            {
+                "review_id": "R001",
+                "text": "สั่งกลับบ้าน แพ็กเรียบร้อยดี",
+                "sentiment": "positive",
+            },
+        ])
+        takeaway = next(item for item in items if item["topic"] == "takeaway")
+        self.assertEqual(takeaway["status"], "positive")
+
     def test_enrich_result_uses_phrase_evidence_and_adds_meta(self):
         result = {
             "reviews": [{"text": "รีวิวเดิมไม่มีข้อความเต็ม", "sentiment": "negative"}],

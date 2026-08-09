@@ -62,7 +62,7 @@ PRACTICAL_TOPICS = (
         "availability",
         "การจองและเวลาเปิดร้าน",
         27,
-        ("รับจอง", "จองได้", "โทรจองได้", "มีโต๊ะ", "โต๊ะว่าง", "มีคิวออนไลน์"),
+        ("รับจอง", "จองได้", "โทรจองได้", "มีโต๊ะว่าง", "ยังมีโต๊ะ", "โต๊ะว่าง", "มีที่นั่งว่าง", "ได้โต๊ะทันที", "มีคิวออนไลน์"),
         ("ไม่รับจอง", "จองไม่ได้", "โต๊ะเต็ม", "ร้านปิด", "ปิดร้าน", "ปิดชั่วคราว", "เมนูหมด", "ของหมด", "ขายหมด"),
         ("จองโต๊ะ", "จองคิว", "โทรจอง", "วันหยุดร้าน", "เวลาเปิดร้าน", "เวลาเปิดปิด", "เวลาเปิด-ปิด"),
         {
@@ -102,8 +102,8 @@ PRACTICAL_TOPICS = (
         "parking",
         "ที่จอดรถ",
         24,
-        ("มีที่จอดรถ", "ที่จอดรถสะดวก", "จอดรถสะดวก", "ที่จอดเยอะ", "ที่จอดกว้าง", "ลานจอดรถ"),
-        ("ไม่มีที่จอดรถ", "หาที่จอดยาก", "ที่จอดรถหายาก", "ที่จอดน้อย", "ที่จอดรถน้อย", "จอดรถยาก", "ที่จอดแคบ"),
+        ("มีที่จอดรถ", "มีลานจอดรถ", "จอดรถได้", "ที่จอดรถสะดวก", "จอดรถสะดวก", "ที่จอดเยอะ", "ที่จอดกว้าง"),
+        ("ไม่มีที่จอดรถ", "หาที่จอดยาก", "ที่จอดรถหายาก", "ที่จอดน้อย", "ที่จอดรถน้อย", "จอดรถยาก", "ที่จอดแคบ", "ที่จอดเต็ม", "จอดเต็ม", "ลานจอดเต็ม", "ต้องจอดริมถนน"),
         ("ที่จอดรถ", "จอดรถ", "ที่จอด", "ลานจอด"),
         {
             "positive": "มีที่จอดรถ",
@@ -122,8 +122,8 @@ PRACTICAL_TOPICS = (
         "access",
         "ทางไปร้าน",
         21,
-        ("ร้านหาง่าย", "หาง่าย", "ติดถนนใหญ่", "เดินทางสะดวก", "ใกล้รถไฟฟ้า", "ทางเข้าชัดเจน"),
-        ("ร้านหายาก", "หายาก", "ซอยลึก", "ทางเข้าหายาก", "ทางเข้าแคบ", "เดินทางลำบาก"),
+        ("ร้านหาง่าย", "หาร้านง่าย", "ร้านหาไม่ยาก", "หาร้านไม่ยาก", "ทางไปร้านง่าย", "ติดถนนใหญ่", "เดินทางสะดวก", "ใกล้รถไฟฟ้า", "ทางเข้าชัดเจน"),
+        ("ร้านหายาก", "หาร้านยาก", "ซอยลึก", "ทางเข้าหายาก", "ทางเข้าแคบ", "เดินทางลำบาก"),
         ("ทางเข้าร้าน", "การเดินทาง", "ติดถนน", "รถไฟฟ้า", "เข้าซอย"),
         {
             "positive": "เดินทางไปที่ร้านได้ง่าย",
@@ -242,9 +242,9 @@ PRACTICAL_TOPICS = (
         "group_accessibility",
         "เหมาะกับใคร",
         15,
-        ("เหมาะกับครอบครัว", "เหมาะกับเด็ก", "มีเก้าอี้เด็ก", "รถเข็นเข้าได้", "วีลแชร์เข้าได้", "รองรับกลุ่มใหญ่"),
-        ("ไม่เหมาะกับเด็ก", "ไม่มีเก้าอี้เด็ก", "รถเข็นเข้าไม่ได้", "วีลแชร์เข้าไม่ได้", "ไม่รองรับกลุ่มใหญ่"),
-        ("ครอบครัว", "เด็กเล็ก", "เก้าอี้เด็ก", "ผู้สูงอายุ", "รถเข็น", "วีลแชร์", "กลุ่มใหญ่"),
+        ("เหมาะกับครอบครัว", "เหมาะมาทานกับครอบครัว", "เหมาะมากับครอบครัว", "ร้านประจำของครอบครัว", "พาครอบครัวมาได้", "เหมาะกับเด็ก", "มีเก้าอี้เด็ก", "มีทางลาด", "รถเข็นเข้าได้", "วีลแชร์เข้าได้", "รองรับกลุ่มใหญ่"),
+        ("ไม่เหมาะกับเด็ก", "ไม่เหมาะกับผู้สูงอายุ", "ไม่สะดวกสำหรับผู้สูงอายุ", "ผู้สูงอายุไม่สะดวก", "ไม่มีเก้าอี้เด็ก", "ไม่มีทางลาด", "ไม่เหมาะกับรถเข็น", "รถเข็นเข้าไม่ได้", "วีลแชร์เข้าไม่ได้", "ไม่รองรับกลุ่มใหญ่"),
+        ("เก้าอี้เด็ก", "ทางลาด", "รถเข็น", "วีลแชร์"),
         {
             "positive": "เหมาะกับครอบครัวหรือกลุ่ม",
             "negative": "อาจไม่สะดวกสำหรับบางกลุ่ม",
@@ -262,7 +262,7 @@ PRACTICAL_TOPICS = (
         "takeaway",
         "ซื้อกลับบ้านและเดลิเวอรี",
         12,
-        ("ซื้อกลับได้", "สั่งกลับบ้านได้", "มีเดลิเวอรี", "มีเดลิเวอรี่", "ส่งอาหารได้"),
+        ("ซื้อกลับได้", "ซื้อกลับบ้าน", "สั่งกลับบ้าน", "สั่งกลับบ้านได้", "มีเดลิเวอรี", "มีเดลิเวอรี่", "ส่งอาหารได้"),
         ("ซื้อกลับไม่ได้", "ไม่มีเดลิเวอรี", "ไม่มีเดลิเวอรี่", "ไม่ส่งอาหาร"),
         ("ซื้อกลับบ้าน", "สั่งกลับบ้าน", "เดลิเวอรี", "เดลิเวอรี่", "ส่งอาหาร"),
         {
@@ -348,8 +348,6 @@ def _remove_opposite_substrings(
 def _polarity(
     topic: dict,
     text: str,
-    fallback: str | None = None,
-    allow_fallback: bool = False,
 ) -> tuple[str | None, list[str]]:
     positive = _matched_cues(text, topic["positive"])
     negative = _matched_cues(text, topic["negative"])
@@ -364,11 +362,9 @@ def _polarity(
         return "negative", matches
     if positive:
         return "positive", matches
-    if allow_fallback and fallback in {"positive", "neutral", "negative"}:
-        # Extracted phrases carry phrase-level polarity.  Whole-review polarity
-        # is deliberately not used here: a positive food review that merely
-        # says "มีผู้สูงอายุ" is not evidence that accessibility is good.
-        return fallback, matches
+    # A factual mention is not an opinion.  In particular, do not inherit the
+    # sentiment of an extracted phrase: "พนักงานบอกที่จอดรถให้ดีมาก" praises
+    # service but does not prove that the restaurant has convenient parking.
     return "neutral", matches
 
 
@@ -439,7 +435,7 @@ def build_practical_insights(
 
         for index, review in enumerate(reviews):
             review_id = str(review.get("review_id") or f"R{index + 1:03d}")
-            polarity, matches = _polarity(topic, review.get("text", ""), review.get("sentiment"))
+            polarity, matches = _polarity(topic, review.get("text", ""))
             if polarity is None:
                 continue
             evidence[polarity].append(review_id)
@@ -452,8 +448,6 @@ def build_practical_insights(
             polarity, matches = _polarity(
                 topic,
                 item.get("text", ""),
-                item.get("sentiment"),
-                allow_fallback=True,
             )
             if polarity is None:
                 continue
@@ -527,11 +521,10 @@ def enrich_result(result: dict, limit: int = 6) -> dict:
 
     phrase_items = []
     for buckets in (result.get("keywords") or {}).values():
-        for sentiment, phrases in (buckets or {}).items():
+        for phrases in (buckets or {}).values():
             for phrase in phrases or []:
                 phrase_items.append({
                     "text": str(phrase.get("word") or "").strip(),
-                    "sentiment": sentiment,
                     "evidence_review_ids": list(dict.fromkeys(
                         phrase.get("evidence_review_ids") or []
                     )),

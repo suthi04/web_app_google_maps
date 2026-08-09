@@ -294,7 +294,7 @@ coordination ไป Redis/Celery/RQ ก่อน เพื่อไม่ให�
 
 ## 🧪 การทดสอบ
 
-มีชุดทดสอบ **243 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
+มีชุดทดสอบ **261 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
 
 ```bash
 python -m unittest discover -s tests          # รันทั้งหมด
