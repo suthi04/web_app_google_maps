@@ -68,6 +68,7 @@ class TestAudienceDashboard(unittest.TestCase):
         self.assertIn('class="persona-state"', html)
         self.assertIn("กำลังดู", html)
         self.assertIn('class="search-leading"', html)
+        self.assertIn('class="btn btn-primary btn-pill analyze-btn"', html)
         self.assertIn('id="consumerView"', html)
         self.assertIn('id="operatorView"', html)
         self.assertIn("เรื่องที่ควรรู้ก่อนไป", html)
@@ -81,16 +82,19 @@ class TestAudienceDashboard(unittest.TestCase):
     def test_renders_aspect_strengths_and_weaknesses_in_original_dashboard(self):
         payload = _payload()
         payload["aspect_summary"] = {
-            "food": {"positive": 6, "neutral": 1, "negative": 3, "total": 10}
+            "food": {"positive": 6, "neutral": 1, "negative": 3, "total": 10},
+            "service": {"positive": 1, "neutral": 2, "negative": 7, "total": 10},
         }
         html = _get_dashboard(payload)
         self.assertIn("ร้านนี้เด่น/ด้อยเรื่องอะไร", html)
         self.assertIn('class="asp-chart"', html)
         self.assertIn('class="asp-card asp-row"', html)
+        self.assertIn('class="asp-signal positive"', html)
+        self.assertIn('class="asp-signal negative"', html)
         self.assertIn('data-aspect-open="aspect-panel-food"', html)
         self.assertIn('id="aspectModal"', html)
         self.assertIn('role="dialog"', html)
-        self.assertIn("กดอ่านกลางหน้าจอ", html)
+        self.assertIn("กดเพื่อดูเสียงลูกค้า", html)
         self.assertIn("ย่อกลับ", html)
         self.assertIn('class="asp-review-snippet evidence-trigger"', html)
         self.assertIn('data-evidence="R001"', html)

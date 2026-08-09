@@ -45,7 +45,7 @@
           </label>
         </div>
       </details>
-      <button class="btn btn-primary btn-pill" type="submit" aria-label="เริ่มวิเคราะห์ร้านใหม่">วิเคราะห์
+      <button class="btn btn-primary btn-pill analyze-btn" type="submit" aria-label="เริ่มวิเคราะห์ร้านใหม่"><span>วิเคราะห์</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
@@ -163,13 +163,20 @@
       {% set positive_pct = (summary.positive / summary.total * 100) | round | int %}
       {% set neutral_pct = (summary.neutral / summary.total * 100) | round | int %}
       {% set negative_pct = 100 - positive_pct - neutral_pct %}
+      {% if positive_pct >= negative_pct and positive_pct >= neutral_pct %}
+        {% set signal_class = 'positive' %}{% set signal_label = 'เด่น' %}
+      {% elif negative_pct >= positive_pct and negative_pct >= neutral_pct %}
+        {% set signal_class = 'negative' %}{% set signal_label = 'ควรระวัง' %}
+      {% else %}
+        {% set signal_class = 'neutral' %}{% set signal_label = 'เสียงกลาง' %}
+      {% endif %}
       <button class="asp-card asp-row" type="button"
               data-aspect-open="aspect-panel-{{ key }}"
               data-aspect-label="เสียงลูกค้าด้าน{{ ASPECT_TH.get(key, key) }}"
               aria-controls="aspect-panel-{{ key }}" aria-expanded="false">
         <span class="asp-label">
-          <strong class="asp-name">{{ ASPECT_TH.get(key, key) }}</strong>
-          <small>กดอ่านกลางหน้าจอ</small>
+          <span class="asp-label-head"><strong class="asp-name">{{ ASPECT_TH.get(key, key) }}</strong><span class="asp-signal {{ signal_class }}">{{ signal_label }}</span></span>
+          <small>กดเพื่อดูเสียงลูกค้า</small>
         </span>
         <span class="asp-bar" aria-label="{{ ASPECT_TH.get(key, key) }}: บวก {{ positive_pct }}% กลาง {{ neutral_pct }}% ลบ {{ negative_pct }}%">
           {% if positive_pct > 0 %}<span class="seg pos" style="width:{{ positive_pct }}%" title="เชิงบวก {{ positive_pct }}%">{% if positive_pct >= 12 %}{{ positive_pct }}%{% endif %}</span>{% endif %}
