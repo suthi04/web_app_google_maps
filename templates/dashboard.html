@@ -28,13 +28,13 @@
         <div class="model-menu-popover">
           <fieldset>
             <legend>วิเคราะห์อารมณ์</legend>
-            <label class="model-choice"><input type="radio" name="engine" value="model" data-analysis-setting {{ 'checked' if analysis_defaults.use_model }}><span><b>WangchanBERTa</b><small>เข้าใจบริบทภาษาไทยได้ลึกกว่า</small></span></label>
-            <label class="model-choice"><input type="radio" name="engine" value="lexicon" data-analysis-setting {{ 'checked' if not analysis_defaults.use_model }}><span><b>Lexicon</b><small>เร็ว ออฟไลน์ และอธิบายผลได้ง่าย</small></span></label>
+            <label class="model-choice"><input type="radio" name="engine" value="model" data-analysis-setting {{ 'checked' if analysis_defaults.use_model }}><span><b>WangchanBERTa</b></span></label>
+            <label class="model-choice"><input type="radio" name="engine" value="lexicon" data-analysis-setting {{ 'checked' if not analysis_defaults.use_model }}><span><b>Lexicon</b></span></label>
           </fieldset>
           <fieldset>
             <legend>สกัดประเด็น</legend>
-            <label class="model-choice"><input type="radio" name="extract_engine" value="llm" data-analysis-setting {{ 'checked' if analysis_defaults.extract_engine == 'llm' }}><span><b>Gemini</b><small>ยืดหยุ่นกับภาษาธรรมชาติ</small></span></label>
-            <label class="model-choice"><input type="radio" name="extract_engine" value="rule" data-analysis-setting {{ 'checked' if analysis_defaults.extract_engine == 'rule' }}><span><b>Rule-based</b><small>ประมวลผลในระบบและตรวจสอบกฎได้</small></span></label>
+            <label class="model-choice"><input type="radio" name="extract_engine" value="llm" data-analysis-setting {{ 'checked' if analysis_defaults.extract_engine == 'llm' }}><span><b>Gemini</b></span></label>
+            <label class="model-choice"><input type="radio" name="extract_engine" value="rule" data-analysis-setting {{ 'checked' if analysis_defaults.extract_engine == 'rule' }}><span><b>Rule-based</b></span></label>
           </fieldset>
           <label class="model-count">จำนวนรีวิว
             <select name="max_reviews" data-analysis-setting aria-label="จำนวนรีวิว">
@@ -43,7 +43,6 @@
               {% endfor %}
             </select>
           </label>
-          <p>Gemini จะส่งข้อความรีวิวไปประมวลผลที่ Google Gemini</p>
         </div>
       </details>
       <button class="btn btn-primary btn-pill" type="submit" aria-label="เริ่มวิเคราะห์ร้านใหม่">วิเคราะห์
