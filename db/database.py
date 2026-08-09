@@ -25,7 +25,7 @@ from datetime import datetime, timedelta
 
 import config
 
-_DB_PATH = os.path.join(config.BASE_DIR, "insightreview.db")
+_DB_PATH = config.DATABASE_PATH
 log = logging.getLogger(__name__)
 _JOB_STAGES = {
     "queued", "fetching_reviews", "preprocessing", "sentiment", "aspects",
@@ -35,6 +35,9 @@ _JOB_STAGES = {
 
 @contextmanager
 def _conn():
+    parent = os.path.dirname(_DB_PATH)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
     conn = sqlite3.connect(_DB_PATH, timeout=5.0)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA busy_timeout = 5000")

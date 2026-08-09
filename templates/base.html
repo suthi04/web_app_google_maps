@@ -67,6 +67,26 @@
   <!-- global UI: toast / loading / confirm -->
   <div class="toast-wrap" id="toastWrap" role="status" aria-live="polite" aria-atomic="true"></div>
 
+  <aside class="analysis-tracker" id="analysisTracker" aria-live="polite" hidden>
+    <div class="analysis-tracker-main">
+      <span class="analysis-tracker-state" aria-hidden="true">
+        <span class="analysis-tracker-spinner"></span>
+        <svg class="analysis-tracker-check" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 12 4 4 8-9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="analysis-tracker-error" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 7l10 10M17 7 7 17" stroke-linecap="round"/></svg>
+      </span>
+      <a class="analysis-tracker-link" id="analysisTrackerLink" href="#">
+        <span class="analysis-tracker-copy">
+          <strong id="analysisTrackerTitle">กำลังวิเคราะห์รีวิว</strong>
+          <small id="analysisTrackerStage">กำลังเตรียมงาน</small>
+        </span>
+        <span class="analysis-tracker-percent mono" id="analysisTrackerPercent">0%</span>
+        <svg class="analysis-tracker-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <button class="analysis-tracker-dismiss" id="analysisTrackerDismiss" type="button" aria-label="ซ่อนสถานะงาน" title="ซ่อน" hidden>×</button>
+    </div>
+    <progress id="analysisTrackerProgress" max="100" value="0">0%</progress>
+  </aside>
+
   <div class="loading-overlay" id="loadingOverlay" role="status" aria-live="polite" aria-hidden="true">
     <div class="spinner"></div>
     <div class="lt">กำลังวิเคราะห์รีวิว…</div>

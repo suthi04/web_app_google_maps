@@ -61,8 +61,14 @@ class TestNoDeadJsonBlob(unittest.TestCase):
 class TestAudienceDashboard(unittest.TestCase):
     def test_renders_consumer_and_operator_persona_tabs(self):
         html = _get_dashboard(_payload())
-        self.assertIn("สำหรับผู้บริโภค", html)
-        self.assertIn("สำหรับผู้ประกอบการ", html)
+        self.assertIn("ผู้บริโภค", html)
+        self.assertIn("ผู้ประกอบการ", html)
+        self.assertIn('data-persona="consumer"', html)
+        self.assertIn('data-persona="operator"', html)
+        self.assertIn('role="tablist"', html)
+        self.assertIn('aria-orientation="horizontal"', html)
+        self.assertIn('id="consumerTab"', html)
+        self.assertIn('tabindex="-1" data-persona="operator"', html)
         self.assertIn('id="consumerView"', html)
         self.assertIn('id="operatorView"', html)
         self.assertIn("เรื่องที่ควรรู้ก่อนไป", html)
@@ -80,6 +86,12 @@ class TestAudienceDashboard(unittest.TestCase):
             html.index("Priority watchlist"),
         )
         self.assertIn('class="model-menu"', html)
+
+    def test_model_menu_uses_grouped_choice_cards(self):
+        html = _get_dashboard(_payload())
+        self.assertEqual(html.count('class="model-option-group"'), 2)
+        self.assertEqual(html.count('class="model-choice-check"'), 4)
+        self.assertIn('class="model-privacy-note"', html)
 
     def test_long_analysis_result_is_scrollable_without_disclosure(self):
         payload = _payload()
@@ -100,6 +112,36 @@ class TestAudienceDashboard(unittest.TestCase):
         self.assertIn('class="consumer-review-card-foot"', html)
         self.assertNotIn('id="consumerReviewsMoreBtn"', html)
         self.assertNotIn('data-consumer-extra=', html)
+
+    def test_explains_when_star_rating_and_text_sentiment_disagree(self):
+        payload = _payload()
+        payload["reviews"] = [{
+            "text": "น้ำซุปจืดและเนื้อเหนียว แต่โดยรวมโอเค",
+            "rating": 5,
+            "review_date": None,
+            "sentiment": "negative",
+            "aspects": ["food"],
+        }]
+        html = _get_dashboard(payload)
+        self.assertIn("คะแนนดาวกับน้ำเสียงในข้อความต่างกัน", html)
+        self.assertIn('class="sentiment-mismatch"', html)
+
+    def test_before_you_go_cards_explain_status_context_and_evidence(self):
+        payload = _payload()
+        payload["reviews"] = [{
+            "text": "ช่วงเย็นรอคิวนานมากและอาหารมาช้า",
+            "rating": 2,
+            "review_date": None,
+            "sentiment": "negative",
+            "aspects": ["service"],
+        }]
+        html = _get_dashboard(payload)
+        self.assertIn("วางแผนก่อนเดินทาง · อ้างอิงจากรีวิวจริง", html)
+        self.assertIn('class="know-overview"', html)
+        self.assertIn("ควรวางแผน", html)
+        self.assertIn("ช่วงเย็น", html)
+        self.assertIn("แนะนำก่อนเดินทาง", html)
+        self.assertIn("เปิดหลักฐาน", html)
 
 
 if __name__ == "__main__":

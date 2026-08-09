@@ -69,7 +69,12 @@ class TestPipelineSmoke(unittest.TestCase):
         consumer = self.result["consumer_summary"]
         self.assertEqual(
             set(consumer),
-            {"things_to_know", "lazy_summary", "cautions"},
+            {
+                "things_to_know",
+                "things_to_know_meta",
+                "lazy_summary",
+                "cautions",
+            },
         )
         self.assertIn("critical_issues", self.result)
 

@@ -22,32 +22,54 @@
       <input type="url" name="url" placeholder="วิเคราะห์ร้านใหม่ — วาง URL ที่นี่" maxlength="2048" inputmode="url" autocomplete="url" aria-label="ลิงก์ร้านอาหารจาก Google Maps">
       <details class="model-menu">
         <summary aria-label="เลือกเครื่องมือวิเคราะห์" title="เลือกเครื่องมือวิเคราะห์">
-          <span class="model-menu-label">{{ 'WangchanBERTa' if analysis_defaults.use_model else 'Lexicon' }} + {{ 'Gemini' if analysis_defaults.extract_engine == 'llm' else 'Rule-based' }}</span>
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor"><path d="m6 8 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg class="model-menu-settings" viewBox="0 0 20 20" fill="none" stroke="currentColor"><path d="M4 6h12M7 10h6M5 14h10" stroke-linecap="round"/><circle cx="7" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="1.5" fill="currentColor" stroke="none"/><circle cx="9" cy="14" r="1.5" fill="currentColor" stroke="none"/></svg>
+          <span class="model-menu-label">{{ 'WangchanBERTa' if analysis_defaults.use_model else 'Lexicon' }} · {{ 'Gemini' if analysis_defaults.extract_engine == 'llm' else 'Rule-based' }}</span>
+          <svg class="model-menu-chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor"><path d="m6 8 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="model-menu-popover">
-          <fieldset>
+          <fieldset class="model-option-group">
             <legend>วิเคราะห์อารมณ์</legend>
-            <label class="model-choice"><input type="radio" name="engine" value="model" data-analysis-setting {{ 'checked' if analysis_defaults.use_model }}><span><b>WangchanBERTa</b><small>เข้าใจบริบทภาษาไทยได้ลึกกว่า</small></span></label>
-            <label class="model-choice"><input type="radio" name="engine" value="lexicon" data-analysis-setting {{ 'checked' if not analysis_defaults.use_model }}><span><b>Lexicon</b><small>เร็ว ออฟไลน์ และอธิบายผลได้ง่าย</small></span></label>
+            <label class="model-choice">
+              <input type="radio" name="engine" value="model" data-analysis-setting {{ 'checked' if analysis_defaults.use_model }}>
+              <span class="model-choice-copy"><b>WangchanBERTa</b></span>
+              <span class="model-choice-check" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="m4 8 2.5 2.5L12 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </label>
+            <label class="model-choice">
+              <input type="radio" name="engine" value="lexicon" data-analysis-setting {{ 'checked' if not analysis_defaults.use_model }}>
+              <span class="model-choice-copy"><b>Lexicon</b></span>
+              <span class="model-choice-check" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="m4 8 2.5 2.5L12 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </label>
           </fieldset>
-          <fieldset>
+          <fieldset class="model-option-group">
             <legend>สกัดประเด็น</legend>
-            <label class="model-choice"><input type="radio" name="extract_engine" value="llm" data-analysis-setting {{ 'checked' if analysis_defaults.extract_engine == 'llm' }}><span><b>Gemini</b><small>ยืดหยุ่นกับภาษาธรรมชาติ</small></span></label>
-            <label class="model-choice"><input type="radio" name="extract_engine" value="rule" data-analysis-setting {{ 'checked' if analysis_defaults.extract_engine == 'rule' }}><span><b>Rule-based</b><small>ประมวลผลในระบบและตรวจสอบกฎได้</small></span></label>
+            <label class="model-choice">
+              <input type="radio" name="extract_engine" value="llm" data-analysis-setting {{ 'checked' if analysis_defaults.extract_engine == 'llm' }}>
+              <span class="model-choice-copy"><b>Gemini</b></span>
+              <span class="model-choice-check" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="m4 8 2.5 2.5L12 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </label>
+            <label class="model-choice">
+              <input type="radio" name="extract_engine" value="rule" data-analysis-setting {{ 'checked' if analysis_defaults.extract_engine == 'rule' }}>
+              <span class="model-choice-copy"><b>Rule-based</b></span>
+              <span class="model-choice-check" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor"><path d="m4 8 2.5 2.5L12 5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </label>
           </fieldset>
-          <label class="model-count">จำนวนรีวิว
+          <label class="model-count"><b>จำนวนรีวิว</b>
             <select name="max_reviews" data-analysis-setting aria-label="จำนวนรีวิว">
               {% for count in range(min_reviews, max_reviews_cap + 1, 10) %}
               <option value="{{ count }}" {{ 'selected' if count == analysis_defaults.max_reviews }}>{{ count }} รีวิว</option>
               {% endfor %}
             </select>
           </label>
-          <p>Gemini จะส่งข้อความรีวิวไปประมวลผลที่ Google Gemini</p>
+          <div class="model-privacy-note">
+            Gemini ใช้ Google API
+          </div>
         </div>
       </details>
-      <button class="btn btn-primary btn-pill" type="submit" aria-label="เริ่มวิเคราะห์ร้านใหม่">วิเคราะห์
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <button class="btn btn-primary analysis-submit" type="submit" aria-label="เริ่มวิเคราะห์ร้านใหม่">
+        <span>วิเคราะห์</span>
+        <span class="analysis-submit-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
       </button>
     </div>
   </form>
@@ -99,42 +121,74 @@
   </div>
 </div>
 
-<div class="persona-switch" role="tablist" aria-label="เลือกมุมมองผลวิเคราะห์">
-  <button class="persona-tab active" id="consumerTab" type="button" role="tab" aria-selected="true" aria-controls="consumerView" data-persona="consumer">
-    สำหรับผู้บริโภค
-    <span>เลือกกินอย่างมั่นใจ</span>
-  </button>
-  <button class="persona-tab" id="operatorTab" type="button" role="tab" aria-selected="false" aria-controls="operatorView" data-persona="operator">
-    สำหรับผู้ประกอบการ
-    <span>วิเคราะห์และวางกลยุทธ์</span>
-  </button>
+<div class="persona-navigation">
+  <div class="persona-switch" role="tablist" aria-label="เลือกมุมมองผลวิเคราะห์" aria-orientation="horizontal">
+    <button class="persona-tab active" id="consumerTab" type="button" role="tab" aria-selected="true" aria-controls="consumerView" tabindex="0" data-persona="consumer">
+      ผู้บริโภค
+    </button>
+    <button class="persona-tab" id="operatorTab" type="button" role="tab" aria-selected="false" aria-controls="operatorView" tabindex="-1" data-persona="operator">
+      ผู้ประกอบการ
+    </button>
+  </div>
 </div>
 
 <section class="persona-view" id="consumerView" role="tabpanel" aria-labelledby="consumerTab">
   {% set consumer = a.consumer_summary %}
   <div class="consumer-grid single">
-    <section class="panel consumer-section">
-      <div class="section-number">01</div>
-      <div class="panel-head"><div><h3>เรื่องที่ควรรู้ก่อนไป</h3><div class="sub-h">ประเด็นสำคัญที่ช่วยให้วางแผนได้ง่ายขึ้น</div></div></div>
+    <section class="panel consumer-section know-section">
+      <div class="know-section-head">
+        <div>
+          <div class="know-kicker">วางแผนก่อนเดินทาง · อ้างอิงจากรีวิวจริง</div>
+          <h3>เรื่องที่ควรรู้ก่อนไป</h3>
+          <p>สรุปเฉพาะข้อมูลที่ช่วยเตรียมตัว เช่น คิว ที่จอดรถ ราคา และข้อจำกัดของร้าน</p>
+        </div>
+        {% if consumer.things_to_know %}
+        <div class="know-overview" aria-label="สรุปหัวข้อที่ควรรู้ก่อนไป">
+          <span><strong class="mono">{{ consumer.things_to_know_meta.topic_count }}</strong> หัวข้อ</span>
+          <span><strong class="mono">{{ consumer.things_to_know_meta.evidence_review_count }}</strong> รีวิวอ้างอิง</span>
+          {% if consumer.things_to_know_meta.attention_count %}
+          <span class="attention"><strong class="mono">{{ consumer.things_to_know_meta.attention_count }}</strong> ควรวางแผน</span>
+          {% elif consumer.things_to_know_meta.repeated_count %}
+          <span><strong class="mono">{{ consumer.things_to_know_meta.repeated_count }}</strong> หัวข้อพบซ้ำ</span>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
       {% if consumer.things_to_know %}
       <div class="know-grid">
         {% for item in consumer.things_to_know %}
-        <button class="know-item evidence-trigger {{ item.sentiment }}" type="button"
+        <button class="know-item evidence-trigger status-{{ item.status }} evidence-{{ item.evidence_level }}" type="button"
                 data-evidence="{{ item.evidence_review_ids|join(',') }}"
-                data-evidence-query="{{ item.text }}"
+                data-evidence-query="{{ item.query }}"
+                aria-label="{{ item.topic_label }}: {{ item.title }} เปิด {{ item.review_count }} รีวิวอ้างอิง"
                 {% if not item.evidence_review_ids %}disabled title="ผลวิเคราะห์เดิมไม่มีตำแหน่งหลักฐาน กรุณาวิเคราะห์ร้านใหม่"{% endif %}>
-          <span class="know-dot"></span>
-          <span><strong>{{ item.text }}</strong><small>{{ item.aspect_th }} · พบ {{ item.count }} ครั้ง จาก {{ item.review_count }} รีวิวไม่ซ้ำ</small></span>
-          <span class="know-reference">ดูอ้างอิง →</span>
+          <span class="know-card-head">
+            <span class="know-topic-wrap">
+              <span class="know-rank mono">{{ "%02d"|format(item.rank) }}</span>
+              <span class="know-topic">{{ item.topic_label }}</span>
+            </span>
+            <span class="know-status status-{{ item.status }}">{{ item.status_label }}</span>
+          </span>
+          <strong class="know-title">{{ item.title }}</strong>
+          <span class="know-summary">{{ item.summary }}</span>
+          {% if item.context_labels %}
+          <span class="know-context-row" aria-label="บริบทเวลาที่พบในรีวิว">
+            {% for context in item.context_labels %}<span>{{ context }}</span>{% endfor %}
+          </span>
+          {% endif %}
+          <span class="know-advice"><span>แนะนำก่อนเดินทาง</span>{{ item.advice }}</span>
+          <span class="know-card-foot">
+            <span class="know-evidence evidence-{{ item.evidence_level }}">{{ item.evidence_label }} · {{ item.review_count }} รีวิว</span>
+            <span class="know-reference">เปิดหลักฐาน <span aria-hidden="true">→</span></span>
+          </span>
         </button>
         {% endfor %}
       </div>
-      {% else %}<p class="consumer-empty">รีวิวชุดนี้ยังไม่มีข้อมูลเชิงปฏิบัติก่อนไปที่เด่นชัด</p>{% endif %}
+      {% else %}<div class="consumer-empty know-empty"><strong>ยังไม่พบข้อมูลวางแผนที่ชัดเจน</strong><span>รีวิวชุดนี้ยังไม่ได้พูดถึงคิว ที่จอดรถ ราคา การเดินทาง หรือข้อจำกัดอื่นโดยตรง จึงไม่เติมข้อมูลจากการคาดเดา</span></div>{% endif %}
     </section>
   </div>
 
   <section class="consumer-hero panel">
-    <div class="section-number">02</div>
     <div class="consumer-kicker">บทสรุปสั้น ๆ · สำหรับคนไม่อยากอ่านทุกรีวิว</div>
     <h2>{{ consumer.lazy_summary.verdict }}</h2>
     <p>{{ consumer.lazy_summary.detail }}</p>
@@ -146,7 +200,6 @@
   </section>
 
   <section class="panel consumer-section caution-section">
-    <div class="section-number">03</div>
     <div class="panel-head"><div><h3>ข้อควรระวัง</h3><div class="sub-h">ไม่ได้แปลว่าจะเกิดกับทุกคน แต่เป็นสัญญาณลบที่พบในรีวิวจริง</div></div></div>
     {% if consumer.cautions %}
     <div class="caution-list">
@@ -154,7 +207,7 @@
       <article class="caution-item {{ item.severity }}">
         <span class="caution-mark">!</span>
         <div><h4>{{ item.text }}</h4><p>{{ item.aspect_th }} · พบ {{ item.count }} ครั้ง จาก {{ item.review_count }} รีวิวไม่ซ้ำ · ความเห็นด้านนี้เป็นลบ {{ item.negative_pct }}%</p>{{ evidence_button(item.evidence_review_ids, item.text) }}</div>
-        <span class="severity-label">{{ 'พบซ้ำหลายรีวิว' if item.severity == 'critical' else 'สัญญาณเบื้องต้น' }}</span>
+        <span class="severity-label">{{ item.evidence_label }}</span>
       </article>
       {% endfor %}
     </div>
@@ -174,6 +227,15 @@
         <div class="negative"><span class="overview-dot"></span><strong class="mono">{{ a.distribution.counts.negative }}</strong><small>เชิงลบ</small></div>
       </div>
     </div>
+    {% if a.rating_sentiment_mismatch_count %}
+    <div class="sentiment-disagreement-note" role="note">
+      <span class="sentiment-disagreement-icon" aria-hidden="true">≠</span>
+      <div>
+        <strong>{{ a.rating_sentiment_mismatch_count }} รีวิวมีคะแนนดาวกับน้ำเสียงในข้อความต่างกัน</strong>
+        <span>ดาวสะท้อนคะแนนรวมของผู้รีวิว ส่วนป้ายอารมณ์อ่านจากข้อความ จึงอาจต่างกันได้ โดยเฉพาะรีวิวที่มีทั้งคำชมและข้อติ</span>
+      </div>
+    </div>
+    {% endif %}
     <div class="consumer-review-controls">
       <label class="consumer-review-search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4" stroke-linecap="round"/></svg>
@@ -201,7 +263,10 @@
             <span class="review-quote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9.5 11H5a5 5 0 0 1 5-5v2a3 3 0 0 0-3 3h2.5v6H4v-6M20 11h-4.5a5 5 0 0 1 5-5v2a3 3 0 0 0-3 3H20v6h-5.5v-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
             <div><small>รีวิว</small><strong class="mono">{{ r.review_id }}</strong></div>
           </div>
-          <span class="review-sentiment {{ r.sentiment }}">{{ {'positive':'เชิงบวก','neutral':'กลาง','negative':'เชิงลบ'}[r.sentiment] }}</span>
+          <div class="review-sentiment-group">
+            <span class="review-sentiment {{ r.sentiment }}">{{ {'positive':'เชิงบวก','neutral':'กลาง','negative':'เชิงลบ'}[r.sentiment] }}</span>
+            {% if r.rating_sentiment_mismatch %}<span class="sentiment-mismatch" title="คะแนนดาวกับอารมณ์จากข้อความให้สัญญาณต่างกัน">ดาว ≠ ข้อความ</span>{% endif %}
+          </div>
         </header>
         <p class="consumer-review-text">{{ r.text }}</p>
         <footer class="consumer-review-card-foot">
@@ -255,10 +320,11 @@
   <!-- Donut -->
   <div class="panel sentiment-panel">
     <div class="panel-head"><div><h3>สัดส่วนความคิดเห็น</h3></div></div>
-    <div class="donut" style="background:conic-gradient(var(--pos) 0 {{ a.distribution.pct.positive }}%, var(--neg) {{ a.distribution.pct.positive }}% {{ a.distribution.pct.positive + a.distribution.pct.negative }}%, var(--neu) {{ a.distribution.pct.positive + a.distribution.pct.negative }}% 100%)">
+    <div class="donut" role="img" aria-label="ความคิดเห็นเชิงบวก {{ a.distribution.pct.positive }} เปอร์เซ็นต์ เป็นกลาง {{ a.distribution.pct.neutral }} เปอร์เซ็นต์ และเชิงลบ {{ a.distribution.pct.negative }} เปอร์เซ็นต์" style="background:conic-gradient(var(--pos) 0 {{ a.distribution.pct.positive }}%, var(--neg) {{ a.distribution.pct.positive }}% {{ a.distribution.pct.positive + a.distribution.pct.negative }}%, var(--neu) {{ a.distribution.pct.positive + a.distribution.pct.negative }}% 100%)">
       <div class="hole">
+        <span class="donut-overline">ทั้งหมด</span>
         <span class="num mono">{{ "{:,}".format(a.total_reviews) }}</span>
-        <span class="lbl">รีวิว</span>
+        <span class="lbl">ความคิดเห็น</span>
       </div>
     </div>
     <div class="legend">
@@ -310,6 +376,7 @@
               {% if r.sentiment == 'positive' %}<span class="badge pos"><span class="bdot"></span>เชิงบวก</span>
               {% elif r.sentiment == 'negative' %}<span class="badge neg"><span class="bdot"></span>เชิงลบ</span>
               {% else %}<span class="badge neu"><span class="bdot"></span>เป็นกลาง</span>{% endif %}
+              {% if r.rating_sentiment_mismatch %}<span class="sentiment-mismatch" title="คะแนนดาวกับอารมณ์จากข้อความให้สัญญาณต่างกัน">ดาว ≠ ข้อความ</span>{% endif %}
             </td>
           </tr>
           {% endfor %}
@@ -407,7 +474,7 @@
 <!-- Priority watchlist intentionally closes the operator report -->
 <section class="panel critical-panel report-ending">
   <div class="panel-head">
-    <div><div class="panel-kicker">รายการที่ต้องติดตาม · ท้ายรายงาน</div><h3>จุดวิกฤตและจุดเฝ้าระวัง</h3><div class="sub-h">สิ่งที่ร้านควรกลับมาตรวจหลังเห็นภาพรวมทั้งหมด พร้อมกลยุทธ์แก้ไขที่วัดผลได้</div></div>
+    <div><div class="panel-kicker">รายการที่ต้องติดตาม · ท้ายรายงาน</div><h3>จุดวิกฤตและจุดเฝ้าระวัง</h3><div class="sub-h">รายการจากหลักฐานจริง โดยประเด็นที่พบเพียงครั้งเดียวจะแสดงเป็นสิ่งที่ควรตรวจสอบก่อนลงมือแก้</div></div>
     <span class="critical-count mono">{{ a.critical_issues|length }} สัญญาณ</span>
   </div>
   {% if a.critical_issues %}

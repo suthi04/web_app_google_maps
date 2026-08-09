@@ -21,6 +21,8 @@ class TestAccessibilityMarkup(unittest.TestCase):
         self.assertIn('id="mainContent"', html)
         self.assertIn('aria-live="polite"', html)
         self.assertIn('aria-current="page"', html)
+        self.assertIn('id="analysisTracker"', html)
+        self.assertIn('id="analysisTrackerProgress"', html)
 
     def test_analysis_form_has_duplicate_submit_guard_and_url_bound(self):
         html = app.app.test_client().get("/").get_data(as_text=True)
@@ -40,6 +42,8 @@ class TestAccessibilityMarkup(unittest.TestCase):
         self.assertEqual(missing_type, [])
         history = (ROOT / "templates" / "history.html").read_text(encoding="utf-8")
         self.assertIn('<a class="hist-main" href=', history)
+        self.assertIn('id="historyActiveJob"', history)
+        self.assertIn('id="historyJobProgress"', history)
         self.assertNotIn("onclick=", history)
 
 
