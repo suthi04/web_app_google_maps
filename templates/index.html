@@ -23,10 +23,6 @@
 
   <form class="analysis-composer" method="post" action="{{ url_for('analyze') }}" id="analyzeForm" data-guard-submit>
     <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
-    <div class="composer-topline">
-      <span><i></i>เริ่มวิเคราะห์ร้านของคุณ</span>
-      <small>รองรับลิงก์ Google Maps</small>
-    </div>
     <div class="search-box">
       <span class="search-leading" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg></span>
       <input type="url" name="url" id="urlInput" placeholder="วางลิงก์ร้านจาก Google Maps" maxlength="2048" inputmode="url" autocomplete="url" aria-label="ลิงก์ร้านอาหารจาก Google Maps">
@@ -75,18 +71,18 @@
     <p class="analysis-privacy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke-linecap="round"/></svg><span>เมื่อเลือก Gemini รีวิวจะถูกส่งไปประมวลผลที่ Google Gemini และเปลี่ยนเป็น Rule-based อัตโนมัติเมื่อบริการไม่พร้อม</span></p>
   </form>
 
-  <div class="landing-benefits" aria-label="สิ่งที่คุณจะได้รับ">
-    <span><i class="benefit-icon positive">✓</i><b>เห็นจุดเด่นของร้าน</b></span>
-    <span><i class="benefit-icon caution">!</i><b>รู้ข้อควรระวัง</b></span>
-    <span><i class="benefit-icon evidence">↗</i><b>ตรวจสอบจากรีวิวจริง</b></span>
-  </div>
-
   {% if demo_mode %}
   <div class="examples">
     <button class="ex-chip" type="button" data-url="https://maps.google.com/?cid=demo-restaurant">ลองข้อมูลตัวอย่าง →</button>
   </div>
   <p class="demo-hint">โหมดทดลอง: ไม่ต้องใส่ URL ก็กดวิเคราะห์ได้ ระบบจะใช้รีวิวตัวอย่าง 30 รายการ และวิเคราะห์อารมณ์แบบพจนานุกรมคำ (Lexicon) — ใส่ Apify token ใน .env เพื่อใช้ข้อมูลจริง</p>
   {% endif %}
+
+  <div class="landing-benefits" aria-label="สิ่งที่คุณจะได้รับ">
+    <span><i class="benefit-icon positive">✓</i><b>เห็นจุดเด่นของร้าน</b></span>
+    <span><i class="benefit-icon caution">!</i><b>รู้ข้อควรระวัง</b></span>
+    <span><i class="benefit-icon evidence">↗</i><b>ตรวจสอบจากรีวิวจริง</b></span>
+  </div>
 </div>
 {% endblock %}
 

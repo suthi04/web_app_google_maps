@@ -234,14 +234,12 @@ button{font-family:inherit}
 .landing .analysis-composer{width:100%;max-width:760px;padding:12px;border:1px solid rgba(52,121,112,.17);border-radius:24px;background:rgba(255,255,255,.9);
   box-shadow:0 24px 65px rgba(30,60,53,.13),inset 0 1px 0 #fff;backdrop-filter:blur(16px);transition:border-color var(--t),box-shadow var(--t);animation:fadeUp .5s .05s both var(--ease)}
 .landing .analysis-composer:focus-within{border-color:rgba(52,121,112,.44);box-shadow:0 26px 70px rgba(30,60,53,.16),0 0 0 4px rgba(52,121,112,.07)}
-.composer-topline{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 5px 10px;color:var(--ink-2);font-size:11.5px}
-.composer-topline>span{display:inline-flex;align-items:center;gap:7px;font-weight:700;color:var(--ink)}.composer-topline i{width:7px;height:7px;border-radius:50%;background:var(--pos);box-shadow:0 0 0 4px var(--pos-soft)}
-.composer-topline small{font-size:10.5px;color:var(--ink-3)}
 .landing .search-box{flex:none;width:100%;max-width:none;padding:7px 7px 7px 9px;border:1px solid rgba(30,60,53,.1);border-radius:16px;background:#fff;box-shadow:0 5px 16px rgba(30,60,53,.055)}
 .landing .search-box:focus-within{border-color:rgba(52,121,112,.42);box-shadow:0 7px 20px rgba(30,60,53,.08),0 0 0 3px rgba(52,121,112,.07)}
 .landing .search-box input{font-size:14.5px;font-weight:500}.landing .search-box input::placeholder{font-weight:400}.landing .search-leading{width:36px;height:36px;flex-basis:36px;background:var(--surface-2)}
 .landing .search-box .analyze-btn{min-height:40px;border-radius:var(--r-pill);padding:7px 8px 7px 16px}
-.landing-options{display:grid;grid-template-columns:1.25fr 1fr .8fr;gap:8px;margin-top:10px}
+.landing-options{display:grid;grid-template-columns:1.25fr 1fr .8fr;gap:8px;margin-top:10px;transition:margin-bottom .18s var(--ease)}
+.landing-options:has(.landing-picker[open]){margin-bottom:138px}.landing-options:has(.landing-picker.compact[open]){margin-bottom:272px}
 .landing-picker{position:relative;min-width:0}.landing-picker summary::-webkit-details-marker{display:none}.landing-picker summary{list-style:none}
 .landing-option{position:relative;display:flex;width:100%;align-items:center;gap:9px;min-width:0;padding:9px 10px 9px 9px;border:1px solid rgba(30,60,53,.075);border-radius:13px;
   background:linear-gradient(135deg,#f8fbfa,#f2f7f5);text-align:left;cursor:pointer;transition:border-color var(--t),background var(--t),transform var(--t)}
@@ -733,7 +731,7 @@ table.reviews tr:hover td{background:var(--surface-hover)}
   .landing{width:calc(100% + 36px);max-width:none;min-width:0;margin:-18px;padding:40px 18px 44px}
   .landing h1,.landing .sub,.landing .analysis-composer,.landing .search-box{width:100%;max-width:100%}
   .landing h1{font-size:31px;letter-spacing:-1px}.landing .sub{font-size:14px;margin-bottom:22px}.landing .eyebrow{margin-bottom:17px}
-  .landing .analysis-composer{padding:10px;border-radius:20px}.composer-topline small{display:none}.landing-options{grid-template-columns:1fr 1fr}.landing-picker.compact{grid-column:1/-1}
+  .landing .analysis-composer{padding:10px;border-radius:20px}.landing-options{grid-template-columns:1fr 1fr}.landing-picker.compact{grid-column:1/-1}
   .landing-benefits{max-width:360px}.landing::after{top:210px;width:360px;height:360px}
   .topbar .analysis-composer{flex:0 1 calc(100vw - 84px);width:calc(100vw - 84px);max-width:calc(100vw - 84px);min-width:0}
   .topbar .search-box{width:100%;max-width:100%;min-width:0}

@@ -14,7 +14,7 @@ class TestHomeRoute(unittest.TestCase):
         html = app.app.test_client().get("/").get_data(as_text=True)
 
         self.assertIn('class="landing-copy"', html)
-        self.assertIn('class="composer-topline"', html)
+        self.assertNotIn('class="composer-topline"', html)
         self.assertEqual(html.count('<details class="landing-picker'), 3)
         self.assertIn('class="landing-benefits"', html)
         self.assertIn('class="btn btn-primary btn-pill analyze-btn"', html)
