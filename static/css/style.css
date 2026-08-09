@@ -148,7 +148,7 @@ button{font-family:inherit}
 .topbar .analysis-composer.compact .search-box:focus-within{border-color:var(--accent);box-shadow:0 8px 24px rgba(30,60,53,.1),0 0 0 4px rgba(52,121,112,.09)}
 .topbar .analysis-composer.compact .search-leading{width:36px;height:36px;flex-basis:36px;border-radius:11px;background:var(--accent-soft);color:var(--accent)}
 .topbar .analysis-composer.compact .search-box input{font-size:14.5px;font-weight:500}.topbar .analysis-composer.compact .search-box input::placeholder{font-weight:400}
-.topbar .analysis-composer.compact .search-box>.btn{border-radius:12px;padding:10px 15px}
+.topbar .analysis-composer.compact .search-box>.analyze-btn{min-height:38px;padding:6px 7px 6px 14px;border-radius:var(--r-pill)}
 .analysis-sentence{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;color:var(--ink-2);font-size:13px;line-height:1.55;margin:4px 4px 0;padding:12px 8px 4px;border-top:1px solid var(--border)}
 .text-select{position:relative;display:inline-flex;align-items:center;border-radius:9px;transition:background var(--t)}
 .text-select:hover{background:var(--accent-soft)}
@@ -179,14 +179,14 @@ button{font-family:inherit}
 .btn-primary{background:var(--accent);color:#fff}
 .btn-primary:hover{background:var(--accent-hover)}
 .btn-primary:active{background:var(--accent-press);transform:translateY(1px)}
-.analyze-btn{position:relative;isolation:isolate;overflow:hidden;min-height:42px;padding:9px 10px 9px 17px;border-color:rgba(255,255,255,.16);
-  border-radius:13px;background:linear-gradient(135deg,#3b9285 0%,#28766d 58%,#215f59 100%);color:#fff;
+.analyze-btn{position:relative;isolation:isolate;overflow:hidden;min-height:38px;padding:6px 7px 6px 14px;border-color:rgba(255,255,255,.16);
+  border-radius:var(--r-pill);background:linear-gradient(135deg,#3b9285 0%,#28766d 58%,#215f59 100%);color:#fff;
   box-shadow:0 8px 20px rgba(36,103,95,.24),inset 0 1px 0 rgba(255,255,255,.22);font-weight:700;letter-spacing:.01em;
   transition:transform var(--t),box-shadow var(--t),filter var(--t)}
 .analyze-btn::before{content:"";position:absolute;z-index:-1;inset:-1px;transform:translateX(-112%) skewX(-18deg);width:62%;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transition:transform .48s var(--ease)}
 .analyze-btn span{position:relative;z-index:1}
-.analyze-btn svg{position:relative;z-index:1;width:29px;height:29px;margin-left:2px;padding:6px;border-radius:9px;
+.analyze-btn svg{position:relative;z-index:1;width:26px;height:26px;margin-left:1px;padding:5px;border-radius:50%;
   background:rgba(255,255,255,.13);color:#fff;stroke:currentColor;transition:transform var(--t),background var(--t)}
 .analyze-btn:hover{background:linear-gradient(135deg,#43a091 0%,#2e8076 58%,#246861 100%);box-shadow:0 11px 26px rgba(36,103,95,.3),inset 0 1px 0 rgba(255,255,255,.25);transform:translateY(-1px)}
 .analyze-btn:hover::before{transform:translateX(210%) skewX(-18deg)}.analyze-btn:hover svg{background:rgba(255,255,255,.2);transform:translateX(2px)}
@@ -224,7 +224,7 @@ button{font-family:inherit}
 .landing .analysis-composer:focus-within{border-color:rgba(52,121,112,.5);box-shadow:0 18px 55px rgba(47,92,76,.12),0 0 0 4px rgba(52,121,112,.08)}
 .landing .search-box{flex:none;width:100%;max-width:none;padding:8px 6px 8px 12px;border:0;background:transparent;box-shadow:none}
 .landing .search-box:focus-within{border-color:transparent;box-shadow:none}.landing .search-box input{font-size:15px}
-.landing .search-box .btn{border-radius:14px;padding:10px 10px 10px 19px}
+.landing .search-box .analyze-btn{min-height:40px;border-radius:var(--r-pill);padding:7px 8px 7px 16px}
 .landing .demo-hint{margin-top:18px;font-size:13px;color:var(--ink-2);max-width:580px;line-height:1.65}
 .landing .examples{margin-top:22px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
 .landing .ex-chip{font-size:12.5px;color:var(--ink-2);background:var(--surface);border:1px solid var(--border-strong);padding:7px 14px;border-radius:var(--r-pill);cursor:pointer;transition:all var(--t)}
@@ -697,7 +697,7 @@ table.reviews tr:hover td{background:var(--surface-hover)}
   .landing h1{font-size:27px}
   .topbar .analysis-composer{flex:0 1 calc(100vw - 84px);width:calc(100vw - 84px);max-width:calc(100vw - 84px);min-width:0}
   .topbar .search-box{width:100%;max-width:100%;min-width:0}
-  .topbar .search-box .analyze-btn{width:44px;min-height:42px;padding:6px;font-size:0}.topbar .search-box .analyze-btn span{display:none}.topbar .search-box .analyze-btn svg{width:30px;height:30px;margin:0}
+  .topbar .search-box .analyze-btn{width:40px;min-height:38px;padding:5px;font-size:0}.topbar .search-box .analyze-btn span{display:none}.topbar .search-box .analyze-btn svg{width:28px;height:28px;margin:0}
   .analysis-sentence{justify-content:flex-start;padding-inline:6px;font-size:11.5px}
   .text-select select{font-size:11.5px}.engine-select select{width:126px}.extract-select select{width:86px}
   .model-menu summary{padding:8px}.model-menu-label{display:none}.model-menu summary::before{content:"โมเดล"}.model-menu-popover{position:fixed;right:16px;top:70px}
