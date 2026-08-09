@@ -238,15 +238,13 @@ button{font-family:inherit}
 .section-number{position:absolute;right:18px;top:14px;font:600 28px/1 'IBM Plex Mono',monospace;color:var(--border-strong)}
 .aspect-summary-section{margin-bottom:16px}
 .asp-chart{display:grid;gap:10px;margin-top:4px}
-.asp-card{border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden;
-  transition:border-color var(--t),box-shadow var(--t),transform var(--t)}
+.asp-card{width:100%;border:1px solid var(--border);border-radius:12px;background:var(--surface);overflow:hidden;
+  color:var(--ink);font:inherit;text-align:left;transition:border-color var(--t),box-shadow var(--t),transform var(--t)}
 .asp-card:hover{border-color:var(--border-strong);box-shadow:var(--sh-sm);transform:translateY(-1px)}
-.asp-card[open]{border-color:rgba(52,121,112,.32);box-shadow:0 10px 30px rgba(27,49,45,.08);transform:none}
+.asp-card.active{border-color:rgba(52,121,112,.42);background:var(--accent-soft);box-shadow:0 0 0 3px rgba(52,121,112,.08);transform:none}
 .asp-row{display:grid;grid-template-columns:132px minmax(220px,1fr) 46px 22px;align-items:center;gap:14px;
-  padding:14px 15px;cursor:pointer;list-style:none;transition:background var(--t)}
-.asp-row::-webkit-details-marker{display:none}
+  padding:14px 15px;cursor:pointer;transition:background var(--t)}
 .asp-row:hover{background:var(--surface-hover)}
-.asp-card[open] .asp-row{background:linear-gradient(90deg,var(--accent-soft),var(--surface))}
 .asp-label{display:flex;min-width:0;flex-direction:column;gap:2px}
 .asp-name{font-size:14px;font-weight:700;color:var(--ink)}
 .asp-label small{font-size:10.5px;color:var(--accent-ink)}
@@ -260,8 +258,27 @@ button{font-family:inherit}
 .asp-total{display:flex;flex-direction:column;align-items:flex-end;line-height:1.1;color:var(--ink-2)}
 .asp-total strong{font-size:14px}.asp-total small{font-size:9.5px;color:var(--ink-3);margin-top:2px}
 .asp-chevron{width:20px;height:20px;color:var(--ink-3);transition:transform var(--t),color var(--t)}
-.asp-card[open] .asp-chevron{transform:rotate(180deg);color:var(--accent)}
-.asp-detail{padding:0 15px 16px;border-top:1px solid var(--border);background:linear-gradient(180deg,var(--surface-2),var(--surface))}
+.asp-card:hover .asp-chevron{transform:translateX(3px);color:var(--accent)}
+.asp-card:focus-visible{outline:3px solid rgba(52,121,112,.22);outline-offset:3px}
+.aspect-modal-shell{position:fixed;inset:0;z-index:240;display:grid;place-items:center;padding:28px;overflow:hidden}
+.aspect-modal-backdrop{position:absolute;inset:0;border:0;background:rgba(20,23,33,.48);backdrop-filter:blur(4px);cursor:pointer}
+.aspect-modal{position:relative;display:flex;flex-direction:column;width:min(1040px,calc(100vw - 56px));max-height:min(82vh,760px);
+  max-height:min(82dvh,760px);overflow:hidden;border:1px solid rgba(255,255,255,.75);border-radius:18px;background:var(--surface);
+  box-shadow:0 28px 90px rgba(20,23,33,.28);animation:aspectModalIn .2s var(--ease)}
+@keyframes aspectModalIn{from{opacity:.25;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+body.aspect-modal-open{overflow:hidden}
+.aspect-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:20px 22px 17px;
+  border-bottom:1px solid var(--border);background:linear-gradient(125deg,var(--accent-soft),var(--surface) 62%)}
+.aspect-modal-kicker{display:block;margin-bottom:4px;font-size:10.5px;font-weight:700;letter-spacing:.055em;color:var(--accent-ink)}
+.aspect-modal-head h3{font-size:21px;letter-spacing:-.3px}.aspect-modal-head p{margin-top:4px;font-size:12.5px;color:var(--ink-2)}
+.aspect-modal-close{display:inline-flex;align-items:center;gap:7px;flex:none;padding:8px 11px;border:1px solid var(--border-strong);
+  border-radius:var(--r-pill);background:rgba(255,255,255,.8);color:var(--ink-2);font:600 12px/1.2 inherit;cursor:pointer;transition:all var(--t)}
+.aspect-modal-close:hover{border-color:var(--accent);background:var(--surface);color:var(--accent-ink)}
+.aspect-modal-close svg{width:17px;height:17px}.aspect-modal-close:hover svg{transform:translateY(2px)}
+.aspect-modal-scroll{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:18px 22px 22px;scrollbar-gutter:stable}
+.aspect-modal-scroll::-webkit-scrollbar{width:8px}.aspect-modal-scroll::-webkit-scrollbar-track{background:var(--surface-2);border-radius:var(--r-pill)}
+.aspect-modal-scroll::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:var(--r-pill)}
+.aspect-modal-panel{min-width:0}
 .asp-detail-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:15px 1px 12px}
 .asp-detail-head>div{display:flex;flex-direction:column;gap:3px}.asp-detail-head strong{font-size:13.5px}
 .asp-detail-head span{font-size:11.5px;color:var(--ink-3)}.asp-detail-count{white-space:nowrap;padding-top:2px}
@@ -641,7 +658,10 @@ table.reviews tr:hover td{background:var(--surface-hover)}
   .asp-row{grid-template-columns:minmax(0,1fr) auto 20px;gap:8px;padding:13px 12px}
   .asp-label{grid-column:1}.asp-name{font-size:13px}.asp-total{grid-column:2;grid-row:1}.asp-chevron{grid-column:3;grid-row:1}
   .asp-bar{grid-column:1 / -1;grid-row:2;height:25px;margin-top:2px}
-  .asp-detail{padding:0 11px 12px}.asp-detail-head{padding-top:13px}.asp-detail-count{display:none}
+  .aspect-modal-shell{padding:12px}.aspect-modal{width:calc(100vw - 24px);max-height:calc(100dvh - 24px);border-radius:15px}
+  .aspect-modal-head{gap:12px;padding:16px}.aspect-modal-head h3{font-size:18px}.aspect-modal-head p{font-size:11.5px;line-height:1.5}
+  .aspect-modal-close{padding:7px 9px}.aspect-modal-scroll{padding:12px 14px 16px}
+  .asp-detail-head{padding-top:4px}.asp-detail-count{display:none}
   .asp-review-grid{grid-template-columns:1fr}.asp-review-group{padding:10px}.asp-review-text{-webkit-line-clamp:3}
   .asp-legend .asp-hint{width:100%;margin-left:0}
   .caution-list,.critical-grid{grid-template-columns:minmax(0,1fr)}

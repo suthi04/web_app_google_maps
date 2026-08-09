@@ -177,6 +177,56 @@
   consumerReviewSearch?.addEventListener("input", applyConsumerReviewFilter);
   applyConsumerReviewFilter();
 
+  /* ---------- Aspect detail modal ---------- */
+  const aspectModalShell = document.getElementById("aspectModal");
+  const aspectModalTitle = document.getElementById("aspectModalTitle");
+  const aspectModalScroll = aspectModalShell?.querySelector(".aspect-modal-scroll");
+  const aspectOpenButtons = [...document.querySelectorAll("[data-aspect-open]")];
+  const aspectPanels = [...document.querySelectorAll("[data-aspect-panel]")];
+  let aspectReturnFocus = null;
+
+  function closeAspectModal({ restoreFocus = true } = {}) {
+    if (!aspectModalShell || aspectModalShell.hidden) return;
+    aspectModalShell.hidden = true;
+    document.body.classList.remove("aspect-modal-open");
+    aspectOpenButtons.forEach((button) => {
+      button.classList.remove("active");
+      button.setAttribute("aria-expanded", "false");
+    });
+    aspectPanels.forEach((panel) => { panel.hidden = true; });
+    if (restoreFocus) aspectReturnFocus?.focus();
+    aspectReturnFocus = null;
+  }
+
+  function openAspectModal(trigger) {
+    if (!aspectModalShell) return;
+    if (!aspectModalShell.hidden && aspectReturnFocus === trigger) {
+      closeAspectModal();
+      return;
+    }
+    const panel = document.getElementById(trigger.dataset.aspectOpen || "");
+    if (!panel) return;
+    aspectReturnFocus = trigger;
+    aspectOpenButtons.forEach((button) => {
+      const active = button === trigger;
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-expanded", active ? "true" : "false");
+    });
+    aspectPanels.forEach((item) => { item.hidden = item !== panel; });
+    aspectModalTitle.textContent = trigger.dataset.aspectLabel || "เสียงลูกค้ารายด้าน";
+    aspectModalScroll.scrollTop = 0;
+    aspectModalShell.hidden = false;
+    document.body.classList.add("aspect-modal-open");
+    aspectModalShell.querySelector(".aspect-modal-close")?.focus();
+  }
+
+  aspectOpenButtons.forEach((button) => {
+    button.addEventListener("click", () => openAspectModal(button));
+  });
+  aspectModalShell?.querySelectorAll("[data-aspect-close]").forEach((button) => {
+    button.addEventListener("click", () => closeAspectModal());
+  });
+
   /* ---------- Evidence drawer ---------- */
   const evidenceShell = document.getElementById("evidenceDrawer");
   const evidenceDrawerList = document.getElementById("evidenceDrawerList");
@@ -313,7 +363,9 @@
   }
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
+    const evidenceWasOpen = evidenceShell && !evidenceShell.hidden;
     closeEvidence();
+    if (!evidenceWasOpen) closeAspectModal();
     setFilterOpen(false);
     if (exportBtn) {
       exportMenu.classList.remove("open");

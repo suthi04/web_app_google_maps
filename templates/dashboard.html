@@ -158,24 +158,54 @@
       {% set positive_pct = (summary.positive / summary.total * 100) | round | int %}
       {% set neutral_pct = (summary.neutral / summary.total * 100) | round | int %}
       {% set negative_pct = 100 - positive_pct - neutral_pct %}
-      {% set examples = aspect_examples.get(key, {}) %}
-      <details class="asp-card">
-        <summary class="asp-row">
-          <span class="asp-label">
-            <strong class="asp-name">{{ ASPECT_TH.get(key, key) }}</strong>
-            <small>กดอ่านรีวิว</small>
-          </span>
-          <span class="asp-bar" aria-label="{{ ASPECT_TH.get(key, key) }}: บวก {{ positive_pct }}% กลาง {{ neutral_pct }}% ลบ {{ negative_pct }}%">
-            {% if positive_pct > 0 %}<span class="seg pos" style="width:{{ positive_pct }}%" title="เชิงบวก {{ positive_pct }}%">{% if positive_pct >= 12 %}{{ positive_pct }}%{% endif %}</span>{% endif %}
-            {% if neutral_pct > 0 %}<span class="seg neu" style="width:{{ neutral_pct }}%" title="กลาง {{ neutral_pct }}%">{% if neutral_pct >= 12 %}{{ neutral_pct }}%{% endif %}</span>{% endif %}
-            {% if negative_pct > 0 %}<span class="seg neg" style="width:{{ negative_pct }}%" title="เชิงลบ {{ negative_pct }}%">{% if negative_pct >= 12 %}{{ negative_pct }}%{% endif %}</span>{% endif %}
-          </span>
-          <span class="asp-total" title="ถูกพูดถึง {{ summary.total }} ครั้ง"><strong class="mono">{{ summary.total }}</strong><small>ครั้ง</small></span>
-          <svg class="asp-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m8 10 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </summary>
-        <div class="asp-detail">
+      <button class="asp-card asp-row" type="button"
+              data-aspect-open="aspect-panel-{{ key }}"
+              data-aspect-label="เสียงลูกค้าด้าน{{ ASPECT_TH.get(key, key) }}"
+              aria-controls="aspect-panel-{{ key }}" aria-expanded="false">
+        <span class="asp-label">
+          <strong class="asp-name">{{ ASPECT_TH.get(key, key) }}</strong>
+          <small>กดอ่านกลางหน้าจอ</small>
+        </span>
+        <span class="asp-bar" aria-label="{{ ASPECT_TH.get(key, key) }}: บวก {{ positive_pct }}% กลาง {{ neutral_pct }}% ลบ {{ negative_pct }}%">
+          {% if positive_pct > 0 %}<span class="seg pos" style="width:{{ positive_pct }}%" title="เชิงบวก {{ positive_pct }}%">{% if positive_pct >= 12 %}{{ positive_pct }}%{% endif %}</span>{% endif %}
+          {% if neutral_pct > 0 %}<span class="seg neu" style="width:{{ neutral_pct }}%" title="กลาง {{ neutral_pct }}%">{% if neutral_pct >= 12 %}{{ neutral_pct }}%{% endif %}</span>{% endif %}
+          {% if negative_pct > 0 %}<span class="seg neg" style="width:{{ negative_pct }}%" title="เชิงลบ {{ negative_pct }}%">{% if negative_pct >= 12 %}{{ negative_pct }}%{% endif %}</span>{% endif %}
+        </span>
+        <span class="asp-total" title="ถูกพูดถึง {{ summary.total }} ครั้ง"><strong class="mono">{{ summary.total }}</strong><small>ครั้ง</small></span>
+        <svg class="asp-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m9 18 6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      {% endif %}
+      {% endfor %}
+    </div>
+    <div class="asp-legend">
+      <span><span class="dot positive"></span>บวก</span>
+      <span><span class="dot neutral"></span>กลาง</span>
+      <span><span class="dot negative"></span>ลบ</span>
+      <span class="asp-hint">ตัวเลขขวาสุด = จำนวนครั้งที่ด้านนั้นถูกพูดถึง</span>
+    </div>
+  </section>
+
+  <div class="aspect-modal-shell" id="aspectModal" hidden>
+    <button class="aspect-modal-backdrop" type="button" data-aspect-close aria-label="ย่อหน้าต่างรายละเอียด"></button>
+    <section class="aspect-modal" role="dialog" aria-modal="true" aria-labelledby="aspectModalTitle">
+      <header class="aspect-modal-head">
+        <div>
+          <span class="aspect-modal-kicker">ร้านนี้เด่น/ด้อยเรื่องอะไร</span>
+          <h3 id="aspectModalTitle">เสียงลูกค้ารายด้าน</h3>
+          <p>ตัวอย่างจากรีวิวจริง แยกตามอารมณ์และตรวจสอบฉบับเต็มได้</p>
+        </div>
+        <button class="aspect-modal-close" type="button" data-aspect-close>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m8 10 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          ย่อกลับ
+        </button>
+      </header>
+      <div class="aspect-modal-scroll">
+        {% for key, summary in a.aspect_summary.items() %}
+        {% if summary.total %}
+        {% set examples = aspect_examples.get(key, {}) %}
+        <section class="aspect-modal-panel" id="aspect-panel-{{ key }}" data-aspect-panel hidden>
           <div class="asp-detail-head">
-            <div><strong>เสียงลูกค้าด้าน{{ ASPECT_TH.get(key, key) }}</strong><span>ตัวอย่างจากรีวิวจริง กดรายการเพื่ออ่านฉบับเต็ม</span></div>
+            <div><strong>เสียงลูกค้าด้าน{{ ASPECT_TH.get(key, key) }}</strong><span>กดตัวอย่างแต่ละรายการเพื่ออ่านรีวิวฉบับเต็ม</span></div>
             <span class="asp-detail-count"><b class="mono">{{ summary.total }}</b> ครั้งที่กล่าวถึง</span>
           </div>
           <div class="asp-review-grid">
@@ -200,18 +230,12 @@
             </section>
             {% endfor %}
           </div>
-        </div>
-      </details>
-      {% endif %}
-      {% endfor %}
-    </div>
-    <div class="asp-legend">
-      <span><span class="dot positive"></span>บวก</span>
-      <span><span class="dot neutral"></span>กลาง</span>
-      <span><span class="dot negative"></span>ลบ</span>
-      <span class="asp-hint">ตัวเลขขวาสุด = จำนวนครั้งที่ด้านนั้นถูกพูดถึง</span>
-    </div>
-  </section>
+        </section>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </section>
+  </div>
   {% endif %}
 
   <section class="panel consumer-section caution-section">
