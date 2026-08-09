@@ -219,11 +219,27 @@ button{font-family:inherit}
 .dash-head .actions{display:flex;gap:9px;align-items:center}
 
 /* ===================== Audience views ===================== */
-.persona-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;background:var(--surface);border:1px solid var(--border);padding:6px;border-radius:var(--r-md);margin-bottom:18px;box-shadow:var(--sh-sm)}
-.persona-tab{border:0;background:transparent;border-radius:var(--r-sm);padding:12px 16px;text-align:left;color:var(--ink-2);cursor:pointer;font:inherit;font-weight:600;transition:all var(--t)}
-.persona-tab span{display:block;font-size:12.5px;font-weight:400;color:var(--ink-2);margin-top:3px;line-height:1.5}
-.persona-tab.active{background:var(--accent-soft);color:var(--accent-ink);box-shadow:inset 0 0 0 1px rgba(52,121,112,.08)}
-.persona-tab.active span{color:var(--accent-ink);opacity:.75}
+.persona-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:7px;margin-bottom:20px;
+  border:1px solid var(--border);border-radius:16px;background:linear-gradient(135deg,var(--surface),var(--surface-2));
+  box-shadow:0 8px 28px rgba(25,42,39,.07)}
+.persona-tab{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;min-width:0;
+  padding:11px 13px;border:1px solid transparent;border-radius:11px;background:transparent;color:var(--ink-2);
+  font:inherit;text-align:left;cursor:pointer;transition:color var(--t),background var(--t),border-color var(--t),box-shadow var(--t),transform var(--t)}
+.persona-tab:hover:not(.active){border-color:var(--border);background:rgba(255,255,255,.82);box-shadow:var(--sh-sm);transform:translateY(-1px)}
+.persona-tab:focus-visible{outline:3px solid rgba(52,121,112,.22);outline-offset:3px}
+.persona-icon{display:grid;width:42px;height:42px;place-items:center;border:1px solid var(--border);border-radius:12px;
+  background:var(--surface);color:var(--ink-2);box-shadow:var(--sh-sm);transition:all var(--t)}
+.persona-icon svg{width:21px;height:21px;stroke-width:1.7}
+.persona-copy{display:flex;min-width:0;flex-direction:column;gap:2px}.persona-copy strong{font-size:14px;line-height:1.35;color:var(--ink)}
+.persona-copy small{font-size:11.5px;line-height:1.45;color:var(--ink-3)}
+.persona-state{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid transparent;border-radius:var(--r-pill);
+  font-size:10px;font-weight:700;white-space:nowrap;color:transparent;opacity:0;transform:translateX(4px);transition:all var(--t)}
+.persona-state i{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px rgba(255,255,255,.14)}
+.persona-tab.active{border-color:#23655d;background:linear-gradient(135deg,#2f7d72,#24675f);color:#fff;
+  box-shadow:0 9px 22px rgba(36,103,95,.2),inset 0 1px 0 rgba(255,255,255,.16)}
+.persona-tab.active .persona-icon{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.13);color:#fff;box-shadow:none}
+.persona-tab.active .persona-copy strong{color:#fff}.persona-tab.active .persona-copy small{color:rgba(255,255,255,.72)}
+.persona-tab.active .persona-state{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.12);color:#fff;opacity:1;transform:none}
 .persona-view{animation:fadeUp .24s var(--ease)}
 .consumer-hero{position:relative;overflow:hidden;padding:32px;background:linear-gradient(135deg,#fff 42%,#edf6f2);margin-bottom:16px}
 .consumer-hero::after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-60px;top:-80px;background:rgba(52,121,112,.07)}
@@ -653,7 +669,7 @@ table.reviews tr:hover td{background:var(--surface-hover)}
   .analysis-sentence{justify-content:flex-start;padding-inline:6px;font-size:11.5px}
   .text-select select{font-size:11.5px}.engine-select select{width:126px}.extract-select select{width:86px}
   .model-menu summary{padding:8px}.model-menu-label{display:none}.model-menu summary::before{content:"โมเดล"}.model-menu-popover{position:fixed;right:16px;top:70px}
-  .persona-switch{grid-template-columns:1fr}.persona-tab{text-align:center}
+  .persona-switch{grid-template-columns:1fr}.persona-tab{text-align:left}
   .consumer-hero{padding:22px}.consumer-hero h2{font-size:21px}
   .asp-row{grid-template-columns:minmax(0,1fr) auto 20px;gap:8px;padding:13px 12px}
   .asp-label{grid-column:1}.asp-name{font-size:13px}.asp-total{grid-column:2;grid-row:1}.asp-chevron{grid-column:3;grid-row:1}
@@ -690,4 +706,5 @@ table.reviews tr:hover td{background:var(--surface-hover)}
 @media(max-width:420px){
   .meta-row{font-size:12px}
   .seg button{padding:7px 12px}
+  .persona-tab{grid-template-columns:40px minmax(0,1fr);padding:10px}.persona-icon{width:38px;height:38px}.persona-state{display:none}
 }
