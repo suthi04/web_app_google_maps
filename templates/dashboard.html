@@ -18,7 +18,7 @@
   <form class="analysis-composer compact" method="post" action="{{ url_for('analyze') }}" id="analyzeForm" data-guard-submit>
     <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
     <div class="search-box">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg>
+      <span class="search-leading" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg></span>
       <input type="url" name="url" placeholder="วิเคราะห์ร้านใหม่ — วาง URL ที่นี่" maxlength="2048" inputmode="url" autocomplete="url" aria-label="ลิงก์ร้านอาหารจาก Google Maps">
       <details class="model-menu">
         <summary aria-label="เลือกเครื่องมือวิเคราะห์" title="เลือกเครื่องมือวิเคราะห์">
@@ -140,7 +140,7 @@
   </div>
 
   <section class="consumer-hero panel">
-    <div class="section-number">02</div>
+    <div class="section-number">03</div>
     <div class="consumer-kicker">บทสรุปสั้น ๆ · สำหรับคนไม่อยากอ่านทุกรีวิว</div>
     <h2>{{ consumer.lazy_summary.verdict }}</h2>
     <p>{{ consumer.lazy_summary.detail }}</p>
@@ -153,7 +153,7 @@
 
   {% if (a.aspect_summary.values() | selectattr('total') | list) %}
   <section class="panel consumer-section aspect-summary-section">
-    <div class="section-number">03</div>
+    <div class="section-number">02</div>
     <div class="panel-head"><div>
       <h3>ร้านนี้เด่น/ด้อยเรื่องอะไร</h3>
       <div class="sub-h">เปรียบเทียบเสียงบวก กลาง และลบในแต่ละด้าน — กดแต่ละหัวข้อเพื่ออ่านรีวิวจริง</div>

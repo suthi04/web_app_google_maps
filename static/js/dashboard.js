@@ -8,6 +8,11 @@
     consumer: document.getElementById("consumerView"),
     operator: document.getElementById("operatorView"),
   };
+  const consumerHero = personaViews.consumer?.querySelector(".consumer-hero");
+  const aspectSummarySection = personaViews.consumer?.querySelector(".aspect-summary-section");
+  if (consumerHero && aspectSummarySection) {
+    personaViews.consumer.insertBefore(aspectSummarySection, consumerHero);
+  }
   function setPersona(persona, updateUrl = true) {
     if (!personaViews[persona]) persona = "consumer";
     personaTabs.forEach((tab) => {

@@ -67,6 +67,7 @@ class TestAudienceDashboard(unittest.TestCase):
         self.assertIn('class="persona-copy"', html)
         self.assertIn('class="persona-state"', html)
         self.assertIn("กำลังดู", html)
+        self.assertIn('class="search-leading"', html)
         self.assertIn('id="consumerView"', html)
         self.assertIn('id="operatorView"', html)
         self.assertIn("เรื่องที่ควรรู้ก่อนไป", html)
@@ -96,7 +97,21 @@ class TestAudienceDashboard(unittest.TestCase):
         self.assertIn("อ่านรีวิวเต็ม", html)
         self.assertNotIn('<details class="asp-card">', html)
         self.assertIn("เชิงบวก 60%", html)
+        self.assertIn('class="section-number">02</div>', html)
         self.assertIn('class="section-number">04</div>', html)
+
+    def test_warning_decision_summary_is_section_three(self):
+        payload = _payload()
+        payload["distribution"] = {
+            "counts": {"positive": 3, "neutral": 3, "negative": 4},
+            "total": 10,
+            "pct": {"positive": 30, "neutral": 30, "negative": 40},
+        }
+        html = _get_dashboard(payload)
+        self.assertIn("ควรอ่านข้อควรระวังก่อนตัดสินใจ", html)
+        section_three = html.index('class="section-number">03</div>')
+        verdict = html.index("ควรอ่านข้อควรระวังก่อนตัดสินใจ")
+        self.assertLess(section_three, verdict)
 
     def test_operator_watchlist_closes_the_report(self):
         html = _get_dashboard(_payload())
