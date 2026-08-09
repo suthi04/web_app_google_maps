@@ -5,6 +5,7 @@ sentiment counts, or aggregated opinion phrases. It never fabricates a cause
 or recommendation that is not connected to those signals.
 """
 
+from core import practical_rules
 from core.lexicon import ASPECT_LABELS_TH, SENTIMENT_WORDS
 
 
@@ -90,11 +91,42 @@ def _things_to_know(keywords: dict, limit: int = 6) -> list[dict]:
     return selected[:limit]
 
 
-def _cautions(keywords: dict, aspect_summary: dict, limit: int = 5) -> list[dict]:
+def _practical_cautions(practical_insights: list[dict] | None) -> list[dict]:
+    """Translate negative planning rules into the shared caution contract."""
     cautions = []
+    for item in practical_insights or []:
+        if item.get("status") not in {"negative", "mixed"}:
+            continue
+        review_count = int(item.get("review_count") or 0)
+        negative_count = int(item.get("negative_review_count") or 0)
+        negative_pct = round(negative_count / review_count * 100) if review_count else 0
+        cautions.append({
+            **item,
+            "text": item.get("title") or item.get("text"),
+            "count": review_count,
+            "negative_pct": negative_pct,
+            "severity": "critical" if review_count >= 2 else "watch",
+            "source": "practical_rules",
+        })
+    return cautions
+
+
+def _cautions(
+    keywords: dict,
+    aspect_summary: dict,
+    practical_insights: list[dict] | None = None,
+    limit: int = 5,
+) -> list[dict]:
+    cautions = _practical_cautions(practical_insights)[:limit]
+    if len(cautions) >= limit:
+        return cautions
+    seen_rule_topics = {item.get("topic") for item in cautions}
     seen_topics = set()
     for item in _phrase_items(keywords, {"negative"}):
         text = item["text"]
+        matched_rule_topic = practical_rules.match_topic(text)
+        if matched_rule_topic in seen_rule_topics:
+            continue
         has_negative_cue = any(word in text for word in SENTIMENT_WORDS["negative"])
         has_negated_positive = any(
             f"ไม่{word}" in text for word in SENTIMENT_WORDS["positive"]
@@ -153,6 +185,8 @@ def _lazy_summary(
     if strengths:
         detail += f" จุดที่ถูกชมบ่อยคือ {strengths}"
     detail += f"; ประเด็นที่ควรรู้คือ {warning}"
+    if cautions and cautions[0].get("advice"):
+        detail += f" คำแนะนำ: {cautions[0]['advice']}"
     evidence_review_ids = [
         review.get("review_id")
         for review in (reviews or [])
@@ -177,10 +211,11 @@ def build_consumer_summary(
     distribution: dict,
     aspect_summary: dict,
     reviews: list | None = None,
+    practical_insights: list[dict] | None = None,
 ) -> dict:
-    cautions = _cautions(keywords, aspect_summary)
+    cautions = _cautions(keywords, aspect_summary, practical_insights)
     return {
-        "things_to_know": _things_to_know(keywords),
+        "things_to_know": practical_insights or _things_to_know(keywords),
         "lazy_summary": _lazy_summary(distribution, keywords, cautions, reviews),
         "cautions": cautions,
     }
@@ -200,6 +235,14 @@ def strategy_for_issue(text: str, aspect: str) -> str:
         return "ใช้ cleaning checklist ระบุผู้รับผิดชอบและเวลาตรวจ โดยให้หัวหน้ากะลงชื่อก่อนช่วงลูกค้าหนาแน่น"
     if any(word in phrase for word in ("เสียง", "ดัง", "ร้อน", "แอร์", "อึดอัด")):
         return "ตรวจสภาพพื้นที่ตามช่วงเวลา แยกโซนหรือปรับเสียง/อุณหภูมิ และเก็บ feedback หลังแก้เพื่อยืนยันผล"
+    if any(word in phrase for word in ("ที่จอด", "จอดรถ")):
+        return "สำรวจจุดจอดใกล้ร้าน ทำข้อมูลเส้นทางและจุดจอดสำรองให้ชัด แล้วแจ้งลูกค้าก่อนช่วงเวลาหนาแน่น"
+    if any(word in phrase for word in ("ทางเข้า", "หายาก", "ซอยลึก", "เดินทาง")):
+        return "ตรวจหมุดและป้ายทางเข้า ทำภาพบอกทางจากจุดสังเกตหลัก และทดสอบเส้นทางด้วยผู้ที่ไม่เคยมาร้าน"
+    if any(word in phrase for word in ("เงินสด", "บัตรเครดิต", "พร้อมเพย์", "จ่ายเงิน")):
+        return "ระบุช่องทางชำระเงินให้ชัดทั้งหน้าร้านและออนไลน์ พร้อมตรวจอุปกรณ์และเตรียมช่องทางสำรองทุกกะ"
+    if any(word in phrase for word in ("แพ้อาหาร", "เมนูเจ", "มังสวิรัติ", "วีแกน", "ฮาลาล")):
+        return "ทำข้อมูลส่วนผสมและข้อจำกัดของเมนูให้ทีมตอบตรงกัน พร้อมขั้นตอนยืนยันความต้องการก่อนรับออเดอร์"
     fallbacks = {
         "food": "ตรวจตัวอย่างอาหารและ feedback รายเมนู หา root cause กับทีมครัว แล้วติดตามจำนวนคำร้องเรียนเดิมรายสัปดาห์",
         "service": "แยกปัญหาตามช่วงเวลาและขั้นตอนบริการ กำหนดเจ้าของปัญหา พร้อมตัวชี้วัดก่อน–หลังปรับปรุง",
@@ -208,8 +251,15 @@ def strategy_for_issue(text: str, aspect: str) -> str:
     return fallbacks.get(aspect, "ตรวจหลักฐานรีวิว หา root cause กับทีมที่เกี่ยวข้อง และติดตามผลด้วยตัวชี้วัดรายสัปดาห์")
 
 
-def build_critical_issues(keywords: dict, aspect_summary: dict, limit: int = 6) -> list[dict]:
-    issues = _cautions(keywords, aspect_summary, limit=20)
+def build_critical_issues(
+    keywords: dict,
+    aspect_summary: dict,
+    practical_insights: list[dict] | None = None,
+    limit: int = 6,
+) -> list[dict]:
+    issues = _cautions(
+        keywords, aspect_summary, practical_insights=practical_insights, limit=20
+    )
     result = []
     for item in issues[:limit]:
         result.append({
@@ -227,6 +277,7 @@ def build_critical_issues(keywords: dict, aspect_summary: dict, limit: int = 6) 
 def enrich_result(result: dict) -> dict:
     """Add presentation fields to new or legacy persisted results in-place."""
     _prepare_evidence(result)
+    practical_rules.enrich_result(result)
     result["sentiment_evidence"] = {
         sentiment: [
             review.get("review_id")
@@ -240,8 +291,11 @@ def enrich_result(result: dict) -> dict:
         result.get("distribution") or {},
         result.get("aspect_summary") or {},
         result.get("reviews") or [],
+        result.get("practical_insights") or [],
     )
     result["critical_issues"] = build_critical_issues(
-        result.get("keywords") or {}, result.get("aspect_summary") or {}
+        result.get("keywords") or {},
+        result.get("aspect_summary") or {},
+        result.get("practical_insights") or [],
     )
     return result

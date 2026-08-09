@@ -59,6 +59,21 @@ class TestNoDeadJsonBlob(unittest.TestCase):
 
 
 class TestAudienceDashboard(unittest.TestCase):
+    def test_before_you_go_uses_ranked_rule_cards_with_traceable_evidence(self):
+        payload = _payload()
+        payload["reviews"] = [
+            {"text": "ช่วงเย็นรอคิวนานมาก", "rating": 2, "review_date": None,
+             "sentiment": "negative", "aspects": ["service"]},
+            {"text": "อาหารมาช้า ต้องเผื่อเวลา", "rating": 2, "review_date": None,
+             "sentiment": "negative", "aspects": ["service"]},
+        ]
+        html = _get_dashboard(payload)
+        self.assertIn('class="know-item rule-topic-card', html)
+        self.assertIn("คิวและเวลารอ", html)
+        self.assertIn("แนะนำก่อนไป", html)
+        self.assertIn('data-evidence="R001,R002"', html)
+        self.assertIn("Rule-based · ตรวจสอบได้", html)
+
     def test_renders_consumer_and_operator_persona_tabs(self):
         html = _get_dashboard(_payload())
         self.assertIn("สำหรับผู้บริโภค", html)
