@@ -70,7 +70,8 @@ class TestAudienceDashboard(unittest.TestCase):
         html = _get_dashboard(payload)
         self.assertIn('class="know-item rule-topic-card', html)
         self.assertIn("คิวและเวลารอ", html)
-        self.assertIn("แนะนำก่อนไป", html)
+        self.assertIn('class="rule-quick-advice"', html)
+        self.assertNotIn('class="rule-topic-summary"', html)
         self.assertIn('data-evidence="R001,R002"', html)
         self.assertNotIn("Rule-based · ตรวจสอบได้", html)
 

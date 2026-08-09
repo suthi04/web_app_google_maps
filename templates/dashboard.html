@@ -121,32 +121,24 @@
     <section class="panel consumer-section">
       <div class="section-number">01</div>
       <div class="panel-head rule-before-head">
-        <div><h3>เรื่องที่ควรรู้ก่อนไป</h3><div class="sub-h">สรุปด้วยกฎจากรีวิวจริง แยกข้อมูลที่ดี ข้อจำกัด และความคิดเห็นที่ไม่ตรงกัน</div></div>
+        <div><h3>เรื่องที่ควรรู้ก่อนไป</h3><div class="sub-h">อ่านสั้น ๆ ก่อนออกเดินทาง · กดเพื่อดูรีวิวจริง</div></div>
       </div>
       {% if consumer.things_to_know %}
-      {% set practical_meta = a.get('practical_insights_meta', {}) %}
-      <div class="rule-topic-summary" aria-label="สรุปหลักฐานเรื่องที่ควรรู้ก่อนไป">
-        <span><strong class="mono">{{ practical_meta.get('topic_count', consumer.things_to_know|length) }}</strong> หัวข้อที่พบ</span>
-        <span><strong class="mono">{{ practical_meta.get('evidence_review_count', 0) }}</strong> รีวิวหลักฐาน</span>
-        <span class="attention"><strong class="mono">{{ practical_meta.get('attention_count', 0) }}</strong> เรื่องควรวางแผน</span>
-      </div>
       <div class="know-grid">
         {% for item in consumer.things_to_know %}
         <button class="know-item rule-topic-card evidence-trigger {{ item.sentiment }} {{ item.get('action_tier', '') }}" type="button"
                 data-evidence="{{ item.evidence_review_ids|join(',') }}"
                 data-evidence-query="{{ item.get('query', item.text) }}"
                 {% if not item.evidence_review_ids %}disabled title="ผลวิเคราะห์เดิมไม่มีตำแหน่งหลักฐาน กรุณาวิเคราะห์ร้านใหม่"{% endif %}>
-          <span class="rule-card-top">
+          <span class="rule-card-top rule-compact-heading">
             <span class="rule-topic-identity"><b class="rule-rank mono">{{ '%02d'|format(item.get('rank', loop.index)) }}</b><span>{{ item.get('topic_label', item.aspect_th) }}</span></span>
             <span class="rule-status {{ item.get('status', item.sentiment) }}"><i></i>{{ item.get('status_label', 'ข้อมูลจากรีวิว') }}</span>
           </span>
-          <span class="rule-card-body">
+          <span class="rule-card-body rule-compact-body">
             <strong>{{ item.get('title', item.text) }}</strong>
-            <small>{{ item.get('summary', 'พบ ' ~ item.review_count ~ ' รีวิวที่กล่าวถึงเรื่องนี้') }}</small>
-            {% if item.get('context_text') %}<em>{{ item.context_text }}</em>{% endif %}
+            {% if item.get('advice') %}<small class="rule-quick-advice"><b>→</b>{{ item.advice }}</small>{% endif %}
           </span>
-          {% if item.get('advice') %}<span class="rule-advice"><b>แนะนำก่อนไป</b>{{ item.advice }}</span>{% endif %}
-          <span class="rule-card-foot"><span>{{ item.get('evidence_label', 'พบจากรีวิวจริง') }} · {{ item.review_count }} รีวิวไม่ซ้ำ</span><span class="know-reference">เปิดรีวิวอ้างอิง <b>→</b></span></span>
+          <span class="rule-card-foot rule-compact-foot"><span>{{ item.review_count }} รีวิว{% if item.get('context_labels') %} · {{ item.context_labels[0] }}{% endif %}</span><span class="know-reference">ดูรีวิว <b>→</b></span></span>
         </button>
         {% endfor %}
       </div>
