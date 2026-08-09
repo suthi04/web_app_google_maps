@@ -26,13 +26,13 @@
           <svg viewBox="0 0 20 20" fill="none" stroke="currentColor"><path d="m6 8 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </summary>
         <div class="model-menu-popover">
-          <fieldset>
-            <legend>วิเคราะห์อารมณ์</legend>
+          <fieldset class="model-group sentiment-group">
+            <legend><span class="model-group-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 10h.01M16 10h.01M8.5 15c1.8 1.4 5.2 1.4 7 0" stroke-linecap="round"/><circle cx="12" cy="12" r="9"/></svg></span><span>วิเคราะห์อารมณ์</span></legend>
             <label class="model-choice"><input type="radio" name="engine" value="model" data-analysis-setting {{ 'checked' if analysis_defaults.use_model }}><span><b>WangchanBERTa</b></span></label>
             <label class="model-choice"><input type="radio" name="engine" value="lexicon" data-analysis-setting {{ 'checked' if not analysis_defaults.use_model }}><span><b>Lexicon</b></span></label>
           </fieldset>
-          <fieldset>
-            <legend>สกัดประเด็น</legend>
+          <fieldset class="model-group extract-group">
+            <legend><span class="model-group-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 6h14M5 12h9M5 18h6" stroke-linecap="round"/><path d="m17 15 1 2 2 .8-2 1-1 2-1-2-2-.8 2-1 1-2Z" stroke-linejoin="round"/></svg></span><span>สกัดประเด็น</span></legend>
             <label class="model-choice"><input type="radio" name="extract_engine" value="llm" data-analysis-setting {{ 'checked' if analysis_defaults.extract_engine == 'llm' }}><span><b>Gemini</b></span></label>
             <label class="model-choice"><input type="radio" name="extract_engine" value="rule" data-analysis-setting {{ 'checked' if analysis_defaults.extract_engine == 'rule' }}><span><b>Rule-based</b></span></label>
           </fieldset>

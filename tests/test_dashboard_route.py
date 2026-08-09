@@ -124,6 +124,9 @@ class TestAudienceDashboard(unittest.TestCase):
             html.index("Priority watchlist"),
         )
         self.assertIn('class="model-menu"', html)
+        self.assertIn('class="model-group sentiment-group"', html)
+        self.assertIn('class="model-group extract-group"', html)
+        self.assertIn('class="model-group-icon"', html)
 
     def test_long_analysis_result_is_scrollable_without_disclosure(self):
         payload = _payload()
