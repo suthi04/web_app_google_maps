@@ -278,26 +278,27 @@ button{font-family:inherit}
 
 /* ===================== Audience views ===================== */
 .persona-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;width:min(780px,100%);padding:7px;margin:0 auto 20px 0;
-  border:1px solid var(--border);border-radius:16px;background:linear-gradient(135deg,var(--surface),var(--surface-2));
+  border:1px solid #cfded9;border-radius:16px;background:#f7faf9;
   box-shadow:0 8px 28px rgba(25,42,39,.07)}
 .persona-tab{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;min-width:0;
   padding:11px 13px;border:1px solid transparent;border-radius:11px;background:transparent;color:var(--ink-2);
   font:inherit;text-align:left;cursor:pointer;transition:color var(--t),background var(--t),border-color var(--t),box-shadow var(--t),transform var(--t)}
-.persona-tab:hover:not(.active){border-color:var(--border);background:rgba(255,255,255,.82);box-shadow:var(--sh-sm);transform:translateY(-1px)}
+.persona-tab:hover:not(.active){border-color:#c7d8d3;background:#fff;box-shadow:var(--sh-sm);transform:translateY(-1px)}
 .persona-tab:focus-visible{outline:3px solid rgba(52,121,112,.22);outline-offset:3px}
 .persona-icon{display:grid;width:42px;height:42px;place-items:center;border:1px solid var(--border);border-radius:12px;
   background:var(--surface);color:var(--ink-2);box-shadow:var(--sh-sm);transition:all var(--t)}
 .persona-icon svg{width:21px;height:21px;stroke-width:1.7}
-.persona-copy{display:flex;min-width:0;flex-direction:column;gap:2px}.persona-copy strong{font-size:14px;line-height:1.35;color:var(--ink)}
-.persona-copy small{font-size:11.5px;line-height:1.45;color:var(--ink-3)}
+.persona-copy{display:flex;min-width:0;flex-direction:column;gap:3px}.persona-copy strong{font-size:14.5px;line-height:1.35;color:var(--ink)}
+.persona-copy small{font-size:12px;line-height:1.45;color:#5d6d69}
 .persona-state{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid transparent;border-radius:var(--r-pill);
   font-size:10px;font-weight:700;white-space:nowrap;color:transparent;opacity:0;transform:translateX(4px);transition:all var(--t)}
 .persona-state i{width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px rgba(255,255,255,.14)}
-.persona-tab.active{border-color:#23655d;background:linear-gradient(135deg,#2f7d72,#24675f);color:#fff;
-  box-shadow:0 9px 22px rgba(36,103,95,.2),inset 0 1px 0 rgba(255,255,255,.16)}
-.persona-tab.active .persona-icon{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.13);color:#fff;box-shadow:none}
-.persona-tab.active .persona-copy strong{color:#fff}.persona-tab.active .persona-copy small{color:rgba(255,255,255,.72)}
-.persona-tab.active .persona-state{border-color:rgba(255,255,255,.16);background:rgba(255,255,255,.12);color:#fff;opacity:1;transform:none}
+.persona-tab.active{border-color:#0f564d;background:linear-gradient(135deg,#17685d,#104f48);color:#fff;
+  box-shadow:0 9px 22px rgba(15,79,72,.24),inset 0 1px 0 rgba(255,255,255,.2)}
+.persona-tab.active .persona-icon{border-color:rgba(255,255,255,.34);background:rgba(255,255,255,.16);color:#fff;box-shadow:none}
+.persona-tab.active .persona-copy strong{color:#fff;font-weight:750}.persona-tab.active .persona-copy small{color:rgba(255,255,255,.92)}
+.persona-tab.active .persona-state{border-color:rgba(255,255,255,.55);background:#fff;color:#124f48;opacity:1;transform:none}
+.persona-tab.active .persona-state i{box-shadow:0 0 0 3px rgba(18,79,72,.1)}
 .persona-view{animation:fadeUp .24s var(--ease)}
 #consumerView{display:flex;flex-direction:column}
 #consumerView>.consumer-grid.single{order:1}#consumerView>.aspect-summary-section{order:2}#consumerView>.consumer-hero{order:3}
@@ -395,7 +396,7 @@ body.aspect-modal-open{overflow:hidden}
 .asp-legend .dot.negative{background:var(--neg)}
 .asp-legend .asp-hint{margin-left:auto;color:var(--ink-3);font-size:11.5px}
 .critical-why,.strategy-box p,.insight-reason,.insight-strategy p{overflow-wrap:anywhere}
-.rule-before-head{align-items:center}.rule-engine-badge{display:inline-flex;align-items:center;gap:7px;margin-right:48px;padding:7px 11px;border:1px solid rgba(52,121,112,.16);border-radius:var(--r-pill);background:var(--accent-soft);color:var(--accent-ink);font-size:11.5px;font-weight:650;white-space:nowrap}.rule-engine-badge i{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(52,121,112,.1)}
+.rule-before-head{align-items:center}
 .rule-topic-summary{display:flex;gap:8px;flex-wrap:wrap;margin:2px 0 14px;padding-bottom:14px;border-bottom:1px solid var(--border)}.rule-topic-summary>span{display:inline-flex;align-items:center;gap:5px;padding:7px 10px;border-radius:10px;background:var(--surface-2);color:var(--ink-2);font-size:11.5px}.rule-topic-summary strong{color:var(--ink);font-size:13px}.rule-topic-summary .attention{background:var(--neu-soft);color:var(--neu-ink)}.rule-topic-summary .attention strong{color:inherit}
 .know-grid{display:grid;gap:11px}.consumer-grid.single .know-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .know-item{display:flex;flex-direction:column;gap:0;min-width:0;padding:0;border:1px solid rgba(30,60,53,.1);border-radius:17px;overflow:hidden;background:linear-gradient(145deg,#fff 45%,#f8fbfa);color:var(--ink);font:inherit;text-align:left;width:100%;box-shadow:0 4px 13px rgba(30,60,53,.035)}
@@ -758,7 +759,7 @@ table.reviews tr:hover td{background:var(--surface-hover)}
   .critical-card,.caution-item{min-width:0}
   .caution-item{grid-template-columns:32px minmax(0,1fr)}
   .caution-item .severity-label{grid-column:2}
-  .rule-before-head{align-items:flex-start}.rule-engine-badge{margin:8px 34px 0 0}.rule-card-top,.rule-card-foot{align-items:flex-start}.rule-card-foot{flex-wrap:wrap}.know-reference{margin-left:0}
+  .rule-before-head{align-items:flex-start}.rule-card-top,.rule-card-foot{align-items:flex-start}.rule-card-foot{flex-wrap:wrap}.know-reference{margin-left:0}
   .know-reference{white-space:normal;text-align:right}
   .consumer-review-head{flex-direction:column;gap:16px;padding:22px 18px 18px}
   .consumer-review-overview{width:100%;grid-template-columns:repeat(3,1fr)}

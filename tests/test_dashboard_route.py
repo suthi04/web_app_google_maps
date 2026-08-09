@@ -72,7 +72,7 @@ class TestAudienceDashboard(unittest.TestCase):
         self.assertIn("คิวและเวลารอ", html)
         self.assertIn("แนะนำก่อนไป", html)
         self.assertIn('data-evidence="R001,R002"', html)
-        self.assertIn("Rule-based · ตรวจสอบได้", html)
+        self.assertNotIn("Rule-based · ตรวจสอบได้", html)
 
     def test_renders_consumer_and_operator_persona_tabs(self):
         html = _get_dashboard(_payload())
