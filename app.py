@@ -227,28 +227,6 @@ def api_job_status(job_id):
     return jsonify(payload)
 
 
-def _aspect_examples(data: dict, per_bucket: int = 2, max_len: int = 150) -> dict:
-    """Collect short, real review examples for each aspect and sentiment."""
-    examples = {}
-    reviews = data.get("reviews") or []
-    for aspect in (data.get("aspect_summary") or {}):
-        buckets = {"positive": [], "neutral": [], "negative": []}
-        for review in reviews:
-            sentiment = review.get("sentiment")
-            if (
-                aspect in (review.get("aspects") or [])
-                and sentiment in buckets
-                and len(buckets[sentiment]) < per_bucket
-            ):
-                text = str(review.get("text") or "").strip()
-                if text:
-                    buckets[sentiment].append(
-                        text[:max_len] + ("…" if len(text) > max_len else "")
-                    )
-        examples[aspect] = buckets
-    return examples
-
-
 @app.route("/dashboard/<int:aid>")
 def dashboard(aid):
     data = database.get_analysis(aid)
@@ -261,9 +239,7 @@ def dashboard(aid):
     data["insights"] = insights.generate_insights(
         data.get("aspect_summary") or {}, data.get("keywords") or {}
     )
-    return render_template(
-        "dashboard.html", a=data, aspect_examples=_aspect_examples(data)
-    )
+    return render_template("dashboard.html", a=data)
 
 
 @app.route("/history")
