@@ -76,6 +76,16 @@ class TestPipelineSmoke(unittest.TestCase):
         for asp in kw.values():
             self.assertEqual(set(asp), {"positive", "neutral", "negative"})
 
+    def test_before_you_go_rulebase_is_attached_with_traceable_reviews(self):
+        self.assertIn("practical_insights", self.result)
+        self.assertIn("practical_insights_meta", self.result)
+        self.assertEqual(
+            [review["review_id"] for review in self.result["reviews"]],
+            [f"R{index:03d}" for index in range(1, self.result["total_reviews"] + 1)],
+        )
+        for item in self.result["practical_insights"]:
+            self.assertTrue(item["evidence_review_ids"])
+
 
 if __name__ == "__main__":
     unittest.main()

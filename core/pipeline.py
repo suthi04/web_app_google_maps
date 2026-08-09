@@ -11,7 +11,10 @@ pipeline.py
 ฟังก์ชันหลัก: run_analysis(url, max_reviews) -> dict ผลลัพธ์
 """
 import config
-from core import scraper, preprocess, sentiment, aspect, insights, narrative
+from core import (
+    scraper, preprocess, sentiment, aspect, insights, narrative,
+    practical_rules,
+)
 from core.phrases import extract, quality, canonical, synonyms, aggregate, llm_extract
 
 # internal aspect value -> dashboard contract key
@@ -115,7 +118,7 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
     })
 
     # 6) ประกอบผลลัพธ์
-    return {
+    result = {
         "store_name": raw["store_name"],
         "source_url": raw["source_url"],
         "total_reviews": len(reviews),       # ที่วิเคราะห์จริง (รีวิวไทยหลังคัดกรอง)
@@ -138,3 +141,4 @@ def run_analysis(url: str, max_reviews: int = None) -> dict:
             for r in reviews
         ],
     }
+    return practical_rules.enrich_result(result)

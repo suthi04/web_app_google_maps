@@ -572,3 +572,29 @@ table.reviews tr:hover td{background:var(--surface-hover)}
 .quote.pos{border-left-color:var(--pos);background:var(--pos-soft)}
 .quote.neg{border-left-color:var(--neg);background:var(--neg-soft)}
 .quote:last-child{margin-bottom:0}
+
+/* ===================== Before-you-go rule base ===================== */
+.rule-before-panel{min-width:0}
+.rule-topic-summary{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.rule-topic-summary span{padding:5px 9px;border:1px solid var(--border);border-radius:var(--r-pill);
+  background:var(--surface-2);font-size:11.5px;color:var(--ink-2)}
+.rule-topic-summary span.attention{border-color:#f1c4bd;background:var(--neg-soft);color:var(--neg-ink)}
+.rule-topic-list{display:grid;gap:10px}
+.rule-topic-card{padding:13px;border:1px solid var(--border);border-left:4px solid var(--neu);
+  border-radius:var(--r-sm);background:var(--surface-2)}
+.rule-topic-card.status-negative,.rule-topic-card.status-mixed{border-left-color:var(--neg)}
+.rule-topic-card.status-positive{border-left-color:var(--pos)}
+.rule-topic-head{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.rule-rank{font:700 10px/1 monospace;color:var(--ink-3)}
+.rule-topic{font-size:11.5px;font-weight:700;color:var(--ink-2)}
+.rule-status{margin-left:auto;padding:3px 7px;border-radius:var(--r-pill);background:var(--surface);
+  font-size:10.5px;font-weight:700;color:var(--ink-2)}
+.status-negative .rule-status,.status-mixed .rule-status{background:var(--neg-soft);color:var(--neg-ink)}
+.status-positive .rule-status{background:var(--pos-soft);color:var(--pos-ink)}
+.rule-topic-card>strong{display:block;font-size:13.5px;color:var(--ink);line-height:1.4}
+.rule-topic-card>p{margin:5px 0 0;font-size:12px;line-height:1.55;color:var(--ink-2)}
+.rule-context{margin-top:7px;font-size:11.5px;color:var(--ink-3)}
+.rule-advice{margin-top:9px;padding:8px 9px;border-radius:7px;background:var(--surface);
+  font-size:11.5px;line-height:1.5;color:var(--ink-2)}
+.rule-advice span{display:block;margin-bottom:2px;font-size:10px;font-weight:700;color:var(--accent)}
+.rule-evidence{margin-top:8px;font-size:10.5px;color:var(--ink-3);overflow-wrap:anywhere}

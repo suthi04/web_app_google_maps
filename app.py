@@ -23,7 +23,7 @@ from flask import (
 )
 
 import config
-from core import pipeline, export, narrative
+from core import pipeline, export, narrative, practical_rules
 from db import database
 
 app = Flask(__name__)
@@ -130,6 +130,7 @@ def dashboard(aid):
     data = database.get_analysis(aid)
     if not data:
         abort(404)
+    practical_rules.enrich_result(data)
     return render_template("dashboard.html", a=data,
                            aspect_examples=_aspect_examples(data))
 
@@ -203,6 +204,7 @@ def api_analysis(aid):
     data = database.get_analysis(aid)
     if not data:
         abort(404)
+    practical_rules.enrich_result(data)
     return jsonify(data)
 
 
