@@ -219,7 +219,7 @@ button{font-family:inherit}
 .dash-head .actions{display:flex;gap:9px;align-items:center}
 
 /* ===================== Audience views ===================== */
-.persona-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:7px;margin-bottom:20px;
+.persona-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;width:min(780px,100%);padding:7px;margin:0 auto 20px 0;
   border:1px solid var(--border);border-radius:16px;background:linear-gradient(135deg,var(--surface),var(--surface-2));
   box-shadow:0 8px 28px rgba(25,42,39,.07)}
 .persona-tab{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;min-width:0;
