@@ -104,6 +104,32 @@
     });
   });
 
+  const deleteAllBtn = document.getElementById("deleteAllBtn");
+  deleteAllBtn?.addEventListener("click", () => {
+    confirmDialog({
+      title: "ลบประวัติทั้งหมด",
+      body: "ผลวิเคราะห์ทั้งหมด รวมถึงรายการโปรด จะถูกลบถาวรและไม่สามารถกู้คืนได้ ต้องการดำเนินการต่อหรือไม่?",
+      okText: "ลบทั้งหมด",
+      onOk: async () => {
+        deleteAllBtn.disabled = true;
+        try {
+          const res = await fetch("/delete-all", {
+            method: "POST",
+            headers: csrfHeaders(),
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const result = await res.json();
+          if (!result.deleted) throw new Error("Delete failed");
+          toast(`ลบประวัติแล้ว ${result.deleted_count} รายการ`, "ok");
+          setTimeout(() => location.reload(), 350);
+        } catch {
+          deleteAllBtn.disabled = false;
+          toast("ลบประวัติทั้งหมดไม่สำเร็จ ลองใหม่อีกครั้ง", "err");
+        }
+      },
+    });
+  });
+
   /* ---------- Save toggle ---------- */
   list.querySelectorAll(".save-toggle").forEach((btn) => {
     btn.addEventListener("click", async (e) => {

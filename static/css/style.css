@@ -628,6 +628,10 @@ table.reviews tr:hover td{background:var(--surface-hover)}
 .page-title{font-size:26px;font-weight:600;letter-spacing:-.4px}
 .page-sub{font-size:14.5px;color:var(--ink-2);line-height:1.6;margin-top:5px}
 .hist-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.delete-all-btn{margin-left:auto;border:1px solid rgba(185,75,75,.28);background:var(--surface);color:var(--neg);box-shadow:var(--sh-sm)}
+.delete-all-btn:hover{border-color:var(--neg);background:var(--neg-soft)}
+.delete-all-btn:disabled{cursor:wait;opacity:.55}
+.delete-all-btn svg{width:16px;height:16px}
 .search-sm{flex:1;min-width:200px;display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--r-sm);padding:9px 13px;transition:all var(--t)}
 .search-sm:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
 .search-sm svg{width:16px;height:16px;color:var(--ink-3)}
@@ -748,6 +752,7 @@ table.reviews tr:hover td{background:var(--surface-hover)}
   .dash-head .actions{width:100%}
   .panel{padding:18px}
   .hist-card{flex-wrap:wrap;gap:12px}
+  .delete-all-btn{margin-left:0}
   .hist-mid{order:3;width:100%}
   .minibar{width:100%;flex:1}
   .hpct{min-width:0}

@@ -11,6 +11,7 @@ Routes:
   GET  /saved            รายการโปรด
   POST /toggle-save/<id> สลับสถานะรายการโปรด
   POST /delete/<id>      ลบผลวิเคราะห์
+  POST /delete-all       ลบผลวิเคราะห์ทั้งหมด
   GET  /api/analysis/<id> คืนผลเป็น JSON
 
 หมายเหตุ: ทุก route ที่อาจล้มเหลว (โดยเฉพาะ /analyze ที่เรียก Apify/โมเดล)
@@ -72,7 +73,7 @@ def inject_globals():
         "min_reviews": config.MIN_REVIEWS,
         "max_reviews_cap": config.MAX_REVIEWS_CAP,
         # Bump when shared CSS/JS changes so long-lived browser caches refresh.
-        "asset_version": "20260810-gemini-full1",
+        "asset_version": "20260810-delete-all1",
     }
 
 
@@ -312,6 +313,12 @@ def delete(aid):
     if not ok:
         abort(404)
     return jsonify({"id": aid, "deleted": ok})
+
+
+@app.route("/delete-all", methods=["POST"])
+def delete_all():
+    deleted_count = database.delete_all_analyses()
+    return jsonify({"deleted": True, "deleted_count": deleted_count})
 
 
 @app.route("/api/analysis/<int:aid>")

@@ -5,6 +5,7 @@ import re
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -43,6 +44,22 @@ class TestAccessibilityMarkup(unittest.TestCase):
         history = (ROOT / "templates" / "history.html").read_text(encoding="utf-8")
         self.assertIn('<a class="hist-main" href=', history)
         self.assertNotIn("onclick=", history)
+
+    def test_delete_all_button_only_appears_on_history_page_with_items(self):
+        item = {
+            "id": 1, "store_name": "ร้านทดสอบ", "analyzed_at": "2026-08-10T10:00:00",
+            "total_reviews": 10, "pct_positive": 70, "pct_neutral": 20,
+            "pct_negative": 10, "is_saved": True,
+        }
+        client = app.app.test_client()
+        with mock.patch.object(app.database, "list_analyses", return_value=[item]):
+            history = client.get("/history").get_data(as_text=True)
+        with mock.patch.object(app.database, "list_saved", return_value=[item]):
+            saved = client.get("/saved").get_data(as_text=True)
+
+        self.assertIn('id="deleteAllBtn"', history)
+        self.assertIn("ลบทั้งหมด", history)
+        self.assertNotIn('id="deleteAllBtn"', saved)
 
 
 if __name__ == "__main__":

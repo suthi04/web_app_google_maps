@@ -49,6 +49,16 @@ class TestDatabaseLifecycle(unittest.TestCase):
         self.assertIsNone(database.toggle_saved(999999))
         self.assertFalse(database.delete_analysis(999999))
 
+    def test_delete_all_analyses_includes_saved_items(self):
+        first = database.save_analysis(_analysis_result())
+        database.save_analysis(_analysis_result())
+        database.toggle_saved(first)
+
+        self.assertEqual(database.delete_all_analyses(), 2)
+        self.assertEqual(database.list_analyses(), [])
+        self.assertEqual(database.list_saved(), [])
+        self.assertEqual(database.delete_all_analyses(), 0)
+
     def test_connection_is_closed_after_context(self):
         with database._conn() as connection:
             connection.execute("SELECT 1").fetchone()

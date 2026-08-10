@@ -281,3 +281,10 @@ def delete_analysis(aid: int) -> bool:
     with _conn() as c:
         cur = c.execute("DELETE FROM analysis WHERE id = ?", (aid,))
         return cur.rowcount > 0
+
+
+def delete_all_analyses() -> int:
+    """ลบผลวิเคราะห์ทั้งหมดและคืนจำนวนรายการที่ถูกลบ"""
+    with _conn() as c:
+        cur = c.execute("DELETE FROM analysis")
+        return cur.rowcount

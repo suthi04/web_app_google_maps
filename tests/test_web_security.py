@@ -55,6 +55,23 @@ class TestWebSecurity(unittest.TestCase):
             )
         self.assertEqual(response.status_code, 404)
 
+    def test_delete_all_requires_csrf_and_returns_deleted_count(self):
+        with mock.patch.object(app.database, "delete_all_analyses") as delete_all:
+            response = self.client.post("/delete-all")
+            self.assertEqual(response.status_code, 400)
+            delete_all.assert_not_called()
+
+            token = self._set_token()
+            delete_all.return_value = 3
+            response = self.client.post(
+                "/delete-all", headers={"X-CSRF-Token": token}
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.get_json(), {"deleted": True, "deleted_count": 3}
+        )
+        delete_all.assert_called_once_with()
+
     def test_security_headers_are_present_on_success_and_error(self):
         for path in ("/", "/does-not-exist"):
             with self.subTest(path=path):

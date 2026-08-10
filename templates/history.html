@@ -34,6 +34,12 @@
       <button class="mi" type="button" role="menuitemradio" aria-checked="false" data-sort="neg">ลบมากสุด</button>
     </div>
   </div>
+  {% if page == 'history' %}
+  <button class="btn delete-all-btn" id="deleteAllBtn" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 11v5M14 11v5" stroke-linecap="round"/></svg>
+    ลบทั้งหมด
+  </button>
+  {% endif %}
 </div>
 
 <div class="hist-list" id="histList">
@@ -99,5 +105,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+<script src="{{ url_for('static', filename='js/history.js', v=asset_version) }}"></script>
 {% endblock %}
