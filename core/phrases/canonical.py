@@ -7,6 +7,7 @@ descriptor (no head noun, single descriptor token) gets a synthesized head noun.
 """
 from core.lexicon import (
     IDIOMS, INTENSIFIERS, FILLERS, ASPECT_HEAD_NOUN, NO_SYNTH_DESCRIPTORS,
+    CUSTOMER_FRIENDLY_CANONICAL, CUSTOMER_FRIENDLY_DISPLAY,
 )
 
 
@@ -28,18 +29,48 @@ def _surface_display(p) -> str:
     return "".join(t for t in p.surface.split() if t not in FILLERS)
 
 
+def _replace_terms(text: str, replacements: dict) -> str:
+    """Replace longest terms first so e.g. โคตรอร่อย wins before อร่อย."""
+    for source in sorted(replacements, key=len, reverse=True):
+        text = text.replace(source, replacements[source])
+    # A slang word may already mean "very" while the source also has มาก.
+    while "มากมาก" in text:
+        text = text.replace("มากมาก", "มาก")
+    while "ดีดี" in text:
+        text = text.replace("ดีดี", "ดี")
+    while "ดีมากดีมาก" in text:
+        text = text.replace("ดีมากดีมาก", "ดีมาก")
+    # Several consecutive praise tokens should read as one concise opinion.
+    for noisy, concise in (
+        ("ดีมากที่สุด", "ดีมาก"),
+        ("อร่อยมากดีมาก", "อร่อยมาก"),
+        ("อร่อยดีมาก", "อร่อยมาก"),
+        ("อร่อยถูกใจ", "อร่อยมาก"),
+        ("อร่อยดี", "อร่อย"),
+    ):
+        text = text.replace(noisy, concise)
+    return text
+
+
+def _make_customer_friendly(p):
+    p.canonical = _replace_terms(p.canonical, CUSTOMER_FRIENDLY_CANONICAL)
+    p.display = _replace_terms(p.display, CUSTOMER_FRIENDLY_DISPLAY)
+    return p
+
+
 def canonicalize(p):
     if p.pattern == "idiom":
-        p.canonical = IDIOMS[p.surface]["canonical"]
-        p.display = p.canonical
-        return p
+        info = IDIOMS[p.surface]
+        p.canonical = info["canonical"]
+        p.display = info.get("display", p.canonical)
+        return _make_customer_friendly(p)
 
     key_desc = _join(p.descriptor_tokens, drop_intensifiers=True)    # merge key
 
     if p.head_noun:                                   # bound phrase -> head + descriptor
         p.canonical = p.head_noun + key_desc
         p.display = _surface_display(p)
-        return p
+        return _make_customer_friendly(p)
 
     # standalone descriptor:
     #  - compounds (เย็นสบาย) and self-contained vibe words (คึกคัก) stay as-is
@@ -50,7 +81,7 @@ def canonicalize(p):
     if is_compound or is_self_contained:
         p.canonical = key_desc
         p.display = _surface_display(p)
-        return p
+        return _make_customer_friendly(p)
 
     if p.aspect_conf == "high" and p.aspect in ASPECT_HEAD_NOUN:
         head = ASPECT_HEAD_NOUN[p.aspect]
@@ -59,4 +90,4 @@ def canonicalize(p):
     else:
         p.canonical = key_desc
         p.display = _surface_display(p)
-    return p
+    return _make_customer_friendly(p)

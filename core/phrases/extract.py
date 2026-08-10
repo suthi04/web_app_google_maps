@@ -61,11 +61,16 @@ def is_filler(tok):
     return tok in FILLERS
 
 
-def _collect_descriptor_run(raw, j, n):
+def _collect_descriptor_run(raw, j, n, used=None):
     """From index j: collect descriptor tokens, skipping fillers, excluding
     intensifiers. Returns (descriptor_tokens, end_index)."""
     desc = []
     while j < n:
+        # A longer MWE matched in stage A owns these tokens. Without this guard,
+        # a preceding descriptor could swallow the already-consumed slang phrase
+        # and produce duplicates such as "อร่อยมากอร่อยมาก".
+        if used is not None and used[j]:
+            break
         tok = raw[j]
         if tok in INTENSIFIERS or is_filler(tok):
             j += 1
@@ -116,7 +121,7 @@ def _match_grammar(raw, used, clause):
             if j < n and is_neg(raw[j]) and j + 1 < n and is_desc(raw[j + 1]):
                 neg = [raw[j]]
                 j += 1
-            desc, j2 = _collect_descriptor_run(raw, j, n)
+            desc, j2 = _collect_descriptor_run(raw, j, n, used)
             if desc:
                 out.append(Phrase(surface=" ".join(raw[i:j2]), head_noun=a,
                                   descriptor_tokens=neg + desc,
@@ -128,7 +133,7 @@ def _match_grammar(raw, used, clause):
 
         # B3 standalone descriptor / compound -> P7
         if is_desc(a):
-            desc, j2 = _collect_descriptor_run(raw, i, n)
+            desc, j2 = _collect_descriptor_run(raw, i, n, used)
             if desc:
                 out.append(Phrase(surface=" ".join(raw[i:j2]), head_noun=None,
                                   descriptor_tokens=desc, pattern="P7", clause=clause))

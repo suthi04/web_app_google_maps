@@ -45,6 +45,12 @@ class TestLexiconMaps(unittest.TestCase):
         self.assertEqual(DESCRIPTOR_ASPECT_HINTS.get("แซ่บ"), "food")
         self.assertIn("แซ่บ", SENTIMENT_WORDS["positive"])
 
+    def test_contemporary_slang_maps_are_customer_friendly(self):
+        self.assertEqual(lexicon.DESCRIPTOR_ASPECT_HINTS["นัว"], "food")
+        self.assertEqual(lexicon.CUSTOMER_FRIENDLY_DISPLAY["เริ่ด"], "ดีมาก")
+        self.assertEqual(lexicon.CUSTOMER_FRIENDLY_DISPLAY["บ้ง"], "น่าผิดหวัง")
+        self.assertEqual(lexicon.IDIOMS["ช็อตฟีล"]["polarity"], -1)
+
 
 if __name__ == "__main__":
     unittest.main()

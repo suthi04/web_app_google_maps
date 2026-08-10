@@ -14,7 +14,7 @@ sentiment.py
 import logging
 
 import config
-from core.lexicon import SENTIMENT_WORDS
+from core.lexicon import IDIOMS, SENTIMENT_WORDS
 from core.negation import starts_with_negator, word_polarity
 
 _POS = set(SENTIMENT_WORDS["positive"])
@@ -76,10 +76,48 @@ def _predict_model(clean_text: str) -> str:
     return _label_from_output(out[0])
 
 
-def _predict_lexicon(tokens: list) -> str:
+def _idiom_polarity_counts(clean_text: str | None) -> tuple[int, int]:
+    """Count curated expressions longest-first without double-counting overlap.
+
+    This is intentionally text-aware: tokenization removes a standalone "ไม่"
+    when it cannot merge with the next token, which would turn "ไม่จกตา" into
+    "จกตา". Matching the original cleaned text preserves the phrase meaning.
+    """
+    compact = "".join((clean_text or "").split())
+    if not compact:
+        return 0, 0
+    occupied = [False] * len(compact)
+    pos = neg = 0
+    expressions = [
+        (surface, info.get("polarity", 0))
+        for surface, info in IDIOMS.items()
+        if info.get("polarity")
+    ]
+    for surface, polarity in sorted(expressions, key=lambda item: len(item[0]), reverse=True):
+        start = 0
+        while True:
+            index = compact.find(surface, start)
+            if index < 0:
+                break
+            end = index + len(surface)
+            if not any(occupied[index:end]):
+                occupied[index:end] = [True] * (end - index)
+                if polarity > 0:
+                    pos += 1
+                else:
+                    neg += 1
+            start = index + 1
+    return pos, neg
+
+
+def _predict_lexicon(tokens: list, clean_text: str | None = None) -> str:
     """fallback: นับคำบวก/ลบ (เข้าใจ negation ผ่าน negation.word_polarity) แล้วตัดสิน"""
     pos = sum(1 for t in tokens if word_polarity(t) > 0)
     neg = sum(1 for t in tokens if word_polarity(t) < 0)
+
+    phrase_pos, phrase_neg = _idiom_polarity_counts(clean_text)
+    pos += phrase_pos
+    neg += phrase_neg
 
     if pos == 0 and neg == 0:
         # เผื่อคำที่ไม่ถูกตัดแยก ลองเช็คแบบ substring กับข้อความรวม
@@ -111,7 +149,7 @@ def predict(review: dict, use_model: bool | None = None) -> str:
             if _model_status != "failed":
                 _model_status = "failed"
                 log.warning("WangchanBERTa unavailable; using lexicon: %s", e)
-    return _predict_lexicon(review["tokens"])
+    return _predict_lexicon(review["tokens"], review.get("clean"))
 
 
 def analyze_all(reviews: list, use_model: bool | None = None) -> list:
@@ -152,7 +190,7 @@ def analyze_all(reviews: list, use_model: bool | None = None) -> list:
             log.warning("WangchanBERTa batch failed; using lexicon: %s", e)
 
     for item in targets:
-        item["sentiment"] = _predict_lexicon(item["tokens"])
+        item["sentiment"] = _predict_lexicon(item["tokens"], item.get("clean"))
     return reviews
 
 
@@ -175,6 +213,15 @@ def classify_phrase(phrase, use_model: bool | None = None) -> str:
     from the source-clause CONTEXT (WangchanBERTa when on; lexicon when off).
     """
     global _model_status
+
+    # Curated multi-token expressions keep their explicit polarity. This covers
+    # Thai phrases whose negator or slang is split into several tokenizer tokens.
+    if phrase.pattern == "idiom" and phrase.surface in IDIOMS:
+        polarity = IDIOMS[phrase.surface].get("polarity", 0)
+        if polarity > 0:
+            return "positive"
+        if polarity < 0:
+            return "negative"
 
     # 1) clear own polarity wins (joined so negation flips correctly: ไม่อร่อย -> neg)
     if phrase.descriptor_tokens:
@@ -200,4 +247,7 @@ def classify_phrase(phrase, use_model: bool | None = None) -> str:
             if _model_status != "failed":
                 _model_status = "failed"
                 log.warning("WangchanBERTa unavailable; using lexicon: %s", e)
-    return _predict_lexicon(clause.get("tokens") or phrase.descriptor_tokens)
+    return _predict_lexicon(
+        clause.get("tokens") or phrase.descriptor_tokens,
+        clause.get("clean", phrase.surface),
+    )

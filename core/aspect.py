@@ -125,7 +125,9 @@ def route_aspect(phrase, clause_aspects: list):
     Returns (aspect|None, conf)."""
     # tier 1 — curated mappings (idiom or synonym concept)
     if phrase.pattern == "idiom" and phrase.surface in lexicon.IDIOMS:
-        return lexicon.IDIOMS[phrase.surface]["aspect"], "high"
+        idiom_aspect = lexicon.IDIOMS[phrase.surface].get("aspect")
+        if idiom_aspect:
+            return idiom_aspect, "high"
     if phrase.concept in lexicon.SYNONYM_GROUPS:
         return lexicon.SYNONYM_GROUPS[phrase.concept]["aspect"], "high"
     # tier 2 — head noun
