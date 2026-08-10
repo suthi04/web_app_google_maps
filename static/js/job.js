@@ -27,6 +27,12 @@
   const BASE_DELAY = 1500;
   const MAX_DELAY = 15000;
 
+  window.analysisTracker?.track({
+    jobId: card.dataset.jobId,
+    apiUrl: card.dataset.apiUrl,
+    jobUrl: card.dataset.jobUrl,
+  });
+
   function schedule(delay = BASE_DELAY) {
     if (stopped) return;
     clearTimeout(timerId);
@@ -60,6 +66,7 @@
         stopped = true;
         title.textContent = "วิเคราะห์เสร็จแล้ว";
         message.textContent = "กำลังเปิดผลลัพธ์…";
+        window.analysisTracker?.clear();
         location.assign(job.dashboard_url || `/dashboard/${job.analysis_id}`);
         return;
       }

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=asset_version) }}">
   {% block head %}{% endblock %}
 </head>
 <body>
@@ -67,6 +67,22 @@
   <!-- global UI: toast / loading / confirm -->
   <div class="toast-wrap" id="toastWrap" role="status" aria-live="polite" aria-atomic="true"></div>
 
+  <section class="analysis-tracker" id="analysisTracker" aria-live="polite" aria-atomic="true" hidden>
+    <div class="analysis-tracker-icon" id="analysisTrackerIcon" aria-hidden="true">
+      <span></span>
+    </div>
+    <div class="analysis-tracker-body">
+      <strong id="analysisTrackerTitle">กำลังวิเคราะห์รีวิว</strong>
+      <div class="analysis-tracker-meta">
+        <span id="analysisTrackerStage">กำลังเริ่มต้น</span>
+        <span class="mono" id="analysisTrackerPercent">0%</span>
+      </div>
+      <progress id="analysisTrackerProgress" max="100" value="0">0%</progress>
+    </div>
+    <a class="analysis-tracker-link" id="analysisTrackerLink" href="#">ดูสถานะ</a>
+    <button class="analysis-tracker-close" id="analysisTrackerClose" type="button" aria-label="ปิดการแจ้งเตือน" hidden>×</button>
+  </section>
+
   <div class="loading-overlay" id="loadingOverlay" role="status" aria-live="polite" aria-hidden="true">
     <div class="spinner"></div>
     <div class="lt">กำลังวิเคราะห์รีวิว…</div>
@@ -87,7 +103,7 @@
     </div>
   </div>
 
-  <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/common.js', v=asset_version) }}"></script>
   <script>
     {% with msgs = get_flashed_messages(with_categories=true) %}
       {% for cat, msg in msgs %}

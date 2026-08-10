@@ -21,6 +21,8 @@ class TestAccessibilityMarkup(unittest.TestCase):
         self.assertIn('id="mainContent"', html)
         self.assertIn('aria-live="polite"', html)
         self.assertIn('aria-current="page"', html)
+        self.assertIn('id="analysisTracker"', html)
+        self.assertIn('aria-label="ปิดการแจ้งเตือน"', html)
 
     def test_analysis_form_has_duplicate_submit_guard_and_url_bound(self):
         html = app.app.test_client().get("/").get_data(as_text=True)

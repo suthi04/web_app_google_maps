@@ -71,6 +71,8 @@ def inject_globals():
         "analysis_defaults": config.get_settings(),
         "min_reviews": config.MIN_REVIEWS,
         "max_reviews_cap": config.MAX_REVIEWS_CAP,
+        # Bump when shared CSS/JS changes so long-lived browser caches refresh.
+        "asset_version": "20260810-tracker1",
     }
 
 

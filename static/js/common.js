@@ -71,6 +71,186 @@ function showLoading(on = true) {
 }
 window.showLoading = showLoading;
 
+/* ---------- Persistent background-analysis tracker ---------- */
+const ACTIVE_ANALYSIS_JOB_KEY = "insightreview.activeAnalysisJob.v1";
+const ANALYSIS_STAGE_LABELS = {
+  queued: "รอคิว",
+  fetching_reviews: "กำลังดึงรีวิว",
+  preprocessing: "กำลังเตรียมข้อความ",
+  sentiment: "กำลังวิเคราะห์อารมณ์",
+  aspects: "กำลังจัดหมวดความคิดเห็น",
+  phrases: "กำลังสกัดวลีสำคัญ",
+  insights: "กำลังสร้างข้อเสนอแนะ",
+  finalizing: "กำลังบันทึกผลลัพธ์",
+  completed: "เสร็จสมบูรณ์",
+  failed: "ไม่สำเร็จ",
+};
+let _activeAnalysisJob = null;
+let _analysisTrackerTimer = null;
+let _analysisTrackerErrors = 0;
+
+function _readActiveAnalysisJob() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(ACTIVE_ANALYSIS_JOB_KEY) || "null");
+    return parsed && parsed.jobId && parsed.apiUrl && parsed.jobUrl ? parsed : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function _writeActiveAnalysisJob(job) {
+  _activeAnalysisJob = job;
+  try {
+    if (job) localStorage.setItem(ACTIVE_ANALYSIS_JOB_KEY, JSON.stringify(job));
+    else localStorage.removeItem(ACTIVE_ANALYSIS_JOB_KEY);
+  } catch (_) {}
+}
+
+function _trackerElements() {
+  return {
+    root: document.getElementById("analysisTracker"),
+    title: document.getElementById("analysisTrackerTitle"),
+    stage: document.getElementById("analysisTrackerStage"),
+    percent: document.getElementById("analysisTrackerPercent"),
+    progress: document.getElementById("analysisTrackerProgress"),
+    link: document.getElementById("analysisTrackerLink"),
+    close: document.getElementById("analysisTrackerClose"),
+  };
+}
+
+function _hideAnalysisTracker() {
+  const { root } = _trackerElements();
+  if (root) root.hidden = true;
+  clearTimeout(_analysisTrackerTimer);
+}
+
+function _renderAnalysisTracker(job) {
+  const ui = _trackerElements();
+  if (!ui.root || !job) return;
+  const status = job.status || "queued";
+  const value = Math.max(0, Math.min(100, Number(job.progress) || 0));
+  const done = status === "completed" && (job.dashboard_url || job.dashboardUrl);
+  const failed = status === "failed";
+
+  ui.root.hidden = false;
+  ui.root.classList.toggle("completed", done);
+  ui.root.classList.toggle("failed", failed);
+  ui.title.textContent = done
+    ? "วิเคราะห์เสร็จแล้ว"
+    : failed ? "วิเคราะห์ไม่สำเร็จ" : "กำลังวิเคราะห์รีวิว";
+  ui.stage.textContent = failed
+    ? (job.error_message || "กรุณาเปิดดูรายละเอียด")
+    : (ANALYSIS_STAGE_LABELS[job.stage || status] || "กำลังประมวลผล");
+  ui.percent.textContent = done ? "100%" : `${value}%`;
+  ui.progress.value = done ? 100 : value;
+  ui.progress.textContent = `${done ? 100 : value}%`;
+  ui.link.href = done
+    ? (job.dashboard_url || job.dashboardUrl)
+    : (_activeAnalysisJob?.jobUrl || "#");
+  ui.link.textContent = done ? "เปิดผลลัพธ์" : failed ? "ดูรายละเอียด" : "ดูสถานะ";
+  ui.close.hidden = !(done || failed);
+}
+
+function _scheduleAnalysisTracker(delay = 1800) {
+  clearTimeout(_analysisTrackerTimer);
+  if (!_activeAnalysisJob || document.getElementById("jobCard")) return;
+  _analysisTrackerTimer = setTimeout(_pollAnalysisTracker, delay);
+}
+
+async function _pollAnalysisTracker() {
+  if (!_activeAnalysisJob || document.getElementById("jobCard")) return;
+  try {
+    const response = await fetch(_activeAnalysisJob.apiUrl, {
+      headers: { "Accept": "application/json" },
+      cache: "no-store",
+    });
+    if (response.status === 404) {
+      window.analysisTracker.clear();
+      return;
+    }
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const job = await response.json();
+    _analysisTrackerErrors = 0;
+    _renderAnalysisTracker(job);
+
+    if (job.status === "completed" && (job.dashboard_url || job.analysis_id)) {
+      const dashboardUrl = job.dashboard_url || `/dashboard/${job.analysis_id}`;
+      const shouldNotify = !_activeAnalysisJob.notified;
+      _writeActiveAnalysisJob({
+        ..._activeAnalysisJob,
+        status: "completed",
+        dashboardUrl,
+        notified: true,
+      });
+      if (shouldNotify) toast("วิเคราะห์เสร็จแล้ว เปิดดูผลลัพธ์ได้เลย", "ok", 5200);
+      return;
+    }
+    if (job.status === "failed") {
+      _writeActiveAnalysisJob({ ..._activeAnalysisJob, status: "failed" });
+      return;
+    }
+    _scheduleAnalysisTracker(document.hidden ? 9000 : 1800);
+  } catch (_) {
+    _analysisTrackerErrors += 1;
+    const ui = _trackerElements();
+    if (ui.root) ui.root.hidden = false;
+    if (ui.title) ui.title.textContent = "งานยังทำอยู่เบื้องหลัง";
+    if (ui.stage) ui.stage.textContent = "กำลังเชื่อมต่อสถานะอีกครั้ง";
+    _scheduleAnalysisTracker(Math.min(15000, 1800 * (2 ** Math.min(_analysisTrackerErrors, 3))));
+  }
+}
+
+function _refreshAnalysisTracker() {
+  _activeAnalysisJob = _readActiveAnalysisJob() || _activeAnalysisJob;
+  if (!_activeAnalysisJob) {
+    _hideAnalysisTracker();
+    return;
+  }
+  const currentJobId = document.getElementById("jobCard")?.dataset.jobId;
+  if (currentJobId === _activeAnalysisJob.jobId) {
+    _hideAnalysisTracker();
+    return;
+  }
+  _renderAnalysisTracker({
+    status: _activeAnalysisJob.status || "queued",
+    stage: _activeAnalysisJob.status || "queued",
+    progress: _activeAnalysisJob.status === "completed" ? 100 : 0,
+    dashboard_url: _activeAnalysisJob.dashboardUrl,
+  });
+  _scheduleAnalysisTracker(0);
+}
+
+window.analysisTracker = {
+  track(job) {
+    if (!job?.jobId || !job?.apiUrl || !job?.jobUrl) return;
+    _writeActiveAnalysisJob({ ...job, status: "queued", startedAt: Date.now() });
+    _refreshAnalysisTracker();
+  },
+  clear() {
+    _writeActiveAnalysisJob(null);
+    _hideAnalysisTracker();
+  },
+  refresh: _refreshAnalysisTracker,
+};
+
+document.getElementById("analysisTrackerClose")?.addEventListener("click", () => {
+  window.analysisTracker.clear();
+});
+document.getElementById("analysisTrackerLink")?.addEventListener("click", () => {
+  if (_activeAnalysisJob?.status === "completed") window.analysisTracker.clear();
+});
+window.addEventListener("storage", (event) => {
+  if (event.key !== ACTIVE_ANALYSIS_JOB_KEY) return;
+  _activeAnalysisJob = _readActiveAnalysisJob();
+  if (_activeAnalysisJob) _refreshAnalysisTracker();
+  else _hideAnalysisTracker();
+});
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && _activeAnalysisJob && !document.getElementById("jobCard")) {
+    _scheduleAnalysisTracker(0);
+  }
+});
+
 /* ---------- Prevent accidental duplicate analysis submissions ---------- */
 function guardAnalysisForm(form) {
   if (!form || form.dataset.guardReady === "1") return;
@@ -199,6 +379,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelectorAll("form[data-guard-submit]").forEach(guardAnalysisForm);
   wireAnalysisPreferences();
+  _refreshAnalysisTracker();
 
   // mobile nav toggle
   const toggle = document.getElementById("navToggle");

@@ -52,12 +52,16 @@ def _fetch_from_apify(url: str, max_reviews: int) -> dict:
             f"Apify ใช้เวลานานเกิน {config.APIFY_TIMEOUT} วินาที (timeout) "
             f"ลองลด MAX_REVIEWS หรือเพิ่ม APIFY_TIMEOUT"
         )
-    except requests.RequestException as e:
-        raise RuntimeError(f"เชื่อมต่อ Apify ไม่ได้: {e}")
+    except requests.RequestException:
+        # requests includes the full request URL in its exception string; that URL
+        # contains the Apify token query parameter. Do not let it reach app logs.
+        raise RuntimeError(
+            "เชื่อมต่อ Apify ไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่"
+        ) from None
 
     if resp.status_code >= 300:
         # 401=token ผิด, 402=เครดิตหมด, 400=input ผิด, 408=timeout ฝั่ง Apify
-        raise RuntimeError(f"Apify ตอบกลับ error {resp.status_code}: {resp.text[:200]}")
+        raise RuntimeError(f"Apify ตอบกลับ error {resp.status_code}")
 
     try:
         items = resp.json()

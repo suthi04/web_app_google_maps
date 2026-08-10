@@ -23,6 +23,28 @@ def _response(payload=None, error=None):
 
 
 class TestApifyResponseBoundaries(unittest.TestCase):
+    @mock.patch.object(config, "get_apify_token", return_value="secret-token")
+    def test_network_error_does_not_leak_token_or_request_url(self, _token):
+        private_error = requests.ConnectionError(
+            "failed https://api.apify.com/run?token=secret-token"
+        )
+        with mock.patch.object(scraper.requests, "post", side_effect=private_error):
+            with self.assertRaises(RuntimeError) as caught:
+                scraper._fetch_from_apify("https://maps.google.com/maps", 10)
+        message = str(caught.exception)
+        self.assertNotIn("secret-token", message)
+        self.assertNotIn("api.apify.com", message)
+
+    @mock.patch.object(config, "get_apify_token", return_value="token")
+    def test_http_error_does_not_echo_response_body(self, _token):
+        response = _response([])
+        response.status_code = 401
+        response.text = "private upstream detail"
+        with mock.patch.object(scraper.requests, "post", return_value=response):
+            with self.assertRaises(RuntimeError) as caught:
+                scraper._fetch_from_apify("https://maps.google.com/maps", 10)
+        self.assertNotIn("private upstream detail", str(caught.exception))
+
     @mock.patch.object(config, "get_apify_token", return_value="token")
     def test_non_json_response_has_clear_runtime_error(self, _token):
         error = requests.JSONDecodeError("bad json", "x", 0)

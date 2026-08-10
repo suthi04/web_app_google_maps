@@ -701,6 +701,22 @@ table.reviews tr:hover td{background:var(--surface-hover)}
 .job-progress-wrap progress::-moz-progress-bar{background:var(--accent);border-radius:99px}
 .job-progress-meta{display:flex;justify-content:space-between;gap:12px;margin-top:9px;font-size:13px;color:var(--ink-2)}
 .job-back{display:inline-flex;margin-top:22px}
+.job-background-note{margin:11px auto 0!important;max-width:360px!important;font-size:12px!important;color:var(--ink-3)!important}
+
+/* ---------- Persistent background-analysis tracker ---------- */
+.analysis-tracker{position:fixed;right:22px;bottom:22px;z-index:95;width:min(390px,calc(100vw - 28px));display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px 14px;border:1px solid rgba(52,121,112,.22);border-radius:18px;background:rgba(255,255,255,.96);box-shadow:0 18px 50px rgba(27,55,49,.2),0 3px 10px rgba(27,55,49,.08);backdrop-filter:blur(16px);animation:tracker-in .24s ease-out}
+.analysis-tracker[hidden]{display:none}
+.analysis-tracker-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:var(--accent-soft);color:var(--accent)}
+.analysis-tracker-icon span{width:20px;height:20px;border:2.5px solid rgba(52,121,112,.22);border-top-color:currentColor;border-radius:50%;animation:spin .8s linear infinite}
+.analysis-tracker-body{min-width:0}.analysis-tracker-body strong{display:block;color:var(--ink);font-size:13.5px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.analysis-tracker-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:3px;color:var(--ink-2);font-size:11.5px;line-height:1.35}.analysis-tracker-meta span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.analysis-tracker progress{display:block;width:100%;height:5px;margin-top:7px;border:0;border-radius:99px;overflow:hidden;background:var(--surface-2)}
+.analysis-tracker progress::-webkit-progress-bar{background:var(--surface-2);border-radius:99px}.analysis-tracker progress::-webkit-progress-value{background:var(--accent);border-radius:99px;transition:width .35s ease}.analysis-tracker progress::-moz-progress-bar{background:var(--accent);border-radius:99px}
+.analysis-tracker-link{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 11px;border-radius:999px;background:var(--accent);color:#fff;font-size:11.5px;font-weight:600;white-space:nowrap;transition:transform .15s,background .15s}.analysis-tracker-link:hover{background:var(--accent-dark);transform:translateY(-1px)}
+.analysis-tracker-close{position:absolute;right:6px;top:4px;width:25px;height:25px;border:0;background:transparent;color:var(--ink-3);font-size:20px;line-height:1;cursor:pointer}
+.analysis-tracker.completed{border-color:rgba(52,121,112,.3)}.analysis-tracker.completed .analysis-tracker-icon span{width:18px;height:10px;border:0;border-left:2.5px solid currentColor;border-bottom:2.5px solid currentColor;border-radius:0;transform:rotate(-45deg) translate(1px,-1px);animation:none}
+.analysis-tracker.failed{border-color:rgba(185,75,75,.24)}.analysis-tracker.failed .analysis-tracker-icon{background:var(--neg-soft);color:var(--neg)}.analysis-tracker.failed .analysis-tracker-icon span{width:auto;height:auto;border:0;animation:none}.analysis-tracker.failed .analysis-tracker-icon span::before{content:"×";font-size:25px;line-height:1}.analysis-tracker.failed progress{display:none}
+@keyframes tracker-in{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
 
 /* ===================== Responsive ===================== */
 .scrim{display:none;position:fixed;inset:0;background:rgba(20,23,33,.4);z-index:55;opacity:0;transition:opacity var(--t)}
@@ -739,6 +755,7 @@ table.reviews tr:hover td{background:var(--surface-hover)}
   .topbar .search-box{width:100%;max-width:100%;min-width:0}
   .topbar .search-box .analyze-btn{width:40px;min-height:38px;padding:5px;font-size:0}.topbar .search-box .analyze-btn span{display:none}.topbar .search-box .analyze-btn svg{width:28px;height:28px;margin:0}
   .analysis-sentence{justify-content:flex-start;padding-inline:6px;font-size:11.5px}
+  .analysis-tracker{right:12px;bottom:12px;width:calc(100vw - 24px);grid-template-columns:38px minmax(0,1fr) auto;padding:11px 12px;border-radius:16px}.analysis-tracker-icon{width:38px;height:38px;border-radius:12px}.analysis-tracker-link{min-height:32px;padding-inline:9px}
   .text-select select{font-size:11.5px}.engine-select select{width:126px}.extract-select select{width:86px}
   .model-menu summary{padding:8px}.model-menu-label{display:none}.model-menu summary::before{content:"โมเดล"}.model-menu-popover{position:fixed;right:16px;top:70px}
   .persona-switch{grid-template-columns:1fr}.persona-tab{text-align:left}
