@@ -111,6 +111,65 @@ def _practical_cautions(practical_insights: list[dict] | None) -> list[dict]:
     return cautions
 
 
+def _gemini_visit_tips(narrative: dict | None) -> list[dict]:
+    """Adapt evidence-validated Gemini tips to the existing planning-card contract."""
+    status_labels = {
+        "positive": "ข้อมูลที่เป็นประโยชน์",
+        "neutral": "ควรเช็กเพิ่ม",
+        "negative": "ควรวางแผน",
+    }
+    action_tiers = {"positive": "ready", "neutral": "check", "negative": "plan"}
+    items = []
+    for item in (narrative or {}).get("visit_tips", []):
+        sentiment = item.get("sentiment")
+        evidence_ids = list(dict.fromkeys(item.get("evidence_review_ids") or []))
+        if sentiment not in status_labels or not evidence_ids:
+            continue
+        aspect = item.get("aspect")
+        text = item.get("title") or item.get("detail")
+        items.append({
+            **item,
+            "topic": practical_rules.match_topic(
+                f"{item.get('title', '')} {item.get('detail', '')}"
+            ),
+            "topic_label": ASPECT_LABELS_TH.get(aspect, aspect),
+            "status": sentiment,
+            "status_label": status_labels[sentiment],
+            "action_tier": action_tiers[sentiment],
+            "text": text,
+            "summary": item.get("detail"),
+            "count": len(evidence_ids),
+            "review_count": len(evidence_ids),
+            "evidence_review_ids": evidence_ids,
+            "negative_review_count": len(evidence_ids) if sentiment == "negative" else 0,
+            "positive_review_count": len(evidence_ids) if sentiment == "positive" else 0,
+            "neutral_review_count": len(evidence_ids) if sentiment == "neutral" else 0,
+            "context_labels": [],
+            "query": text,
+            "aspect_th": ASPECT_LABELS_TH.get(aspect, aspect),
+            "source": "gemini",
+        })
+    return items
+
+
+def _merge_planning_insights(
+    practical_insights: list[dict] | None,
+    narrative: dict | None,
+    limit: int = 6,
+) -> list[dict]:
+    combined = [dict(item) for item in (practical_insights or [])]
+    known_topics = {item.get("topic") for item in combined if item.get("topic")}
+    for item in _gemini_visit_tips(narrative):
+        if item.get("topic") and item["topic"] in known_topics:
+            continue
+        combined.append(item)
+        if item.get("topic"):
+            known_topics.add(item["topic"])
+    for rank, item in enumerate(combined[:limit], start=1):
+        item["rank"] = rank
+    return combined[:limit]
+
+
 def _cautions(
     keywords: dict,
     aspect_summary: dict,
@@ -212,11 +271,24 @@ def build_consumer_summary(
     aspect_summary: dict,
     reviews: list | None = None,
     practical_insights: list[dict] | None = None,
+    narrative: dict | None = None,
 ) -> dict:
-    cautions = _cautions(keywords, aspect_summary, practical_insights)
+    planning_insights = _merge_planning_insights(practical_insights, narrative)
+    cautions = _cautions(keywords, aspect_summary, planning_insights)
+    overview = (narrative or {}).get("overview") or {}
+    lazy_summary = _lazy_summary(distribution, keywords, cautions, reviews)
+    if overview.get("headline") and overview.get("detail"):
+        lazy_summary = {
+            "verdict": overview["headline"],
+            "detail": overview["detail"],
+            "evidence_review_ids": list(dict.fromkeys(
+                overview.get("evidence_review_ids") or []
+            )),
+            "source": "gemini",
+        }
     return {
-        "things_to_know": practical_insights or _things_to_know(keywords),
-        "lazy_summary": _lazy_summary(distribution, keywords, cautions, reviews),
+        "things_to_know": planning_insights or _things_to_know(keywords),
+        "lazy_summary": lazy_summary,
         "cautions": cautions,
     }
 
@@ -286,16 +358,21 @@ def enrich_result(result: dict) -> dict:
         ]
         for sentiment in ("positive", "neutral", "negative")
     }
+    narrative = result.get("analysis_narrative") or {}
+    planning_insights = _merge_planning_insights(
+        result.get("practical_insights") or [], narrative
+    )
     result["consumer_summary"] = build_consumer_summary(
         result.get("keywords") or {},
         result.get("distribution") or {},
         result.get("aspect_summary") or {},
         result.get("reviews") or [],
         result.get("practical_insights") or [],
+        narrative,
     )
     result["critical_issues"] = build_critical_issues(
         result.get("keywords") or {},
         result.get("aspect_summary") or {},
-        result.get("practical_insights") or [],
+        planning_insights,
     )
     return result

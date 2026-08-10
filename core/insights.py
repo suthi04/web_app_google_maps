@@ -63,7 +63,11 @@ def _strength_strategy(aspect: str, evidence: list) -> str:
     return f"{strategy} จุดที่ควรโฟกัส: {focus}" if focus else strategy
 
 
-def generate_insights(aspect_summary: dict, keywords: dict) -> list:
+def generate_insights(
+    aspect_summary: dict,
+    keywords: dict,
+    narrative: dict | None = None,
+) -> list:
     """
     คืนรายการ insight:
     [
@@ -79,6 +83,16 @@ def generate_insights(aspect_summary: dict, keywords: dict) -> list:
     ]
     """
     insights = []
+    aspect_narratives = {
+        item.get("aspect"): item
+        for item in (narrative or {}).get("aspect_summaries", [])
+        if item.get("aspect")
+    }
+    narrative_actions = {
+        item.get("aspect"): item
+        for item in (narrative or {}).get("actions", [])
+        if item.get("aspect")
+    }
     for aspect, counts in aspect_summary.items():
         total = counts["total"]
         aspect_th = ASPECT_LABELS_TH.get(aspect, aspect)
@@ -138,6 +152,20 @@ def generate_insights(aspect_summary: dict, keywords: dict) -> list:
                 evidence[0]["text"] if evidence else "", aspect
             )
 
+        source = "rule"
+        narrative_ids = []
+        aspect_narrative = aspect_narratives.get(aspect)
+        narrative_action = narrative_actions.get(aspect)
+        if aspect_narrative:
+            reason = aspect_narrative["detail"]
+            message = reason
+            narrative_ids.extend(aspect_narrative.get("evidence_review_ids", []))
+            source = "gemini"
+        if narrative_action:
+            strategy = narrative_action["action"]
+            narrative_ids.extend(narrative_action.get("evidence_review_ids", []))
+            source = "gemini"
+
         insights.append({
             "aspect": aspect,
             "aspect_th": aspect_th,
@@ -148,8 +176,11 @@ def generate_insights(aspect_summary: dict, keywords: dict) -> list:
             "reason": reason,
             "strategy": strategy,
             "evidence": evidence,
-            "evidence_review_ids": _evidence_ids(evidence),
+            "evidence_review_ids": list(dict.fromkeys(
+                narrative_ids or _evidence_ids(evidence)
+            )),
             "keywords": neg_words,
+            "source": source,
         })
 
     # เรียงให้ "ควรปรับปรุง" ขึ้นก่อน เพื่อให้เจ้าของร้านเห็นสิ่งที่ต้องแก้ทันที

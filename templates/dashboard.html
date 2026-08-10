@@ -17,6 +17,7 @@
 {% block topbar %}
   <form class="analysis-composer compact" method="post" action="{{ url_for('analyze') }}" id="analyzeForm" data-guard-submit
         data-actual-extract-engine="{{ a.get('extract_engine', 'rule') }}"
+        data-sync-result-engine="{{ '1' if a.get('extract_engine_requested') else '0' }}"
         data-extract-fallback="{{ '1' if a.get('extract_engine_requested') == 'llm' and a.get('extract_engine', 'rule') == 'rule' else '0' }}">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
     <div class="search-box">
@@ -78,6 +79,11 @@
       <span class="chip-soft" title="เครื่องยนต์สกัดวลีที่สร้างผลลัพธ์นี้">
         สกัดประเด็น · {{ 'Gemini' if extract_engine == 'llm' else 'Rule-based' }}
       </span>
+      {% if extract_engine == 'llm' and a.get('analysis_narrative') %}
+      <span class="chip-soft gemini-verified" title="ข้อความสรุปทุกข้อเชื่อมกลับไปยังรีวิวต้นฉบับ">
+        สรุปด้วย Gemini · ตรวจหลักฐานแล้ว
+      </span>
+      {% endif %}
       {% if a.get('extract_engine_requested') == 'llm' and extract_engine == 'rule' %}
       <span class="chip-soft engine-fallback" role="status">
         Gemini ไม่พร้อม งานนี้จึงใช้ Rule-based
@@ -156,6 +162,9 @@
   <section class="consumer-hero panel">
     <div class="section-number">03</div>
     <div class="consumer-kicker">บทสรุปสั้น ๆ · สำหรับคนไม่อยากอ่านทุกรีวิว</div>
+    {% if consumer.lazy_summary.get('source') == 'gemini' %}
+    <div class="gemini-summary-label"><span>✦</span> Gemini สรุปจากรีวิวที่อ้างอิงได้</div>
+    {% endif %}
     <h2>{{ consumer.lazy_summary.verdict }}</h2>
     <p>{{ consumer.lazy_summary.detail }}</p>
     <div class="consumer-score">
@@ -512,6 +521,7 @@
           <div><span class="insight-aspect-label">ด้านที่วิเคราะห์</span><h4 class="insight-title">{{ ins.aspect_th }}</h4></div>
         </div>
         <div class="insight-meta">
+          {% if ins.get('source') == 'gemini' %}<span class="gemini-insight-pill">Gemini + หลักฐานจริง</span>{% endif %}
           <span class="tagline">{{ LEVEL_TH[ins.level] }}</span>
         </div>
       </header>

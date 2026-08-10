@@ -72,7 +72,7 @@ def inject_globals():
         "min_reviews": config.MIN_REVIEWS,
         "max_reviews_cap": config.MAX_REVIEWS_CAP,
         # Bump when shared CSS/JS changes so long-lived browser caches refresh.
-        "asset_version": "20260810-engine-fallback1",
+        "asset_version": "20260810-gemini-full1",
     }
 
 
@@ -266,7 +266,8 @@ def dashboard(aid):
     # deterministic and intentionally recomputed from the persisted analysis.
     audience_insights.enrich_result(data)
     data["insights"] = insights.generate_insights(
-        data.get("aspect_summary") or {}, data.get("keywords") or {}
+        data.get("aspect_summary") or {}, data.get("keywords") or {},
+        narrative=data.get("analysis_narrative") or {},
     )
     return render_template(
         "dashboard.html", a=data, aspect_examples=_aspect_examples(data)

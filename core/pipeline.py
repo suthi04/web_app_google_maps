@@ -55,6 +55,50 @@ def _rule_phrase_pipeline(reviews: list, use_model: bool | None = None) -> dict:
     return aggregate.build(rule_phrase_occurrences(reviews, use_model=use_model))
 
 
+def _merge_keyword_contracts(primary: dict, verifier: dict) -> dict:
+    """Keep Gemini discoveries while guaranteeing at least the verified rule output.
+
+    Identical display phrases are de-duplicated by aspect/sentiment and their source
+    review IDs are unioned. Counts are not added because both engines may have found
+    the same occurrence.
+    """
+    result = {}
+    aspects = list(dict.fromkeys([*(primary or {}).keys(), *(verifier or {}).keys()]))
+    for aspect_name in aspects:
+        result[aspect_name] = {}
+        for sentiment_name in ("positive", "neutral", "negative"):
+            merged = []
+            positions = {}
+            for source in (primary, verifier):
+                for raw in ((source or {}).get(aspect_name, {}).get(sentiment_name, []) or []):
+                    item = dict(raw)
+                    word = " ".join(str(item.get("word") or "").casefold().split())
+                    if not word:
+                        continue
+                    if word in positions:
+                        current = merged[positions[word]]
+                        ids = list(dict.fromkeys(
+                            (current.get("evidence_review_ids") or [])
+                            + (item.get("evidence_review_ids") or [])
+                        ))
+                        current["evidence_review_ids"] = ids
+                        current["review_count"] = len(ids)
+                        current["count"] = max(
+                            int(current.get("count") or 0), int(item.get("count") or 0)
+                        )
+                        continue
+                    item["evidence_review_ids"] = list(dict.fromkeys(
+                        item.get("evidence_review_ids") or []
+                    ))
+                    item["review_count"] = len(item["evidence_review_ids"])
+                    positions[word] = len(merged)
+                    merged.append(item)
+            result[aspect_name][sentiment_name] = sorted(
+                merged, key=lambda item: (-int(item.get("count") or 0), item.get("word", ""))
+            )
+    return result
+
+
 def _phrase_pipeline(
     reviews: list,
     extract_engine: str | None = None,
@@ -62,7 +106,7 @@ def _phrase_pipeline(
 ):
     """Dispatch to the configured engine and report which engine ACTUALLY ran.
 
-    Returns (contract, engine_used). engine_used is "rule" even when the LLM engine
+    Returns (contract, engine_used, narrative). engine_used is "rule" even when the LLM engine
     was selected but unavailable or its call failed (e.g. quota/429) — so the result
     label never claims an engine that didn't actually produce the phrases.
     """
@@ -71,10 +115,12 @@ def _phrase_pipeline(
     )
     if selected_engine == "llm" and llm_extract.available():
         try:
-            return llm_extract.extract_all(reviews), "llm"
+            keywords, narrative = llm_extract.extract_bundle(reviews)
+            verified_keywords = _rule_phrase_pipeline(reviews, use_model=use_model)
+            return _merge_keyword_contracts(keywords, verified_keywords), "llm", narrative
         except Exception as e:
             log.warning("LLM phrase extraction failed; using rules: %s", e)
-    return _rule_phrase_pipeline(reviews, use_model=use_model), "rule"
+    return _rule_phrase_pipeline(reviews, use_model=use_model), "rule", {}
 
 
 def _percentages(counts: dict, total: int) -> dict:
@@ -142,11 +188,13 @@ def run_analysis(
     requested_extract_engine = (
         config.get_extract_engine() if extract_engine is None else extract_engine
     )
-    kw, engine_used = _phrase_pipeline(
+    kw, engine_used, analysis_narrative = _phrase_pipeline(
         reviews, extract_engine=requested_extract_engine, use_model=use_model
     )
     report("insights", 90)
-    actionable = insights.generate_insights(aspect_summary, kw)
+    actionable = insights.generate_insights(
+        aspect_summary, kw, narrative=analysis_narrative
+    )
 
     # 6) ประกอบผลลัพธ์
     report("finalizing", 96)
@@ -161,6 +209,7 @@ def run_analysis(
         "extract_engine_fallback": (
             requested_extract_engine == "llm" and engine_used == "rule"
         ),
+        "analysis_narrative": analysis_narrative,
         "distribution": distribution,        # %, counts
         "aspect_summary": aspect_summary,     # นับอารมณ์ราย aspect
         "keywords": kw,                       # keyword ราย aspect/sentiment

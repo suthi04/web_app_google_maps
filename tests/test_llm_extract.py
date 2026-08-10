@@ -77,6 +77,65 @@ class TestLLMExtract(unittest.TestCase):
         self.assertEqual(out["service"]["positive"][0]["word"], "บริการดีมาก")
         fake_client.models.generate_content.assert_called_once()
 
+    def test_narrative_keeps_only_evidence_backed_items(self):
+        reviews = [
+            {"text": "อาหารอร่อยมาก แต่ช่วงเย็นรอคิวนาน 20 นาที"},
+            {"text": "พนักงานบริการดีและแนะนำเมนูเก่ง"},
+        ]
+        payload = {"analysis": {
+            "overview": {
+                "headline": "อาหารเด่นแต่ควรเผื่อเวลารอ",
+                "detail": "ลูกค้าชมอาหารและระบุว่าช่วงเย็นรอคิวนาน 20 นาที",
+                "evidence_indices": [0],
+                "evidence_quotes": ["อาหารอร่อยมาก", "รอคิวนาน 20 นาที"],
+            },
+            "visit_tips": [{
+                "title": "ช่วงเย็นอาจต้องรอคิว",
+                "detail": "มีรีวิวระบุว่ารอประมาณ 20 นาที",
+                "advice": "ควรเผื่อเวลาก่อนไป",
+                "aspect": "service", "sentiment": "negative",
+                "evidence_indices": [0],
+                "evidence_quotes": ["รอคิวนาน 20 นาที"],
+            }, {
+                "title": "มีที่จอดรถ 50 คัน",
+                "detail": "จอดรถได้สะดวก",
+                "advice": "ขับรถมาได้",
+                "aspect": "ambience", "sentiment": "positive",
+                "evidence_indices": [1],
+                "evidence_quotes": ["มีที่จอดรถ 50 คัน"],
+            }],
+            "aspect_summaries": [],
+            "actions": [],
+        }}
+        narrative = llm_extract.narrative_from_payload(payload, reviews)
+        self.assertEqual(narrative["overview"]["evidence_review_ids"], ["R001"])
+        self.assertEqual(len(narrative["visit_tips"]), 1)
+        self.assertEqual(narrative["visit_tips"][0]["review_count"], 1)
+
+    def test_phrase_not_present_in_cited_review_is_dropped(self):
+        payload = {"reviews": [{"index": 0, "phrases": [{
+            "phrase": "มีที่จอดรถ", "aspect": "ambience", "sentiment": "positive"
+        }]}]}
+        contract = llm_extract._to_contract(
+            payload, reviews=[{"text": "อาหารอร่อยมาก"}]
+        )
+        self.assertEqual(contract["ambience"]["positive"], [])
+
+    def test_visit_tip_cannot_invert_clear_quote_sentiment(self):
+        reviews = [{"text": "พนักงานสุภาพและบริการดีมาก"}]
+        payload = {"analysis": {
+            "overview": {},
+            "visit_tips": [{
+                "title": "บริการแย่", "detail": "พนักงานไม่ใส่ใจ",
+                "advice": "ควรระวัง", "aspect": "service",
+                "sentiment": "negative", "evidence_indices": [0],
+                "evidence_quotes": ["พนักงานสุภาพและบริการดีมาก"],
+            }],
+            "aspect_summaries": [], "actions": [],
+        }}
+        narrative = llm_extract.narrative_from_payload(payload, reviews)
+        self.assertEqual(narrative["visit_tips"], [])
+
 
 if __name__ == "__main__":
     unittest.main()

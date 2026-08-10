@@ -71,6 +71,30 @@ class TestConsumerSummary(unittest.TestCase):
         )
         self.assertNotIn("ยิ้มแย้มดีมาก", {item["text"] for item in issues})
 
+    def test_gemini_overview_and_visit_tip_keep_review_evidence(self):
+        narrative = {
+            "overview": {
+                "headline": "อาหารเด่น แต่ควรเผื่อเวลาช่วงคนเยอะ",
+                "detail": "ลูกค้าชมรสชาติ ขณะเดียวกันมีเสียงเรื่องการรอคิว",
+                "evidence_review_ids": ["R001", "R008"],
+            },
+            "visit_tips": [{
+                "title": "ช่วงคนเยอะอาจรอนาน",
+                "detail": "มีลูกค้าพูดถึงการรอคิว",
+                "advice": "ควรเผื่อเวลาก่อนไป",
+                "aspect": "service", "sentiment": "negative",
+                "evidence_review_ids": ["R008"], "review_count": 1,
+            }],
+        }
+        result = audience_insights.build_consumer_summary(
+            _keywords(),
+            {"pct": {"positive": 70, "neutral": 10, "negative": 20}},
+            _aspect_summary(), narrative=narrative,
+        )
+        self.assertEqual(result["lazy_summary"]["source"], "gemini")
+        self.assertEqual(result["lazy_summary"]["evidence_review_ids"], ["R001", "R008"])
+        self.assertTrue(any(item.get("source") == "gemini" for item in result["things_to_know"]))
+
 
 class TestRichActionableInsights(unittest.TestCase):
     def test_strength_explains_evidence_and_next_strategy(self):
@@ -95,6 +119,29 @@ class TestRichActionableInsights(unittest.TestCase):
             keywords, service_summary
         )[0]
         self.assertEqual(issue["severity"], "watch")
+
+    def test_gemini_narrative_improves_reason_and_strategy_without_changing_level(self):
+        narrative = {
+            "aspect_summaries": [{
+                "aspect": "food", "headline": "รสชาติเป็นจุดเด่น",
+                "detail": "ลูกค้าชมรสชาติและความสดอย่างชัดเจน",
+                "evidence_review_ids": ["R001", "R002"],
+            }],
+            "actions": [{
+                "aspect": "food", "title": "รักษามาตรฐานเมนูเด่น",
+                "reason": "ลูกค้าชมรสชาติ",
+                "action": "บันทึกสูตรและตรวจรสชาติก่อนเสิร์ฟทุกวัน",
+                "evidence_review_ids": ["R001"],
+            }],
+        }
+        food = next(item for item in insights.generate_insights(
+            _aspect_summary(), _keywords(), narrative=narrative
+        ) if item["aspect"] == "food")
+        self.assertEqual(food["level"], "strength")
+        self.assertEqual(food["source"], "gemini")
+        self.assertIn("ความสด", food["reason"])
+        self.assertIn("ตรวจรสชาติ", food["strategy"])
+        self.assertEqual(food["evidence_review_ids"], ["R001", "R002"])
 
 
 if __name__ == "__main__":

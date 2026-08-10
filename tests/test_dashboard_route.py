@@ -57,8 +57,27 @@ class TestDashboardEngineBadges(unittest.TestCase):
         payload["extract_engine_fallback"] = True
         html = _get_dashboard(payload)
         self.assertIn('data-actual-extract-engine="rule"', html)
+        self.assertIn('data-sync-result-engine="1"', html)
         self.assertIn('data-extract-fallback="1"', html)
         self.assertIn("Gemini ไม่พร้อม งานนี้จึงใช้ Rule-based", html)
+
+    def test_successful_gemini_result_discloses_evidence_verified_summary(self):
+        payload = _payload(extract_engine="llm")
+        payload["extract_engine_requested"] = "llm"
+        payload["analysis_narrative"] = {
+            "overview": {
+                "headline": "รสชาติเป็นจุดเด่นของร้าน",
+                "detail": "ลูกค้าชมอาหารอย่างชัดเจน",
+                "evidence_review_ids": ["R001"],
+            },
+            "visit_tips": [], "aspect_summaries": [], "actions": [],
+        }
+        html = _get_dashboard(payload)
+        self.assertIn('data-actual-extract-engine="llm"', html)
+        self.assertIn('data-sync-result-engine="1"', html)
+        self.assertIn("สรุปด้วย Gemini · ตรวจหลักฐานแล้ว", html)
+        self.assertIn("Gemini สรุปจากรีวิวที่อ้างอิงได้", html)
+        self.assertIn("รสชาติเป็นจุดเด่นของร้าน", html)
 
 
 class TestNoDeadJsonBlob(unittest.TestCase):

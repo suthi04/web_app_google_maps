@@ -299,7 +299,9 @@ function wireAnalysisPreferences() {
       }));
       fields.forEach(syncLandingPicker);
     });
-    if (form.dataset.extractFallback === "1") {
+    // On a result page, the picker reflects the engine that actually produced
+    // this analysis.  This also clears a stale saved fallback from an older run.
+    if (form.dataset.syncResultEngine === "1") {
       const actualEngine = form.dataset.actualExtractEngine || "rule";
       const actualField = form.querySelector(
         `[name="extract_engine"][value="${actualEngine}"]`

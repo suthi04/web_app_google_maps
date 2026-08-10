@@ -158,7 +158,7 @@ function ทำงานบน `Phrase` dataclass หนึ่งตัว (อ�
 **`run_analysis(url, max_reviews=None, use_model=None, extract_engine=None, progress_callback=None) -> dict`** ([pipeline.py](../core/pipeline.py))
 - **จุดประสงค์:** ร้อยทุกขั้นเป็นผลลัพธ์ก้อนเดียวที่พร้อมเก็บ DB + ส่ง dashboard
 - **Return:** dict หลัก — `store_name`, `source_url`, `total_reviews`, `fetched_reviews`, `engine`,
-  `extract_engine`, `distribution`, `aspect_summary`, `keywords`, `insights`, `reviews`,
+  `extract_engine`, `analysis_narrative`, `distribution`, `aspect_summary`, `keywords`, `insights`, `reviews`,
   `consumer_summary`, `critical_issues`
   *(หมายเหตุ: ไม่มี `topics` แล้ว — ฟีเจอร์ "ลูกค้าพูดถึงบ่อย" ถูกถอดออกใน commit `0d54a9f`)*
 - **Logic:** scrape → preprocess → sentiment.analyze_all → aspect.tag_aspects → distribution + aspect_summary + phrase pipeline → insights + audience insights
@@ -169,8 +169,10 @@ function ทำงานบน `Phrase` dataclass หนึ่งตัว (อ�
 - **มี try/except ครอบทั้ง review** — รีวิวพังตัวเดียวไม่ทำให้ทั้งระบบ 500
 - **Time complexity:** O(reviews × clauses × tokens) — ขนาด lexicon คงที่ จึงเป็นเชิงเส้นตามจำนวน token รวม
 
-**`_phrase_pipeline(reviews) -> (contract, engine_used)`** ([pipeline.py](../core/pipeline.py)): dispatch —
-ถ้า engine=`llm` และ `llm_extract.available()` → เรียก Gemini, ถ้า exception (เช่น โควตา/429) → fallback rule
+**`_phrase_pipeline(reviews) -> (contract, engine_used, narrative)`** ([pipeline.py](../core/pipeline.py)): dispatch —
+ถ้า engine=`llm` และ `llm_extract.available()` → เรียก Gemini หนึ่งครั้งเพื่อรับวลีและ narrative
+ที่มี quote อ้างอิง จากนั้นตรวจ quote/index/ตัวเลขและรวมผล Rule-based ที่ยืนยันได้;
+ถ้า exception (เช่น โควตา/429) → fallback rule
 **คืน `engine_used` เป็นเครื่องยนต์ที่ทำงานจริง** (commit `0c7e016`) — ป้ายผลจึงไม่เคลมเครื่องยนต์ที่ไม่ได้ผลิตวลี
 
 **`_percentages(counts, total)`** ([pipeline.py](../core/pipeline.py)): คำนวณ `pct` แบบจำนวนเต็มด้วย
