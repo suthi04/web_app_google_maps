@@ -158,8 +158,8 @@ revision `finetuned@wisesight_sentiment` (4 คลาส — โค้ดแม�
 
 - `GEMINI_API_KEY` — **ต้องตั้งค่านี้** เพื่อเปิดใช้เครื่องยนต์ Gemini
   (ขอ key ฟรีที่ [Google AI Studio](https://aistudio.google.com))
-- `GEMINI_MODEL` (ไม่บังคับ) — ค่าเริ่มต้น `gemini-2.5-flash-lite` (free tier ใช้ได้จริง
-  โควต้า/วันสูงกว่า); ใส่ `gemini-2.5-flash` ได้ถ้ามีโควต้า/จ่ายเงิน — แม่นกว่าเล็กน้อยแต่ฟรีจำกัด ~20 ครั้ง/วัน
+- `GEMINI_MODEL` (ไม่บังคับ) — ค่าเริ่มต้น `gemini-3.5-flash` ซึ่งเป็นรุ่น stable
+  ที่รองรับ free tier และ structured output ที่ระบบใช้สกัดประเด็น
 
 และต้องติดตั้ง SDK: `pip install google-genai` (อยู่ใน `requirements.txt` แล้ว)
 
