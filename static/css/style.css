@@ -274,6 +274,7 @@ button{font-family:inherit}
 .meta-row svg{width:15px;height:15px;color:var(--ink-3)}
 .chip-soft{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);color:var(--ink-2);padding:4px 10px;border-radius:var(--r-pill);font-size:12.5px}
 .chip-soft .live-dot{width:6px;height:6px;border-radius:50%;background:var(--pos)}
+.chip-soft.engine-fallback{border:1px solid #ead8ae;background:#fff8e8;color:#765b1d;font-weight:600}
 .dash-head .actions{display:flex;gap:9px;align-items:center}
 
 /* ===================== Audience views ===================== */

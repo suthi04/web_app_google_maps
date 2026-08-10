@@ -299,6 +299,15 @@ function wireAnalysisPreferences() {
       }));
       fields.forEach(syncLandingPicker);
     });
+    if (form.dataset.extractFallback === "1") {
+      const actualEngine = form.dataset.actualExtractEngine || "rule";
+      const actualField = form.querySelector(
+        `[name="extract_engine"][value="${actualEngine}"]`
+      );
+      if (actualField) actualField.checked = true;
+      saved.extract_engine = actualEngine;
+      try { localStorage.setItem(ANALYSIS_PREFS_KEY, JSON.stringify(saved)); } catch (_) {}
+    }
     syncModelMenuLabel(form);
   });
 

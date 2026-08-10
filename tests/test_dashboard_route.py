@@ -51,6 +51,15 @@ class TestDashboardEngineBadges(unittest.TestCase):
         html = _get_dashboard(_payload(extract_engine=None))
         self.assertIn("ครัวบ้านสวน", html)
 
+    def test_gemini_fallback_shows_actual_engine_and_updates_picker(self):
+        payload = _payload(extract_engine="rule")
+        payload["extract_engine_requested"] = "llm"
+        payload["extract_engine_fallback"] = True
+        html = _get_dashboard(payload)
+        self.assertIn('data-actual-extract-engine="rule"', html)
+        self.assertIn('data-extract-fallback="1"', html)
+        self.assertIn("Gemini ไม่พร้อม งานนี้จึงใช้ Rule-based", html)
+
 
 class TestNoDeadJsonBlob(unittest.TestCase):
     def test_analysis_data_script_removed(self):

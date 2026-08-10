@@ -40,6 +40,11 @@ class TestPipelineSmoke(unittest.TestCase):
         self.assertGreaterEqual(
             self.result["fetched_reviews"], self.result["total_reviews"])
 
+    def test_reports_requested_and_actual_extract_engine(self):
+        self.assertEqual(self.result["extract_engine_requested"], "rule")
+        self.assertEqual(self.result["extract_engine"], "rule")
+        self.assertFalse(self.result["extract_engine_fallback"])
+
     def test_distribution_percentages_sum_to_100(self):
         pct = self.result["distribution"]["pct"]
         self.assertEqual(pct["positive"] + pct["neutral"] + pct["negative"], 100)

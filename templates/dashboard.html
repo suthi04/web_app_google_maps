@@ -15,7 +15,9 @@
 {% block title %}{{ a.store_name }} — InsightReview{% endblock %}
 
 {% block topbar %}
-  <form class="analysis-composer compact" method="post" action="{{ url_for('analyze') }}" id="analyzeForm" data-guard-submit>
+  <form class="analysis-composer compact" method="post" action="{{ url_for('analyze') }}" id="analyzeForm" data-guard-submit
+        data-actual-extract-engine="{{ a.get('extract_engine', 'rule') }}"
+        data-extract-fallback="{{ '1' if a.get('extract_engine_requested') == 'llm' and a.get('extract_engine', 'rule') == 'rule' else '0' }}">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
     <div class="search-box">
       <span class="search-leading" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4" stroke-linecap="round"/></svg></span>
@@ -76,6 +78,11 @@
       <span class="chip-soft" title="เครื่องยนต์สกัดวลีที่สร้างผลลัพธ์นี้">
         สกัดประเด็น · {{ 'Gemini' if extract_engine == 'llm' else 'Rule-based' }}
       </span>
+      {% if a.get('extract_engine_requested') == 'llm' and extract_engine == 'rule' %}
+      <span class="chip-soft engine-fallback" role="status">
+        Gemini ไม่พร้อม งานนี้จึงใช้ Rule-based
+      </span>
+      {% endif %}
     </div>
   </div>
   <div class="actions">

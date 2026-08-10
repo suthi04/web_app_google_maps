@@ -139,8 +139,11 @@ def run_analysis(
     distribution = _sentiment_distribution(reviews)
     aspect_summary = aspect.aspect_sentiment_summary(reviews)
     report("phrases", 78)
+    requested_extract_engine = (
+        config.get_extract_engine() if extract_engine is None else extract_engine
+    )
     kw, engine_used = _phrase_pipeline(
-        reviews, extract_engine=extract_engine, use_model=use_model
+        reviews, extract_engine=requested_extract_engine, use_model=use_model
     )
     report("insights", 90)
     actionable = insights.generate_insights(aspect_summary, kw)
@@ -154,6 +157,10 @@ def run_analysis(
         "fetched_reviews": fetched,          # ที่ดึงมาทั้งหมด (รวมภาษาอื่น/ซ้ำ ที่ถูกคัดออก)
         "engine": sentiment.engine_name(use_model=use_model),
         "extract_engine": engine_used,
+        "extract_engine_requested": requested_extract_engine,
+        "extract_engine_fallback": (
+            requested_extract_engine == "llm" and engine_used == "rule"
+        ),
         "distribution": distribution,        # %, counts
         "aspect_summary": aspect_summary,     # นับอารมณ์ราย aspect
         "keywords": kw,                       # keyword ราย aspect/sentiment

@@ -21,7 +21,7 @@ class TestJobRoutes(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"/api/jobs/abc123", response.data)
         self.assertIn(b"js/job.js", response.data)
-        self.assertIn(b"20260810-tracker1", response.data)
+        self.assertIn(b"20260810-engine-fallback1", response.data)
         self.assertIn(b'data-job-id="abc123"', response.data)
         self.assertIn(b'data-job-url="/jobs/abc123"', response.data)
         self.assertIn("ออกจากหน้านี้ได้ ระบบจะวิเคราะห์ต่อ".encode(), response.data)
@@ -40,6 +40,13 @@ class TestJobRoutes(unittest.TestCase):
         self.assertIn("_pollAnalysisTracker", script)
         self.assertIn("วิเคราะห์เสร็จแล้ว เปิดดูผลลัพธ์ได้เลย", script)
         self.assertIn('window.addEventListener("storage"', script)
+
+    def test_common_client_replaces_gemini_preference_after_rule_fallback(self):
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        with open(os.path.join(root, "static", "js", "common.js"), encoding="utf-8") as handle:
+            script = handle.read()
+        self.assertIn('form.dataset.extractFallback === "1"', script)
+        self.assertIn("saved.extract_engine = actualEngine", script)
 
     def test_completed_job_page_redirects_to_dashboard(self):
         job = {"id": "abc123", "status": "completed", "analysis_id": 42,
