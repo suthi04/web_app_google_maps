@@ -564,26 +564,30 @@
   </div>
 </section>
 
-<div class="operator-detail-divider">
-  <span>ตรวจสอบข้อมูลและรีวิวจริง</span>
-  <p>ดูรีวิวรายรายการและคำที่ลูกค้าพูดถึง โดยย้อนกลับไปอ่านบริบทต้นฉบับได้</p>
-</div>
-
 <div class="lower operator-result-only">
-  <div class="panel result-panel">
-    <div class="panel-head">
-      <div>
-        <h3>ผลการวิเคราะห์</h3>
-        <div class="sub-h">รีวิวรายรายการ และคำสำคัญแยกตามหมวด</div>
+  <section class="panel result-panel operator-result-panel" aria-labelledby="operatorResultsTitle">
+    <header class="operator-result-header">
+      <div class="operator-result-copy">
+        <div class="operator-result-kicker"><span></span> 04 · Evidence Explorer</div>
+        <h2 id="operatorResultsTitle">ผลการวิเคราะห์</h2>
+        <p>ตรวจสอบข้อมูลและรีวิวจริง พร้อมดูคำที่ลูกค้าพูดและย้อนกลับไปอ่านบริบทต้นฉบับ</p>
       </div>
+      <div class="operator-result-counts" aria-label="จำนวนรีวิวแยกตามอารมณ์">
+        <article><strong class="mono">{{ a.total_reviews }}</strong><span>ทั้งหมด</span></article>
+        <article class="positive"><strong class="mono">{{ a.distribution.counts.positive }}</strong><span>เชิงบวก</span></article>
+        <article class="negative"><strong class="mono">{{ a.distribution.counts.negative }}</strong><span>เชิงลบ</span></article>
+      </div>
+    </header>
+    <div class="operator-result-toolbar">
       <div class="tools">
         <div class="seg" role="tablist" aria-label="มุมมองผลวิเคราะห์">
           <button class="tab active" type="button" role="tab" aria-selected="true" aria-controls="view-all" data-tab="all">รีวิวทั้งหมด</button>
           <button class="tab" type="button" role="tab" aria-selected="false" aria-controls="view-keywords" data-tab="keywords">คำสำคัญ</button>
         </div>
         <div class="dropdown">
-          <button class="icon-btn" id="filterBtn" type="button" title="กรองตามอารมณ์" aria-label="กรอง" aria-haspopup="menu" aria-controls="filterMenu" aria-expanded="false">
+          <button class="operator-filter-button" id="filterBtn" type="button" title="กรองตามอารมณ์" aria-label="กรองตามอารมณ์" aria-haspopup="menu" aria-controls="filterMenu" aria-expanded="false">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 5h18l-7 8v6l-4-2v-4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>กรองอารมณ์</span>
           </button>
           <div class="dropdown-menu" id="filterMenu" role="menu">
             <button class="mi active" type="button" data-filter="all">ทั้งหมด</button>
@@ -594,6 +598,7 @@
           </div>
         </div>
       </div>
+      <span class="operator-result-scroll-hint">เลื่อนเพื่ออ่านรีวิวทั้งหมด</span>
     </div>
 
     <!-- All -->
@@ -604,8 +609,13 @@
           {% for r in a.reviews %}
           <tr class="rev-row" data-sentiment="{{ r.sentiment }}">
             <td>
-              {% if r.rating %}<span class="rating"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg> <span class="mono" style="font-size:11.5px;color:var(--neu-ink)">{{ r.rating }}.0</span></span>{% endif %}
+              <div class="operator-review-meta">
+                <span class="operator-review-id">รีวิว <b class="mono">{{ r.review_id }}</b></span>
+                {% if r.rating %}<span class="rating"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 17l-5.3 2.6 1-5.8L3.5 9.7l5.9-.9z"/></svg> <span class="mono">{{ r.rating }}.0</span></span>{% endif %}
+                {% if r.review_date %}<time datetime="{{ r.review_date }}">{{ r.review_date[:10] }}</time>{% endif %}
+              </div>
               <div class="review-text">{{ r.text }}</div>
+              {% if r.aspects %}<div class="operator-review-aspects">{% for aspect in r.aspects %}<span>{{ ASPECT_TH.get(aspect, aspect) }}</span>{% endfor %}</div>{% endif %}
             </td>
             <td class="sent-cell">
               {% if r.sentiment == 'positive' %}<span class="badge pos"><span class="bdot"></span>เชิงบวก</span>
@@ -668,7 +678,7 @@
       </div>
       {% endfor %}
     </div>
-  </div>
+  </section>
 </div>
 
 </section>
