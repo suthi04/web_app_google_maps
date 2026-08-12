@@ -393,24 +393,34 @@
       </div>
       <span class="operator-evidence-total"><b class="mono">{{ a.total_reviews }}</b> รีวิวภาษาไทย</span>
     </header>
-    <div class="operator-sentiment-track" role="img" aria-label="เสียงเชิงบวก {{ a.distribution.pct.positive }} เปอร์เซ็นต์ เป็นกลาง {{ a.distribution.pct.neutral }} เปอร์เซ็นต์ และเชิงลบ {{ a.distribution.pct.negative }} เปอร์เซ็นต์">
-      <i class="positive" style="width:{{ a.distribution.pct.positive }}%"></i>
-      <i class="neutral" style="width:{{ a.distribution.pct.neutral }}%"></i>
-      <i class="negative" style="width:{{ a.distribution.pct.negative }}%"></i>
-    </div>
-    <div class="operator-sentiment-summary">
-      <article class="positive">
-        <div><span><i></i>เชิงบวก</span><strong class="mono">{{ a.distribution.pct.positive }}%</strong></div>
-        <footer><span class="mono">{{ a.distribution.counts.positive }} รีวิว</span>{{ evidence_button(a.sentiment_evidence.positive, '', 'ดูหลักฐาน') }}</footer>
-      </article>
-      <article class="neutral">
-        <div><span><i></i>เป็นกลาง</span><strong class="mono">{{ a.distribution.pct.neutral }}%</strong></div>
-        <footer><span class="mono">{{ a.distribution.counts.neutral }} รีวิว</span>{{ evidence_button(a.sentiment_evidence.neutral, '', 'ดูหลักฐาน') }}</footer>
-      </article>
-      <article class="negative">
-        <div><span><i></i>เชิงลบ</span><strong class="mono">{{ a.distribution.pct.negative }}%</strong></div>
-        <footer><span class="mono">{{ a.distribution.counts.negative }} รีวิว</span>{{ evidence_button(a.sentiment_evidence.negative, '', 'ดูหลักฐาน') }}</footer>
-      </article>
+    <div class="operator-evidence-body">
+      <div class="operator-overview-chart">
+        <div class="operator-overview-donut" role="img" aria-label="เสียงเชิงบวก {{ a.distribution.pct.positive }} เปอร์เซ็นต์ เป็นกลาง {{ a.distribution.pct.neutral }} เปอร์เซ็นต์ และเชิงลบ {{ a.distribution.pct.negative }} เปอร์เซ็นต์" style="background:conic-gradient(var(--pos) 0 {{ a.distribution.pct.positive }}%, var(--neg) {{ a.distribution.pct.positive }}% {{ a.distribution.pct.positive + a.distribution.pct.negative }}%, var(--neu) {{ a.distribution.pct.positive + a.distribution.pct.negative }}% 100%)">
+          <div><strong class="mono">{{ a.total_reviews }}</strong><span>รีวิว</span></div>
+        </div>
+        <span>สัดส่วนความคิดเห็น</span>
+      </div>
+      <div class="operator-evidence-breakdown">
+        <div class="operator-sentiment-track" aria-hidden="true">
+          <i class="positive" style="width:{{ a.distribution.pct.positive }}%"></i>
+          <i class="neutral" style="width:{{ a.distribution.pct.neutral }}%"></i>
+          <i class="negative" style="width:{{ a.distribution.pct.negative }}%"></i>
+        </div>
+        <div class="operator-sentiment-summary">
+          <article class="positive">
+            <div><span><i></i>เชิงบวก</span><strong class="mono">{{ a.distribution.pct.positive }}%</strong></div>
+            <footer><span class="mono">{{ a.distribution.counts.positive }} รีวิว</span>{{ evidence_button(a.sentiment_evidence.positive, '', 'ดูหลักฐาน') }}</footer>
+          </article>
+          <article class="neutral">
+            <div><span><i></i>เป็นกลาง</span><strong class="mono">{{ a.distribution.pct.neutral }}%</strong></div>
+            <footer><span class="mono">{{ a.distribution.counts.neutral }} รีวิว</span>{{ evidence_button(a.sentiment_evidence.neutral, '', 'ดูหลักฐาน') }}</footer>
+          </article>
+          <article class="negative">
+            <div><span><i></i>เชิงลบ</span><strong class="mono">{{ a.distribution.pct.negative }}%</strong></div>
+            <footer><span class="mono">{{ a.distribution.counts.negative }} รีวิว</span>{{ evidence_button(a.sentiment_evidence.negative, '', 'ดูหลักฐาน') }}</footer>
+          </article>
+        </div>
+      </div>
     </div>
   </section>
 

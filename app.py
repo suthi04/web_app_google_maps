@@ -73,7 +73,7 @@ def inject_globals():
         "min_reviews": config.MIN_REVIEWS,
         "max_reviews_cap": config.MAX_REVIEWS_CAP,
         # Bump when shared CSS/JS changes so long-lived browser caches refresh.
-        "asset_version": "20260812-evidence-snapshot1",
+        "asset_version": "20260812-evidence-chart1",
     }
 
 

@@ -185,6 +185,8 @@ class TestAudienceDashboard(unittest.TestCase):
         self.assertIn("ข้อมูลประกอบการตัดสินใจ", html)
         self.assertIn('id="operatorEvidenceOverviewTitle"', html)
         self.assertIn('class="operator-sentiment-summary"', html)
+        self.assertIn('class="operator-overview-donut"', html)
+        self.assertIn("สัดส่วนความคิดเห็น", html)
         self.assertIn("ข้อมูลสั้น ๆ ที่ใช้ประกอบการจัดลำดับงานด้านล่าง", html)
         self.assertIn("ตรวจสอบข้อมูลและรีวิวจริง", html)
         self.assertIn('class="lower operator-result-only"', html)
