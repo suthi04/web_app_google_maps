@@ -241,6 +241,7 @@
   const evidenceJumpBtn = document.getElementById("evidenceJumpBtn");
   let activeEvidenceIds = [];
   let activeEvidenceQuery = "";
+  let activeEvidencePersona = "consumer";
   let evidenceReturnFocus = null;
 
   function parseEvidenceIds(value) {
@@ -274,6 +275,12 @@
     if (!ids.length) return;
     activeEvidenceIds = ids;
     activeEvidenceQuery = (trigger.dataset.evidenceQuery || "").trim();
+    activeEvidencePersona = trigger.closest("#operatorView") ? "operator" : "consumer";
+    if (evidenceJumpBtn) {
+      evidenceJumpBtn.textContent = activeEvidencePersona === "operator"
+        ? "ดูในผลการวิเคราะห์"
+        : "ดูในรีวิวทั้งหมด";
+    }
     evidenceReturnFocus = trigger;
     evidenceDrawerList.replaceChildren();
     evidenceDrawerList.scrollTop = 0;
@@ -300,6 +307,28 @@
   evidenceJumpBtn?.addEventListener("click", () => {
     const focusIds = new Set(activeEvidenceIds);
     closeEvidence({ restoreFocus: false });
+    if (activeEvidencePersona === "operator") {
+      setPersona("operator");
+      document.querySelector('.seg .tab[data-tab="all"]')?.click();
+      filterMenu.querySelectorAll(".mi").forEach((item) => {
+        const active = item.dataset.filter === "all";
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-checked", active ? "true" : "false");
+      });
+      applyFilter("all");
+      document.querySelectorAll(".rev-row").forEach((row) => {
+        const focused = focusIds.has(row.dataset.reviewId);
+        row.classList.toggle("evidence-focus", focused);
+        setHighlightedText(
+          row.querySelector(".review-text"),
+          row.dataset.reviewText || "",
+          focused ? activeEvidenceQuery : "",
+        );
+      });
+      const firstOperatorReview = document.getElementById(`operator-review-${activeEvidenceIds[0]}`);
+      firstOperatorReview?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     setPersona("consumer");
     consumerSentimentFilter = "all";
     consumerFilterButtons.forEach((button) => {

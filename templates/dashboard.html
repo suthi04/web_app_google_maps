@@ -607,7 +607,9 @@
         <thead><tr><th>รีวิว</th><th class="r">อารมณ์</th></tr></thead>
         <tbody>
           {% for r in a.reviews %}
-          <tr class="rev-row" data-sentiment="{{ r.sentiment }}">
+          <tr class="rev-row" id="operator-review-{{ r.review_id }}"
+              data-review-id="{{ r.review_id }}" data-review-text="{{ r.text }}"
+              data-sentiment="{{ r.sentiment }}">
             <td>
               <div class="operator-review-meta">
                 <span class="operator-review-id">รีวิว <b class="mono">{{ r.review_id }}</b></span>
@@ -701,5 +703,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}?v={{ asset_version }}"></script>
 {% endblock %}
