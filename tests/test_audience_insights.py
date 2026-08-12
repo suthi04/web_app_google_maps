@@ -86,6 +86,9 @@ class TestConsumerSummary(unittest.TestCase):
         self.assertEqual(service["evidence_count"], 2)
         self.assertIn("รอบถัดไป", service["measure"])
         self.assertNotIn("วันนี้", service["measure"])
+        food = next(item for item in plan["items"] if item["aspect"] == "food")
+        self.assertEqual(food["headline"], "อาหารอร่อย")
+        self.assertNotIn("วัตถุดิบไม่สด", food["headline"])
 
     def test_operator_plan_requires_three_reviews_for_top_priority(self):
         keywords = _keywords()
@@ -102,6 +105,41 @@ class TestConsumerSummary(unittest.TestCase):
         self.assertEqual(service["priority"], "first")
         self.assertEqual(service["priority_label"], "ควรจัดการก่อน")
         self.assertEqual(plan["counts"]["first"], 1)
+
+    def test_operator_playbook_separates_risks_from_evidenced_strengths(self):
+        issues = audience_insights.build_critical_issues(
+            _keywords(), _aspect_summary()
+        )
+        playbook = audience_insights.build_operator_playbook(_keywords(), issues)
+
+        waiting = next(item for item in playbook["risks"] if item["topic"] == "รอนาน")
+        self.assertEqual(waiting["review_count"], 2)
+        self.assertEqual(waiting["evidence_review_ids"], ["R008", "R009"])
+        self.assertIn("ช่วงพีค", waiting["action"])
+
+        self.assertEqual(playbook["opportunities"][0]["topic"], "อาหารอร่อย")
+        self.assertEqual(playbook["opportunities"][0]["review_count"], 3)
+        self.assertIn("มาตรฐาน", playbook["opportunities"][0]["action"])
+
+    def test_operator_brief_reports_evidence_without_calendar_claims(self):
+        actionable = insights.generate_insights(_aspect_summary(), _keywords())
+        issues = audience_insights.build_critical_issues(
+            _keywords(), _aspect_summary()
+        )
+        plan = audience_insights.build_operator_plan(
+            actionable,
+            issues,
+            _keywords(),
+            {"total": 10, "pct": {"positive": 70}},
+            10,
+        )
+
+        self.assertIn("บริการ", plan["brief"]["headline"])
+        self.assertEqual(plan["brief"]["positive_pct"], 70)
+        self.assertGreater(plan["brief"]["evidence_count"], 0)
+        self.assertEqual(plan["brief"]["total_reviews"], 10)
+        self.assertNotIn("วันนี้", plan["brief"]["detail"])
+        self.assertEqual(len(plan["next_checks"]), 3)
 
     def test_gemini_overview_and_visit_tip_keep_review_evidence(self):
         narrative = {

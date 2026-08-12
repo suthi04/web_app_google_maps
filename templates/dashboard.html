@@ -348,13 +348,47 @@
 </section>
 
 <section class="persona-view" id="operatorView" role="tabpanel" aria-labelledby="operatorTab" hidden>
-<!-- Ranked operator action plan: one source of truth, without calendar claims -->
-<section class="panel operator-plan" aria-labelledby="operatorPlanTitle">
+<!-- Executive operator dashboard: strategy first, evidence always within reach -->
+<section class="operator-command" aria-labelledby="operatorPlanTitle">
+  <div class="operator-command-hero">
+    <div class="operator-command-copy">
+      <div class="operator-plan-kicker"><span></span> Executive Brief · รีวิวชุดนี้</div>
+      <h2 id="operatorPlanTitle">{{ a.operator_plan.brief.headline }}</h2>
+      <p>{{ a.operator_plan.brief.detail }}</p>
+      <div class="operator-command-meta">
+        {{ evidence_button(a.operator_plan.brief.evidence_review_ids, 'หลักฐานของ Executive Brief', 'เปิดรีวิวที่ใช้วางแผน') }}
+        <span>ไม่ได้จัดลำดับตามวันที่ของรีวิว</span>
+      </div>
+    </div>
+    <div class="operator-command-stats" aria-label="ตัวเลขสรุปสำหรับเจ้าของร้าน">
+      <div class="command-stat featured">
+        <span>เสียงบวกโดยรวม</span>
+        <strong class="mono">{{ a.operator_plan.brief.positive_pct }}<small>%</small></strong>
+        <i style="--stat-progress:{{ a.operator_plan.brief.positive_pct }}%"></i>
+      </div>
+      <div class="command-stat">
+        <span>เรื่องที่ควรปรับ</span>
+        <strong class="mono">{{ a.operator_plan.brief.priority_count }}</strong>
+        <small>ด้านจากรีวิวชุดนี้</small>
+      </div>
+      <div class="command-stat">
+        <span>โอกาสต่อยอด</span>
+        <strong class="mono">{{ a.operator_plan.brief.opportunity_count }}</strong>
+        <small>ประเด็นที่มีหลักฐาน</small>
+      </div>
+      <div class="command-stat evidence-stat">
+        <span>หลักฐานในแผน</span>
+        <strong class="mono">{{ a.operator_plan.brief.evidence_count }}<small>/{{ a.operator_plan.brief.total_reviews }}</small></strong>
+        <small>รีวิวไม่ซ้ำที่อ้างอิง</small>
+      </div>
+    </div>
+  </div>
+
   <div class="operator-plan-head">
     <div>
-      <div class="operator-plan-kicker">สรุปสำหรับเจ้าของร้าน · รีวิวชุดนี้</div>
-      <h2 id="operatorPlanTitle">ลำดับสิ่งที่ร้านควรทำในรอบนี้</h2>
-      <p>{{ a.operator_plan.basis }} ผลนี้ไม่ได้จัดลำดับตามวันที่ของรีวิว</p>
+      <div class="operator-plan-kicker">01 · Strategic Roadmap</div>
+      <h3>ลำดับงานที่ทีมควรเดินต่อ</h3>
+      <p>{{ a.operator_plan.basis }}</p>
     </div>
     <div class="operator-plan-summary" aria-label="สรุปลำดับงาน">
       <span class="first"><b class="mono">{{ a.operator_plan.counts.first }}</b> จัดการก่อน</span>
@@ -411,6 +445,81 @@
       <strong>ข้อมูลยังไม่พอสำหรับจัดลำดับงาน</strong>
       <p>วิเคราะห์รีวิวเพิ่มก่อน ระบบจึงจะแยกเรื่องที่ควรปรับ จุดแข็ง และสิ่งที่ควรติดตามได้</p>
     </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="operator-playbook" aria-labelledby="operatorPlaybookTitle">
+  <div class="operator-section-heading">
+    <div>
+      <div class="operator-plan-kicker">02 · Tactical Playbook</div>
+      <h2 id="operatorPlaybookTitle">จากเสียงลูกค้า สู่สิ่งที่ทีมทำต่อได้</h2>
+    </div>
+    <p>แยกประเด็นเสี่ยงที่ควรแก้ ออกจากจุดแข็งที่ควรขยาย เพื่อไม่ให้ทีมเห็นแต่ปัญหาเพียงด้านเดียว</p>
+  </div>
+  <div class="playbook-columns">
+    <section class="playbook-lane risk-lane" aria-labelledby="riskLaneTitle">
+      <header>
+        <span class="playbook-lane-icon">!</span>
+        <div><small>FIX THE FRICTION</small><h3 id="riskLaneTitle">แก้จุดสะดุดของลูกค้า</h3></div>
+        <b class="mono">{{ a.operator_plan.playbook.risks|length }}</b>
+      </header>
+      <div class="playbook-stack">
+        {% for item in a.operator_plan.playbook.risks %}
+        <article class="playbook-card">
+          <div class="playbook-card-top">
+            <span>{{ item.aspect_th }}</span>
+            <small>{{ item.signal_label }}</small>
+          </div>
+          <h4>{{ item.topic }}</h4>
+          <div class="playbook-signal"><b class="mono">{{ item.review_count }}</b> รีวิวไม่ซ้ำ · เสียงลบด้านนี้ <b class="mono">{{ item.negative_pct }}%</b></div>
+          <p>{{ item.action }}</p>
+          {{ evidence_button(item.evidence_review_ids, item.topic, 'ดูเสียงลูกค้า') }}
+        </article>
+        {% else %}
+        <div class="playbook-empty"><strong>ยังไม่พบประเด็นเสี่ยงที่มีหลักฐานพอ</strong><span>ดูรีวิวเพิ่มก่อนตัดสินใจเปลี่ยนขั้นตอนของร้าน</span></div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="playbook-lane growth-lane" aria-labelledby="growthLaneTitle">
+      <header>
+        <span class="playbook-lane-icon">↗</span>
+        <div><small>AMPLIFY THE LOVE</small><h3 id="growthLaneTitle">ขยายสิ่งที่ลูกค้ารัก</h3></div>
+        <b class="mono">{{ a.operator_plan.playbook.opportunities|length }}</b>
+      </header>
+      <div class="playbook-stack">
+        {% for item in a.operator_plan.playbook.opportunities %}
+        <article class="playbook-card">
+          <div class="playbook-card-top">
+            <span>{{ item.aspect_th }}</span>
+            <small>{{ item.signal_label }}</small>
+          </div>
+          <h4>{{ item.topic }}</h4>
+          <div class="playbook-signal"><b class="mono">{{ item.review_count }}</b> รีวิวไม่ซ้ำ · ถูกพูดถึง <b class="mono">{{ item.mention_count }}</b> ครั้ง</div>
+          <p>{{ item.action }}</p>
+          {{ evidence_button(item.evidence_review_ids, item.topic, 'ดูเสียงลูกค้า') }}
+        </article>
+        {% else %}
+        <div class="playbook-empty"><strong>ยังไม่พบคำชมที่มีหลักฐานพอ</strong><span>เก็บรีวิวเพิ่มเพื่อค้นหาจุดแข็งที่ทำซ้ำได้</span></div>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</section>
+
+<section class="operator-checkpoints" aria-labelledby="operatorCheckpointsTitle">
+  <div class="checkpoint-intro">
+    <div class="operator-plan-kicker">03 · Next Read</div>
+    <h2 id="operatorCheckpointsTitle">รอบถัดไป ต้องเช็กอะไร</h2>
+    <p>เกณฑ์ติดตามผลของแต่ละด้าน ไม่ผูกกับวันที่รีวิว</p>
+  </div>
+  <div class="checkpoint-list">
+    {% for item in a.operator_plan.next_checks %}
+    <article>
+      <span class="mono">{{ "%02d"|format(item.rank) }}</span>
+      <div><strong>{{ item.aspect_th }}</strong><p>{{ item.measure }}</p></div>
+    </article>
     {% endfor %}
   </div>
 </section>

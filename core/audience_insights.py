@@ -346,9 +346,87 @@ def build_critical_issues(
     return result
 
 
+def _opportunity_action(aspect: str, topic: str) -> str:
+    """Give owners a concrete way to turn an evidenced compliment into a system."""
+    actions = {
+        "food": (
+            f"ยึด “{topic}” เป็นมาตรฐานของเมนูเด่น บันทึกสูตรและจุดตรวจคุณภาพ "
+            "แล้วใช้คำชมนี้ช่วยสื่อสารเหตุผลที่ลูกค้าควรเลือกร้าน"
+        ),
+        "service": (
+            f"ถอดพฤติกรรมที่ทำให้ลูกค้าพูดถึง “{topic}” เป็นขั้นตอนบริการสั้น ๆ "
+            "เพื่อให้ทีมทำซ้ำได้สม่ำเสมอทุกกะ"
+        ),
+        "ambience": (
+            f"รักษาจุดสัมผัสที่ทำให้เกิดคำชม “{topic}” แล้วนำไปใช้ในภาพร้าน "
+            "ข้อมูลหน้าร้าน และเช็กลิสต์ก่อนเปิดบริการ"
+        ),
+    }
+    return actions.get(
+        aspect,
+        f"ระบุสิ่งที่ทำให้เกิดคำชม “{topic}” แล้วเปลี่ยนเป็นมาตรฐานที่ทีมทำซ้ำและตรวจสอบได้",
+    )
+
+
+def build_operator_playbook(
+    keywords: dict | None,
+    critical_issues: list[dict] | None,
+    limit_each: int = 4,
+) -> dict:
+    """Build issue-level moves without repeating the aspect-level roadmap."""
+    risks = []
+    for issue in critical_issues or []:
+        evidence_ids = list(dict.fromkeys(issue.get("evidence_review_ids") or []))
+        if not evidence_ids:
+            continue
+        review_count = int(issue.get("review_count") or len(evidence_ids))
+        risks.append({
+            "topic": issue.get("text") or "ประเด็นที่ควรตรวจสอบ",
+            "aspect": issue.get("aspect") or "",
+            "aspect_th": issue.get("aspect_th") or ASPECT_LABELS_TH.get(issue.get("aspect"), "ภาพรวม"),
+            "review_count": review_count,
+            "negative_pct": int(issue.get("negative_pct") or 0),
+            "evidence_review_ids": evidence_ids,
+            "action": issue.get("strategy") or strategy_for_issue(
+                issue.get("text") or "", issue.get("aspect") or ""
+            ),
+            "signal_label": "พบซ้ำหลายรีวิว" if review_count >= 3 else "สัญญาณเบื้องต้น",
+        })
+    risks.sort(key=lambda item: (-item["review_count"], -item["negative_pct"], item["topic"]))
+
+    opportunities = []
+    for aspect, groups in (keywords or {}).items():
+        for entry in groups.get("positive") or []:
+            evidence_ids = list(dict.fromkeys(entry.get("evidence_review_ids") or []))
+            topic = entry.get("word") or entry.get("text") or ""
+            if not topic or not evidence_ids:
+                continue
+            review_count = int(entry.get("review_count") or len(evidence_ids))
+            opportunities.append({
+                "topic": topic,
+                "aspect": aspect,
+                "aspect_th": ASPECT_LABELS_TH.get(aspect, aspect),
+                "review_count": review_count,
+                "mention_count": int(entry.get("count") or review_count),
+                "evidence_review_ids": evidence_ids,
+                "action": _opportunity_action(aspect, topic),
+                "signal_label": "จุดแข็งที่พูดซ้ำ" if review_count >= 3 else "โอกาสต่อยอด",
+            })
+    opportunities.sort(
+        key=lambda item: (-item["review_count"], -item["mention_count"], item["topic"])
+    )
+    return {
+        "risks": risks[:limit_each],
+        "opportunities": opportunities[:limit_each],
+    }
+
+
 def build_operator_plan(
     actionable_insights: list[dict] | None,
     critical_issues: list[dict] | None,
+    keywords: dict | None = None,
+    distribution: dict | None = None,
+    total_reviews: int = 0,
 ) -> dict:
     """Turn the owner report into one ranked, evidence-led action plan.
 
@@ -368,15 +446,22 @@ def build_operator_plan(
         related_issue = (issues_by_aspect.get(aspect) or [{}])[0]
         insight_ids = insight.get("evidence_review_ids") or []
         issue_ids = related_issue.get("evidence_review_ids") or []
-        evidence_ids = list(dict.fromkeys([*insight_ids, *issue_ids]))
+        evidence_ids = list(dict.fromkeys(
+            [*insight_ids, *issue_ids]
+            if level in ("improve", "neutral")
+            else insight_ids
+        ))
         evidence_count = len(evidence_ids)
         positive_pct = int(insight.get("positive_pct") or 0)
         negative_pct = int(insight.get("negative_pct") or 0)
         sample_size = int(insight.get("sample_size") or 0)
-        topic = related_issue.get("text")
-        if not topic:
-            evidence = insight.get("evidence") or []
+        evidence = insight.get("evidence") or []
+        if level == "strength":
             topic = evidence[0].get("text") if evidence else ""
+        else:
+            topic = related_issue.get("text")
+            if not topic:
+                topic = evidence[0].get("text") if evidence else ""
 
         if level == "improve" and negative_pct >= 40 and evidence_count >= 3:
             priority = "first"
@@ -452,9 +537,66 @@ def build_operator_plan(
         key: sum(item["priority"] == key for item in items)
         for key in ("first", "improve", "monitor", "maintain", "collect")
     }
+    playbook = build_operator_playbook(keywords, critical_issues)
+    focus = next(
+        (item for item in items if item["priority"] in ("first", "improve")),
+        None,
+    )
+    strength = next((item for item in items if item["priority"] == "maintain"), None)
+    if focus and strength:
+        headline = f"เริ่มแก้{focus['aspect_th']} พร้อมใช้{strength['aspect_th']}เป็นแรงส่ง"
+        detail = (
+            f"เสียงลูกค้าในรีวิวชุดนี้ชี้ให้โฟกัส{focus['aspect_th']}ก่อน "
+            f"ขณะเดียวกัน{strength['aspect_th']}มีฐานที่ควรรักษาและต่อยอดเป็นจุดจำของร้าน"
+        )
+    elif focus:
+        headline = f"เริ่มจาก{focus['aspect_th']} แล้วตรวจผลจากรีวิวรอบถัดไป"
+        detail = (
+            f"ประเด็นด้าน{focus['aspect_th']}อยู่ลำดับแรกจากสัดส่วนความคิดเห็น "
+            "จำนวนรีวิวไม่ซ้ำ และหลักฐานที่ตรวจย้อนกลับได้"
+        )
+    elif strength:
+        headline = f"เปลี่ยน{strength['aspect_th']}ให้เป็นจุดจำที่ทำซ้ำได้"
+        detail = (
+            f"เสียงบวกด้าน{strength['aspect_th']}เป็นฐานที่เด่นในรีวิวชุดนี้ "
+            "จึงควรถอดเป็นมาตรฐานและรักษาคุณภาพให้สม่ำเสมอ"
+        )
+    else:
+        headline = "เก็บเสียงลูกค้าเพิ่ม ก่อนตัดสินใจเปลี่ยนร้าน"
+        detail = "หลักฐานรายด้านยังไม่พอสำหรับชี้จุดเร่งด่วน ระบบจึงแนะนำให้ติดตามข้อมูลเพิ่มก่อน"
+
+    all_evidence_ids = []
+    for item in items:
+        all_evidence_ids.extend(item.get("evidence_review_ids") or [])
+    for group in (playbook["risks"], playbook["opportunities"]):
+        for item in group:
+            all_evidence_ids.extend(item.get("evidence_review_ids") or [])
+    all_evidence_ids = list(dict.fromkeys(all_evidence_ids))
+    total_reviews = int(total_reviews or (distribution or {}).get("total") or 0)
+    positive_pct = int(((distribution or {}).get("pct") or {}).get("positive") or 0)
     return {
         "items": items,
         "counts": counts,
+        "brief": {
+            "headline": headline,
+            "detail": detail,
+            "positive_pct": positive_pct,
+            "priority_count": counts["first"] + counts["improve"],
+            "opportunity_count": len(playbook["opportunities"]),
+            "evidence_count": len(all_evidence_ids),
+            "total_reviews": total_reviews,
+            "evidence_review_ids": all_evidence_ids,
+        },
+        "playbook": playbook,
+        "next_checks": [
+            {
+                "rank": item["rank"],
+                "aspect": item["aspect"],
+                "aspect_th": item["aspect_th"],
+                "measure": item["measure"],
+            }
+            for item in items[:3]
+        ],
         "basis": "จัดอันดับจากสัดส่วนความคิดเห็น จำนวนรีวิวไม่ซ้ำ และหลักฐานในรีวิวชุดนี้",
     }
 
@@ -489,6 +631,10 @@ def enrich_result(result: dict) -> dict:
         planning_insights,
     )
     result["operator_plan"] = build_operator_plan(
-        result.get("insights") or [], result["critical_issues"]
+        result.get("insights") or [],
+        result["critical_issues"],
+        result.get("keywords") or {},
+        result.get("distribution") or {},
+        result.get("total_reviews") or len(result.get("reviews") or []),
     )
     return result
