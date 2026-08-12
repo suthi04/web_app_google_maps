@@ -383,13 +383,11 @@
       </div>
     </div>
   </div>
-</section>
 
-<section class="operator-roadmap operator-surface" aria-labelledby="operatorRoadmapTitle">
   <div class="operator-plan-head">
     <div>
       <div class="operator-plan-kicker">01 · Strategic Roadmap</div>
-      <h2 id="operatorRoadmapTitle">ลำดับงานที่ทีมควรเดินต่อ</h2>
+      <h3>ลำดับงานที่ทีมควรเดินต่อ</h3>
       <p>{{ a.operator_plan.basis }}</p>
     </div>
     <div class="operator-plan-summary" aria-label="สรุปลำดับงาน">
@@ -400,7 +398,7 @@
     </div>
   </div>
 
-  <div class="operator-plan-list count-{{ a.operator_plan['items']|length }}">
+  <div class="operator-plan-list">
     {% for item in a.operator_plan['items'] %}
     <article class="operator-task {{ item.priority }}{% if loop.first %} lead{% endif %}">
       <header class="operator-task-head">
@@ -451,7 +449,7 @@
   </div>
 </section>
 
-<section class="operator-playbook operator-surface" aria-labelledby="operatorPlaybookTitle">
+<section class="operator-playbook" aria-labelledby="operatorPlaybookTitle">
   <div class="operator-section-heading">
     <div>
       <div class="operator-plan-kicker">02 · Tactical Playbook</div>
@@ -510,13 +508,13 @@
   </div>
 </section>
 
-<section class="operator-checkpoints operator-surface" aria-labelledby="operatorCheckpointsTitle">
+<section class="operator-checkpoints" aria-labelledby="operatorCheckpointsTitle">
   <div class="checkpoint-intro">
     <div class="operator-plan-kicker">03 · Next Read</div>
     <h2 id="operatorCheckpointsTitle">รอบถัดไป ต้องเช็กอะไร</h2>
     <p>เกณฑ์ติดตามผลของแต่ละด้าน ไม่ผูกกับวันที่รีวิว</p>
   </div>
-  <div class="checkpoint-list count-{{ a.operator_plan.next_checks|length }}">
+  <div class="checkpoint-list">
     {% for item in a.operator_plan.next_checks %}
     <article>
       <span class="mono">{{ "%02d"|format(item.rank) }}</span>
@@ -526,47 +524,66 @@
   </div>
 </section>
 
-<section class="operator-evidence-studio operator-surface" aria-labelledby="operatorEvidenceTitle">
-  <div class="operator-section-heading evidence-studio-heading">
-    <div>
-      <div class="operator-plan-kicker">04 · Evidence Studio</div>
-      <h2 id="operatorEvidenceTitle">อ่านสัญญาณให้ลึก ก่อนตัดสินใจ</h2>
-    </div>
-    <p>ภาพรวมด้านอารมณ์อยู่คู่กับรีวิวต้นฉบับและคำสำคัญ เพื่อให้ทุกตัวเลขตรวจย้อนกลับได้ในพื้นที่เดียว</p>
-  </div>
+<div class="operator-detail-divider">
+  <span>ข้อมูลประกอบการตัดสินใจ</span>
+  <p>ดูสัดส่วน รีวิวรายรายการ และคำที่ลูกค้าพูดถึงเพิ่มเติมด้านล่าง</p>
+</div>
 
-  <div class="operator-signal-grid">
-    <div class="signal-orbit-card">
-      <div class="signal-orbit-copy"><span>Customer voice</span><strong>สัดส่วนเสียงทั้งหมด</strong><small>จากรีวิวภาษาไทยที่ผ่านการคัดกรอง</small></div>
-      <div class="operator-donut" style="background:conic-gradient(var(--pos) 0 {{ a.distribution.pct.positive }}%, var(--neg) {{ a.distribution.pct.positive }}% {{ a.distribution.pct.positive + a.distribution.pct.negative }}%, var(--neu) {{ a.distribution.pct.positive + a.distribution.pct.negative }}% 100%)">
-        <div><strong class="mono">{{ "{:,}".format(a.total_reviews) }}</strong><span>รีวิว</span></div>
+<!-- Metric cards -->
+<div class="metrics">
+  <div class="metric pos">
+    <div class="top">
+      <span class="tag"><span class="dot"></span>เชิงบวก</span>
+      <span class="count mono">{{ a.distribution.counts.positive }} รีวิว</span>
+    </div>
+    <div class="val mono">{{ a.distribution.pct.positive }}%</div>
+    <div class="track"><div class="fill" style="width:{{ a.distribution.pct.positive }}%"></div></div>
+    {{ evidence_button(a.sentiment_evidence.positive, '', 'ดู') }}
+  </div>
+  <div class="metric neu">
+    <div class="top">
+      <span class="tag"><span class="dot"></span>เป็นกลาง</span>
+      <span class="count mono">{{ a.distribution.counts.neutral }} รีวิว</span>
+    </div>
+    <div class="val mono">{{ a.distribution.pct.neutral }}%</div>
+    <div class="track"><div class="fill" style="width:{{ a.distribution.pct.neutral }}%"></div></div>
+    {{ evidence_button(a.sentiment_evidence.neutral, '', 'ดู') }}
+  </div>
+  <div class="metric neg">
+    <div class="top">
+      <span class="tag"><span class="dot"></span>เชิงลบ</span>
+      <span class="count mono">{{ a.distribution.counts.negative }} รีวิว</span>
+    </div>
+    <div class="val mono">{{ a.distribution.pct.negative }}%</div>
+    <div class="track"><div class="fill" style="width:{{ a.distribution.pct.negative }}%"></div></div>
+    {{ evidence_button(a.sentiment_evidence.negative, '', 'ดู') }}
+  </div>
+</div>
+
+<!-- Lower grid -->
+<div class="lower">
+  <!-- Donut -->
+  <div class="panel sentiment-panel">
+    <div class="panel-head"><div><h3>สัดส่วนความคิดเห็น</h3></div></div>
+    <div class="donut" style="background:conic-gradient(var(--pos) 0 {{ a.distribution.pct.positive }}%, var(--neg) {{ a.distribution.pct.positive }}% {{ a.distribution.pct.positive + a.distribution.pct.negative }}%, var(--neu) {{ a.distribution.pct.positive + a.distribution.pct.negative }}% 100%)">
+      <div class="hole">
+        <span class="num mono">{{ "{:,}".format(a.total_reviews) }}</span>
+        <span class="lbl">รีวิว</span>
       </div>
     </div>
-    <div class="signal-distribution" aria-label="สัดส่วนความคิดเห็นแยกตามอารมณ์">
-      <article class="signal-row positive">
-        <div class="signal-row-head"><span><i></i>เชิงบวก</span><b class="mono">{{ a.distribution.pct.positive }}%</b></div>
-        <div class="signal-row-track"><i style="width:{{ a.distribution.pct.positive }}%"></i></div>
-        <footer><span class="mono">{{ a.distribution.counts.positive }} รีวิว</span>{{ evidence_button(a.sentiment_evidence.positive, '', 'เปิดหลักฐาน') }}</footer>
-      </article>
-      <article class="signal-row neutral">
-        <div class="signal-row-head"><span><i></i>เป็นกลาง</span><b class="mono">{{ a.distribution.pct.neutral }}%</b></div>
-        <div class="signal-row-track"><i style="width:{{ a.distribution.pct.neutral }}%"></i></div>
-        <footer><span class="mono">{{ a.distribution.counts.neutral }} รีวิว</span>{{ evidence_button(a.sentiment_evidence.neutral, '', 'เปิดหลักฐาน') }}</footer>
-      </article>
-      <article class="signal-row negative">
-        <div class="signal-row-head"><span><i></i>เชิงลบ</span><b class="mono">{{ a.distribution.pct.negative }}%</b></div>
-        <div class="signal-row-track"><i style="width:{{ a.distribution.pct.negative }}%"></i></div>
-        <footer><span class="mono">{{ a.distribution.counts.negative }} รีวิว</span>{{ evidence_button(a.sentiment_evidence.negative, '', 'เปิดหลักฐาน') }}</footer>
-      </article>
+    <div class="legend">
+      <div class="item"><span class="nm"><span class="swatch" style="background:var(--pos)"></span>เชิงบวก</span><span class="n mono">{{ a.distribution.counts.positive }}</span></div>
+      <div class="item"><span class="nm"><span class="swatch" style="background:var(--neu)"></span>เป็นกลาง</span><span class="n mono">{{ a.distribution.counts.neutral }}</span></div>
+      <div class="item"><span class="nm"><span class="swatch" style="background:var(--neg)"></span>เชิงลบ</span><span class="n mono">{{ a.distribution.counts.negative }}</span></div>
     </div>
   </div>
 
-  <div class="operator-result-panel result-panel">
-    <div class="operator-result-head">
+  <!-- Result panel -->
+  <div class="panel result-panel">
+    <div class="panel-head">
       <div>
-        <span>Evidence explorer</span>
-        <h3>รีวิวและคำที่ลูกค้าพูดจริง</h3>
-        <p>กรองเสียงหรือสลับดูคำสำคัญได้ โดยไม่หลุดจากบริบทต้นฉบับ</p>
+        <h3>ผลการวิเคราะห์</h3>
+        <div class="sub-h">รีวิวรายรายการ และคำสำคัญแยกตามหมวด</div>
       </div>
       <div class="tools">
         <div class="seg" role="tablist" aria-label="มุมมองผลวิเคราะห์">
@@ -661,7 +678,7 @@
       {% endfor %}
     </div>
   </div>
-</section>
+</div>
 
 </section>
 

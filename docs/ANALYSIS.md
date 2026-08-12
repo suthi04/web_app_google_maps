@@ -167,11 +167,6 @@ function ทำงานบน `Phrase` dataclass หนึ่งตัว (อ�
 รหัสรีวิวที่ตรวจย้อนกลับได้ และไม่สรุปตามวันที่ของรีวิว ปัญหาจะได้สถานะ
 `ควรจัดการก่อน` เมื่อเสียงลบด้านนั้นอย่างน้อย 40% และมีรีวิวหลักฐานไม่ซ้ำอย่างน้อย
 3 รายการ ส่วนโอกาสต่อยอดจะรับเฉพาะคำชมที่มี `evidence_review_ids`
-
-หน้าเจ้าของร้านแสดงข้อมูลเป็นระบบภาพเดียวกัน 5 ช่วง: Executive Brief,
-Strategic Roadmap, Tactical Playbook, Next Read และ Evidence Studio โดยช่วงสุดท้าย
-รวมสัดส่วนอารมณ์ รีวิวต้นฉบับ และคำสำคัญไว้ด้วยกัน แทนการแยก metric/donut
-ออกเป็นการ์ดคนละรูปแบบ
   *(หมายเหตุ: ไม่มี `topics` แล้ว — ฟีเจอร์ "ลูกค้าพูดถึงบ่อย" ถูกถอดออกใน commit `0d54a9f`)*
 - **Logic:** scrape → preprocess → sentiment.analyze_all → aspect.tag_aspects → distribution + aspect_summary + phrase pipeline → insights + audience insights
 - **Edge case:** ถ้า `total_reviews == 0` (ไม่มีรีวิวไทย) app.py จะ flash error และ redirect กลับหน้าแรก
