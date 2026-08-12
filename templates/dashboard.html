@@ -318,7 +318,6 @@
     </div>
     <div class="consumer-review-resultbar">
       <span id="consumerReviewVisibleCount" aria-live="polite">แสดง {{ a.reviews|length }} รีวิว</span>
-      <span>เลื่อนเพื่ออ่านรีวิวทั้งหมด</span>
     </div>
     <div class="consumer-review-list" id="consumerReviewList" tabindex="0" aria-label="รายการรีวิวทั้งหมด">
       {% for r in a.reviews %}
@@ -584,21 +583,20 @@
           <button class="tab active" type="button" role="tab" aria-selected="true" aria-controls="view-all" data-tab="all">รีวิวทั้งหมด</button>
           <button class="tab" type="button" role="tab" aria-selected="false" aria-controls="view-keywords" data-tab="keywords">คำสำคัญ</button>
         </div>
-        <div class="dropdown">
-          <button class="operator-filter-button" id="filterBtn" type="button" title="กรองตามอารมณ์" aria-label="กรองตามอารมณ์" aria-haspopup="menu" aria-controls="filterMenu" aria-expanded="false">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 5h18l-7 8v6l-4-2v-4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span>กรองอารมณ์</span>
-          </button>
-          <div class="dropdown-menu" id="filterMenu" role="menu">
-            <button class="mi active" type="button" data-filter="all">ทั้งหมด</button>
-            <div class="sep"></div>
-            <button class="mi" type="button" data-filter="positive"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--pos)"></span>เชิงบวก</button>
-            <button class="mi" type="button" data-filter="neutral"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--neu)"></span>เป็นกลาง</button>
-            <button class="mi" type="button" data-filter="negative"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--neg)"></span>เชิงลบ</button>
-          </div>
+      </div>
+      <div class="dropdown operator-filter-wrap">
+        <button class="operator-filter-button" id="filterBtn" type="button" title="กรองตามอารมณ์" aria-label="กรองตามอารมณ์" aria-haspopup="menu" aria-controls="filterMenu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 5h18l-7 8v6l-4-2v-4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>กรองอารมณ์</span>
+        </button>
+        <div class="dropdown-menu" id="filterMenu" role="menu">
+          <button class="mi active" type="button" data-filter="all">ทั้งหมด</button>
+          <div class="sep"></div>
+          <button class="mi" type="button" data-filter="positive"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--pos)"></span>เชิงบวก</button>
+          <button class="mi" type="button" data-filter="neutral"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--neu)"></span>เป็นกลาง</button>
+          <button class="mi" type="button" data-filter="negative"><span class="swatch" style="width:9px;height:9px;border-radius:3px;background:var(--neg)"></span>เชิงลบ</button>
         </div>
       </div>
-      <span class="operator-result-scroll-hint">เลื่อนเพื่ออ่านรีวิวทั้งหมด</span>
     </div>
 
     <!-- All -->

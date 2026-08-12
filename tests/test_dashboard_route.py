@@ -196,7 +196,7 @@ class TestAudienceDashboard(unittest.TestCase):
         self.assertIn('class="operator-review-meta"', html)
         self.assertIn('id="operator-review-R001"', html)
         self.assertIn('data-review-id="R001"', html)
-        self.assertIn("js/dashboard.js?v=20260812-context-jump1", html)
+        self.assertIn("js/dashboard.js?v=20260812-font1", html)
         self.assertIn("กรองอารมณ์", html)
         self.assertNotIn('class="metrics"', html)
         self.assertNotIn('class="panel sentiment-panel"', html)

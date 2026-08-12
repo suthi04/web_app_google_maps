@@ -394,16 +394,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // mobile nav toggle
   const toggle = document.getElementById("navToggle");
+  const sidebar = document.getElementById("sidebar");
+  const navClose = document.getElementById("navClose");
   const scrim = document.getElementById("scrim");
-  function setNavOpen(open) {
+  const mobileNav = window.matchMedia("(max-width: 760px)");
+  function setNavOpen(open, returnFocus = false) {
+    open = Boolean(open && mobileNav.matches);
     document.body.classList.toggle("nav-open", open);
     toggle?.setAttribute("aria-expanded", open ? "true" : "false");
     toggle?.setAttribute("aria-label", open ? "ปิดเมนู" : "เปิดเมนู");
+    if (sidebar && mobileNav.matches) {
+      sidebar.inert = !open;
+      sidebar.setAttribute("aria-hidden", open ? "false" : "true");
+    }
+    if (open) navClose?.focus();
+    if (!open && returnFocus) toggle?.focus();
   }
   toggle?.addEventListener("click", () => {
     setNavOpen(!document.body.classList.contains("nav-open"));
   });
-  scrim?.addEventListener("click", () => setNavOpen(false));
+  navClose?.addEventListener("click", () => setNavOpen(false, true));
+  scrim?.addEventListener("click", () => setNavOpen(false, true));
+  sidebar?.querySelectorAll(".nav a").forEach((link) => {
+    link.addEventListener("click", () => {
+      if (mobileNav.matches) setNavOpen(false);
+    });
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && document.body.classList.contains("nav-open")) {
+      setNavOpen(false, true);
+    }
+  });
+  function syncNavMode() {
+    if (mobileNav.matches) {
+      setNavOpen(false);
+      return;
+    }
+    document.body.classList.remove("nav-open");
+    toggle?.setAttribute("aria-expanded", "false");
+    toggle?.setAttribute("aria-label", "เปิดเมนู");
+    if (sidebar) {
+      sidebar.inert = false;
+      sidebar.removeAttribute("aria-hidden");
+    }
+  }
+  mobileNav.addEventListener?.("change", syncNavMode);
+  syncNavMode();
 });
 
 // Browsers may restore a page from the back/forward cache with old DOM state.

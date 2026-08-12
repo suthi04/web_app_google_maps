@@ -24,6 +24,44 @@ class TestAccessibilityMarkup(unittest.TestCase):
         self.assertIn('aria-current="page"', html)
         self.assertIn('id="analysisTracker"', html)
         self.assertIn('aria-label="ปิดการแจ้งเตือน"', html)
+        self.assertIn("family=Noto+Sans+Thai", html)
+        self.assertNotIn("IBM+Plex+Sans+Thai", html)
+        self.assertIn('aria-label="เมนูหลัก"', html)
+        self.assertIn('id="navClose"', html)
+        self.assertIn('class="nav-copy"', html)
+        self.assertIn('class="nav-active-mark"', html)
+
+    def test_sidebar_marks_each_primary_route_as_current(self):
+        client = app.app.test_client()
+        for path, label in (
+            ("/", "วิเคราะห์ใหม่"),
+            ("/history", "ผลวิเคราะห์"),
+            ("/saved", "รายการโปรด"),
+        ):
+            html = client.get(path).get_data(as_text=True)
+            current = re.search(
+                r'<a[^>]+aria-current="page"[^>]*>.*?<strong>(.*?)</strong>',
+                html,
+                re.DOTALL,
+            )
+            self.assertIsNotNone(current, path)
+            self.assertEqual(current.group(1), label)
+
+    def test_sidebar_shows_recent_analyses_as_direct_links(self):
+        item = {
+            "id": 41, "store_name": "ครัวล่าสุด", "total_reviews": 12,
+            "pct_positive": 75, "pct_neutral": 17, "pct_negative": 8,
+            "source_url": "https://maps.google.com/?cid=41",
+            "analyzed_at": "2026-08-12T12:00:00", "is_saved": 0,
+        }
+        with mock.patch.object(app.database, "list_analyses", return_value=[item]):
+            html = app.app.test_client().get("/").get_data(as_text=True)
+
+        self.assertIn('id="sidebarRecentTitle"', html)
+        self.assertIn("วิเคราะห์ล่าสุด", html)
+        self.assertIn("ครัวล่าสุด", html)
+        self.assertIn('href="/dashboard/41"', html)
+        self.assertIn("75%", html)
 
     def test_analysis_form_has_duplicate_submit_guard_and_url_bound(self):
         html = app.app.test_client().get("/").get_data(as_text=True)

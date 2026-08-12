@@ -66,14 +66,20 @@ app.after_request(add_security_headers)
 
 @app.context_processor
 def inject_globals():
+    try:
+        sidebar_recent = database.list_analyses(limit=3)
+    except Exception:
+        log.warning("Could not load recent analyses for sidebar", exc_info=True)
+        sidebar_recent = []
     return {
         "demo_mode": not config.get_apify_token(),
         "csrf_token": csrf_token(),
         "analysis_defaults": config.get_settings(),
         "min_reviews": config.MIN_REVIEWS,
         "max_reviews_cap": config.MAX_REVIEWS_CAP,
+        "sidebar_recent": sidebar_recent,
         # Bump when shared CSS/JS changes so long-lived browser caches refresh.
-        "asset_version": "20260812-context-jump1",
+        "asset_version": "20260812-font1",
     }
 
 

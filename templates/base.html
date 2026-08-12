@@ -7,7 +7,7 @@
   <title>{% block title %}InsightReview{% endblock %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=asset_version) }}">
   {% block head %}{% endblock %}
 </head>
@@ -15,33 +15,68 @@
   <a class="skip-link" href="#mainContent">ข้ามไปยังเนื้อหาหลัก</a>
   <div class="scrim" id="scrim"></div>
   <div class="layout">
-    <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <svg class="logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="32" height="32" rx="9" fill="#347970"/>
-          <circle cx="16" cy="16" r="7.5" stroke="#fff" stroke-width="2"/>
-          <circle cx="16" cy="16" r="2.4" fill="#fff"/>
-          <path d="M22 10l3.2-3.2" stroke="#bfe3dc" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <span class="name">InsightReview</span>
+    {% set nav_active = active|default(page|default('')) %}
+    {% if not nav_active and request.endpoint in ['index', 'job'] %}{% set nav_active = 'new' %}{% endif %}
+    {% if not nav_active and request.endpoint == 'dashboard' %}{% set nav_active = 'history' %}{% endif %}
+    <aside class="sidebar" id="sidebar" aria-label="เมนูหลัก">
+      <div class="sidebar-head">
+        <a class="brand" href="{{ url_for('index') }}" aria-label="InsightReview หน้าแรก">
+          <span class="brand-mark" aria-hidden="true">
+            <svg class="logo" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="32" height="32" rx="9" fill="currentColor"/>
+              <circle cx="16" cy="16" r="7.5" stroke="#fff" stroke-width="2"/>
+              <circle cx="16" cy="16" r="2.4" fill="#fff"/>
+              <path d="M22 10l3.2-3.2" stroke="#bfe3dc" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="brand-copy"><strong>InsightReview</strong></span>
+        </a>
+        <button class="sidebar-close" id="navClose" type="button" aria-label="ปิดเมนู">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg>
+        </button>
       </div>
 
-      <nav class="nav">
+      <nav class="nav" aria-label="เมนูหลัก">
         <div class="nav-group">
           <div class="nav-label">เมนู</div>
-          <a href="{{ url_for('index') }}" class="{{ 'active' if active=='new' }}"{% if active=='new' %} aria-current="page"{% endif %}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z" stroke-linejoin="round"/><path d="M18.5 14.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" stroke-linejoin="round"/></svg>
-            วิเคราะห์ใหม่
+          <a href="{{ url_for('index') }}" class="{{ 'active' if nav_active=='new' }}"{% if nav_active=='new' %} aria-current="page"{% endif %}>
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 4l1.6 4.4L18 10l-4.4 1.6L12 16l-1.6-4.4L6 10l4.4-1.6z" stroke-linejoin="round"/><path d="M18.5 14.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z" stroke-linejoin="round"/></svg></span>
+            <span class="nav-copy"><strong>วิเคราะห์ใหม่</strong></span>
+            <span class="nav-active-mark" aria-hidden="true"></span>
           </a>
-          <a href="{{ url_for('history') }}" class="{{ 'active' if active=='history' }}"{% if active=='history' %} aria-current="page"{% endif %}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12a9 9 0 1 0 2.6-6.4M3 5v4h4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8v4.2l3 1.8" stroke-linecap="round"/></svg>
-            ประวัติ
+          <a href="{{ url_for('history') }}" class="{{ 'active' if nav_active=='history' }}"{% if nav_active=='history' %} aria-current="page"{% endif %}>
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12a9 9 0 1 0 2.6-6.4M3 5v4h4" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8v4.2l3 1.8" stroke-linecap="round"/></svg></span>
+            <span class="nav-copy"><strong>ผลวิเคราะห์</strong></span>
+            <span class="nav-active-mark" aria-hidden="true"></span>
           </a>
-          <a href="{{ url_for('saved') }}" class="{{ 'active' if active=='saved' }}"{% if active=='saved' %} aria-current="page"{% endif %}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 4h12v16l-6-4-6 4V4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            รายการโปรด
+          <a href="{{ url_for('saved') }}" class="{{ 'active' if nav_active=='saved' }}"{% if nav_active=='saved' %} aria-current="page"{% endif %}>
+            <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 4h12v16l-6-4-6 4V4z" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="nav-copy"><strong>รายการโปรด</strong></span>
+            <span class="nav-active-mark" aria-hidden="true"></span>
           </a>
         </div>
+
+        {% if sidebar_recent %}
+        <section class="sidebar-recent" aria-labelledby="sidebarRecentTitle">
+          <div class="sidebar-recent-head">
+            <span id="sidebarRecentTitle">วิเคราะห์ล่าสุด</span>
+            <a href="{{ url_for('history') }}">ดูทั้งหมด</a>
+          </div>
+          <div class="sidebar-recent-list">
+            {% for item in sidebar_recent %}
+            <a class="sidebar-recent-item{% if a is defined and a.id == item.id %} is-current{% endif %}"
+               href="{{ url_for('dashboard', aid=item.id) }}"
+               title="{{ item.store_name }}">
+              <span class="sidebar-recent-dot" aria-hidden="true"></span>
+              <span class="sidebar-recent-copy">
+                <strong>{{ item.store_name }}</strong>
+                <small><b class="mono">{{ item.pct_positive|round|int }}%</b> บวก · <span class="mono">{{ item.total_reviews }}</span> รีวิว</small>
+              </span>
+            </a>
+            {% endfor %}
+          </div>
+        </section>
+        {% endif %}
       </nav>
 
       {% if demo_mode %}
