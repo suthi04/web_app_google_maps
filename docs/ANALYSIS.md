@@ -159,7 +159,12 @@ function ทำงานบน `Phrase` dataclass หนึ่งตัว (อ�
 - **จุดประสงค์:** ร้อยทุกขั้นเป็นผลลัพธ์ก้อนเดียวที่พร้อมเก็บ DB + ส่ง dashboard
 - **Return:** dict หลัก — `store_name`, `source_url`, `total_reviews`, `fetched_reviews`, `engine`,
   `extract_engine`, `analysis_narrative`, `distribution`, `aspect_summary`, `keywords`, `insights`, `reviews`,
-  `consumer_summary`, `critical_issues`
+  `consumer_summary`, `critical_issues`, `operator_plan`
+
+`operator_plan` รวม insight รายด้านกับประเด็นเฝ้าระวังเป็นรายการเดียว เรียงจาก
+สัดส่วนความคิดเห็น จำนวนรีวิวไม่ซ้ำ และหลักฐานในรีวิวชุดปัจจุบัน โดยไม่สรุปตามวันที่
+ของรีวิว ปัญหาจะได้สถานะ `ควรจัดการก่อน` เมื่อเสียงลบด้านนั้นอย่างน้อย 40% และมี
+รีวิวหลักฐานไม่ซ้ำอย่างน้อย 3 รายการ
   *(หมายเหตุ: ไม่มี `topics` แล้ว — ฟีเจอร์ "ลูกค้าพูดถึงบ่อย" ถูกถอดออกใน commit `0d54a9f`)*
 - **Logic:** scrape → preprocess → sentiment.analyze_all → aspect.tag_aspects → distribution + aspect_summary + phrase pipeline → insights + audience insights
 - **Edge case:** ถ้า `total_reviews == 0` (ไม่มีรีวิวไทย) app.py จะ flash error และ redirect กลับหน้าแรก

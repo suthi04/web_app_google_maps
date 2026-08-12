@@ -102,6 +102,7 @@ def generate_insights(
                 "aspect": aspect,
                 "aspect_th": aspect_th,
                 "level": "insufficient",
+                "sample_size": total,
                 "positive_pct": 0,
                 "negative_pct": 0,
                 "message": f"ข้อมูลด้าน{aspect_th}ยังน้อย (พบความเห็นที่กล่าวถึง {total} ครั้ง) "
@@ -170,6 +171,7 @@ def generate_insights(
             "aspect": aspect,
             "aspect_th": aspect_th,
             "level": level,
+            "sample_size": total,
             "positive_pct": pos_pct,
             "negative_pct": neg_pct,
             "message": message,

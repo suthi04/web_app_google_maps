@@ -116,7 +116,7 @@ class TestAudienceDashboard(unittest.TestCase):
         self.assertIn('id="consumerView"', html)
         self.assertIn('id="operatorView"', html)
         self.assertIn("เรื่องที่ควรรู้ก่อนไป", html)
-        self.assertIn("จุดวิกฤตและจุดเฝ้าระวัง", html)
+        self.assertIn("ลำดับสิ่งที่ร้านควรทำในรอบนี้", html)
         self.assertNotIn("Top mentions", html)
         self.assertIn('id="consumerReviews"', html)
         self.assertIn('id="evidenceDrawer"', html)
@@ -161,12 +161,24 @@ class TestAudienceDashboard(unittest.TestCase):
         verdict = html.index("ควรอ่านข้อควรระวังก่อนตัดสินใจ")
         self.assertLess(section_three, verdict)
 
-    def test_operator_watchlist_closes_the_report(self):
-        html = _get_dashboard(_payload())
-        self.assertLess(
-            html.index("แนวทางพัฒนาร้าน"),
-            html.index("Priority watchlist"),
-        )
+    def test_operator_view_uses_one_ranked_plan_without_duplicate_sections(self):
+        payload = _payload()
+        payload["aspect_summary"] = {
+            "service": {"positive": 5, "neutral": 1, "negative": 4, "total": 10},
+        }
+        payload["keywords"] = {
+            "service": {"positive": [], "neutral": [], "negative": [{
+                "word": "รอนาน", "count": 3, "review_count": 3,
+                "evidence_review_ids": ["R001", "R002", "R003"],
+            }]},
+        }
+        html = _get_dashboard(payload)
+        self.assertIn('id="operatorPlanTitle"', html)
+        self.assertIn("ไม่ได้จัดลำดับตามวันที่ของรีวิว", html)
+        self.assertIn("ตรวจผลในรอบถัดไป", html)
+        self.assertIn("ข้อมูลประกอบการตัดสินใจ", html)
+        self.assertNotIn("แนวทางพัฒนาร้าน", html)
+        self.assertNotIn("จุดวิกฤตและจุดเฝ้าระวัง", html)
         self.assertIn('class="model-menu"', html)
         self.assertIn('class="model-group sentiment-group"', html)
         self.assertIn('class="model-group extract-group"', html)

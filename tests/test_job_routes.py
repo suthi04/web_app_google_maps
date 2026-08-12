@@ -21,7 +21,7 @@ class TestJobRoutes(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"/api/jobs/abc123", response.data)
         self.assertIn(b"js/job.js", response.data)
-        self.assertIn(b"20260810-delete-all1", response.data)
+        self.assertIn(b"20260812-operator-plan1", response.data)
         self.assertIn(b'data-job-id="abc123"', response.data)
         self.assertIn(b'data-job-url="/jobs/abc123"', response.data)
         self.assertIn("ออกจากหน้านี้ได้ ระบบจะวิเคราะห์ต่อ".encode(), response.data)

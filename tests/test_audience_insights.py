@@ -71,6 +71,38 @@ class TestConsumerSummary(unittest.TestCase):
         )
         self.assertNotIn("ยิ้มแย้มดีมาก", {item["text"] for item in issues})
 
+    def test_operator_plan_ranks_evidence_without_calendar_claims(self):
+        actionable = insights.generate_insights(_aspect_summary(), _keywords())
+        issues = audience_insights.build_critical_issues(
+            _keywords(), _aspect_summary()
+        )
+        plan = audience_insights.build_operator_plan(actionable, issues)
+
+        self.assertEqual(len(plan["items"]), 3)
+        service = next(item for item in plan["items"] if item["aspect"] == "service")
+        self.assertEqual(service["rank"], 1)
+        self.assertEqual(service["priority"], "improve")
+        self.assertEqual(service["priority_label"], "ควรปรับปรุง")
+        self.assertEqual(service["evidence_count"], 2)
+        self.assertIn("รอบถัดไป", service["measure"])
+        self.assertNotIn("วันนี้", service["measure"])
+
+    def test_operator_plan_requires_three_reviews_for_top_priority(self):
+        keywords = _keywords()
+        service_issue = keywords["service"]["negative"][0]
+        service_issue["review_count"] = 3
+        service_issue["evidence_review_ids"] = ["R008", "R009", "R011"]
+        actionable = insights.generate_insights(_aspect_summary(), keywords)
+        issues = audience_insights.build_critical_issues(
+            keywords, _aspect_summary()
+        )
+        plan = audience_insights.build_operator_plan(actionable, issues)
+
+        service = next(item for item in plan["items"] if item["aspect"] == "service")
+        self.assertEqual(service["priority"], "first")
+        self.assertEqual(service["priority_label"], "ควรจัดการก่อน")
+        self.assertEqual(plan["counts"]["first"], 1)
+
     def test_gemini_overview_and_visit_tip_keep_review_evidence(self):
         narrative = {
             "overview": {

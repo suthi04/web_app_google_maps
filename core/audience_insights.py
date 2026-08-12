@@ -346,6 +346,119 @@ def build_critical_issues(
     return result
 
 
+def build_operator_plan(
+    actionable_insights: list[dict] | None,
+    critical_issues: list[dict] | None,
+) -> dict:
+    """Turn the owner report into one ranked, evidence-led action plan.
+
+    Priority is based on the current review batch, never on calendar claims.  A
+    problem needs at least three distinct supporting reviews and a strong
+    negative ratio before it can be labelled as the first thing to handle.
+    """
+    issues_by_aspect: dict[str, list[dict]] = {}
+    for issue in critical_issues or []:
+        issues_by_aspect.setdefault(issue.get("aspect"), []).append(issue)
+
+    items = []
+    for insight in actionable_insights or []:
+        aspect = insight.get("aspect")
+        aspect_th = insight.get("aspect_th") or ASPECT_LABELS_TH.get(aspect, aspect)
+        level = insight.get("level") or "insufficient"
+        related_issue = (issues_by_aspect.get(aspect) or [{}])[0]
+        insight_ids = insight.get("evidence_review_ids") or []
+        issue_ids = related_issue.get("evidence_review_ids") or []
+        evidence_ids = list(dict.fromkeys([*insight_ids, *issue_ids]))
+        evidence_count = len(evidence_ids)
+        positive_pct = int(insight.get("positive_pct") or 0)
+        negative_pct = int(insight.get("negative_pct") or 0)
+        sample_size = int(insight.get("sample_size") or 0)
+        topic = related_issue.get("text")
+        if not topic:
+            evidence = insight.get("evidence") or []
+            topic = evidence[0].get("text") if evidence else ""
+
+        if level == "improve" and negative_pct >= 40 and evidence_count >= 3:
+            priority = "first"
+            priority_label = "ควรจัดการก่อน"
+            score = 400 + negative_pct + min(evidence_count, 10) * 3
+        elif level == "improve":
+            priority = "improve"
+            priority_label = "ควรปรับปรุง"
+            score = 300 + negative_pct + min(evidence_count, 10) * 2
+        elif level == "neutral":
+            priority = "monitor"
+            priority_label = "ควรติดตาม"
+            score = 200 + negative_pct + evidence_count
+        elif level == "strength":
+            priority = "maintain"
+            priority_label = "ควรรักษาไว้"
+            score = 100 + positive_pct + evidence_count
+        else:
+            priority = "collect"
+            priority_label = "เก็บข้อมูลเพิ่ม"
+            score = sample_size
+
+        if level == "improve":
+            headline = topic or f"ลดเสียงลบด้าน{aspect_th}"
+            measure = (
+                f"วิเคราะห์ร้านเดิมในรอบถัดไป แล้วตรวจว่าเสียงลบด้าน{aspect_th}"
+                + (f"และประเด็น “{topic}” " if topic else " ")
+                + "ลดลงจากรอบนี้หรือไม่"
+            )
+        elif level == "strength":
+            headline = topic or f"รักษาจุดแข็งด้าน{aspect_th}"
+            measure = (
+                f"วิเคราะห์ร้านเดิมในรอบถัดไป แล้วตรวจว่าเสียงบวกด้าน{aspect_th}"
+                + (f"และคำชม “{topic}” " if topic else " ")
+                + "ยังเป็นสัญญาณหลักอยู่หรือไม่"
+            )
+        elif level == "neutral":
+            headline = topic or f"ติดตามเสียงลูกค้าด้าน{aspect_th}"
+            measure = (
+                f"เก็บรีวิวเพิ่ม แล้วตรวจว่าสัดส่วนเสียงบวกหรือลบด้าน{aspect_th}"
+                "เริ่มเปลี่ยนไปทางใดทางหนึ่งชัดเจนหรือไม่"
+            )
+        else:
+            headline = f"ข้อมูลด้าน{aspect_th}ยังไม่พอ"
+            measure = (
+                f"เก็บรีวิวที่กล่าวถึงด้าน{aspect_th}เพิ่มก่อน แล้วจึงประเมินใหม่"
+                "โดยยังไม่รีบเปลี่ยนวิธีดำเนินงาน"
+            )
+
+        items.append({
+            "aspect": aspect,
+            "aspect_th": aspect_th,
+            "priority": priority,
+            "priority_label": priority_label,
+            "score": score,
+            "headline": headline,
+            "reason": insight.get("reason") or insight.get("message") or "",
+            "action": insight.get("strategy") or "",
+            "measure": measure,
+            "positive_pct": positive_pct,
+            "negative_pct": negative_pct,
+            "sample_size": sample_size,
+            "evidence_review_ids": evidence_ids,
+            "evidence_count": evidence_count,
+            "source": insight.get("source") or "rule",
+        })
+
+    items.sort(key=lambda item: (-item["score"], item.get("aspect") or ""))
+    for rank, item in enumerate(items, start=1):
+        item["rank"] = rank
+
+    counts = {
+        key: sum(item["priority"] == key for item in items)
+        for key in ("first", "improve", "monitor", "maintain", "collect")
+    }
+    return {
+        "items": items,
+        "counts": counts,
+        "basis": "จัดอันดับจากสัดส่วนความคิดเห็น จำนวนรีวิวไม่ซ้ำ และหลักฐานในรีวิวชุดนี้",
+    }
+
+
 def enrich_result(result: dict) -> dict:
     """Add presentation fields to new or legacy persisted results in-place."""
     _prepare_evidence(result)
@@ -374,5 +487,8 @@ def enrich_result(result: dict) -> dict:
         result.get("keywords") or {},
         result.get("aspect_summary") or {},
         planning_insights,
+    )
+    result["operator_plan"] = build_operator_plan(
+        result.get("insights") or [], result["critical_issues"]
     )
     return result

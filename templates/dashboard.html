@@ -348,6 +348,78 @@
 </section>
 
 <section class="persona-view" id="operatorView" role="tabpanel" aria-labelledby="operatorTab" hidden>
+<!-- Ranked operator action plan: one source of truth, without calendar claims -->
+<section class="panel operator-plan" aria-labelledby="operatorPlanTitle">
+  <div class="operator-plan-head">
+    <div>
+      <div class="operator-plan-kicker">สรุปสำหรับเจ้าของร้าน · รีวิวชุดนี้</div>
+      <h2 id="operatorPlanTitle">ลำดับสิ่งที่ร้านควรทำในรอบนี้</h2>
+      <p>{{ a.operator_plan.basis }} ผลนี้ไม่ได้จัดลำดับตามวันที่ของรีวิว</p>
+    </div>
+    <div class="operator-plan-summary" aria-label="สรุปลำดับงาน">
+      <span class="first"><b class="mono">{{ a.operator_plan.counts.first }}</b> จัดการก่อน</span>
+      <span class="improve"><b class="mono">{{ a.operator_plan.counts.improve }}</b> ควรปรับ</span>
+      <span class="maintain"><b class="mono">{{ a.operator_plan.counts.maintain }}</b> รักษาไว้</span>
+      <span><b class="mono">{{ a.operator_plan.counts.monitor + a.operator_plan.counts.collect }}</b> ติดตาม</span>
+    </div>
+  </div>
+
+  <div class="operator-plan-list">
+    {% for item in a.operator_plan['items'] %}
+    <article class="operator-task {{ item.priority }}{% if loop.first %} lead{% endif %}">
+      <header class="operator-task-head">
+        <div class="operator-task-rank mono">{{ "%02d"|format(item.rank) }}</div>
+        <div class="operator-task-title">
+          <span>{{ item.aspect_th }}</span>
+          <h3>{{ item.headline }}</h3>
+        </div>
+        <div class="operator-task-labels">
+          {% if item.source == 'gemini' %}<span class="gemini-insight-pill">Gemini + หลักฐานจริง</span>{% endif %}
+          <span class="operator-priority-pill">{{ item.priority_label }}</span>
+        </div>
+      </header>
+
+      <div class="operator-task-signals">
+        {% if item.sample_size %}<span><b class="mono">{{ item.sample_size }}</b> ความเห็นด้านนี้</span>{% endif %}
+        {% if item.priority != 'collect' %}
+        <span class="positive"><b class="mono">{{ item.positive_pct }}%</b> บวก</span>
+        <span class="negative"><b class="mono">{{ item.negative_pct }}%</b> ลบ</span>
+        {% endif %}
+        <span><b class="mono">{{ item.evidence_count }}</b> รีวิวหลักฐาน</span>
+      </div>
+
+      <div class="operator-task-body">
+        <div class="operator-task-context">
+          <strong>ทำไมเรื่องนี้จึงอยู่ลำดับนี้</strong>
+          <p>{{ item.reason }}</p>
+        </div>
+        <div class="operator-task-action">
+          <strong>สิ่งที่ร้านทำได้</strong>
+          <p>{{ item.action }}</p>
+        </div>
+      </div>
+      <div class="operator-task-check">
+        <span aria-hidden="true">↗</span>
+        <div><strong>ตรวจผลในรอบถัดไป</strong><p>{{ item.measure }}</p></div>
+      </div>
+      <footer class="operator-task-footer">
+        {{ evidence_button(item.evidence_review_ids, item.headline, 'เปิดดูรีวิวที่ใช้จัดอันดับ') }}
+      </footer>
+    </article>
+    {% else %}
+    <div class="operator-plan-empty">
+      <strong>ข้อมูลยังไม่พอสำหรับจัดลำดับงาน</strong>
+      <p>วิเคราะห์รีวิวเพิ่มก่อน ระบบจึงจะแยกเรื่องที่ควรปรับ จุดแข็ง และสิ่งที่ควรติดตามได้</p>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<div class="operator-detail-divider">
+  <span>ข้อมูลประกอบการตัดสินใจ</span>
+  <p>ดูสัดส่วน รีวิวรายรายการ และคำที่ลูกค้าพูดถึงเพิ่มเติมด้านล่าง</p>
+</div>
+
 <!-- Metric cards -->
 <div class="metrics">
   <div class="metric pos">
@@ -499,61 +571,6 @@
   </div>
 </div>
 
-<!-- Insights -->
-<div class="panel actionable-panel" style="margin-top:14px">
-  <div class="panel-head">
-    <div>
-      <div class="actionable-kicker">สรุปสำหรับเจ้าของร้าน</div>
-      <h3>แนวทางพัฒนาร้าน</h3>
-      <div class="sub-h">คำแนะนำจากเสียงของลูกค้า แยกตามแต่ละด้านของร้าน</div>
-    </div>
-  </div>
-  <div class="insights-grid">
-    {% for ins in a.insights %}
-    <article class="insight {{ ins.level }}">
-      <header class="insight-card-head">
-        <div class="insight-identity">
-          <div class="ic">
-            {% if ins.aspect=='food' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 3v7a3 3 0 0 0 6 0V3M7 10v11M18 3c-2 0-3 2-3 5s1 4 3 4v9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            {% elif ins.aspect=='service' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 4a3 3 0 0 1 0 6M21 21v-2a4 4 0 0 0-3-3.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            {% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6" stroke-linecap="round" stroke-linejoin="round"/></svg>{% endif %}
-          </div>
-          <div><span class="insight-aspect-label">ด้านที่วิเคราะห์</span><h4 class="insight-title">{{ ins.aspect_th }}</h4></div>
-        </div>
-        <div class="insight-meta">
-          {% if ins.get('source') == 'gemini' %}<span class="gemini-insight-pill">Gemini + หลักฐานจริง</span>{% endif %}
-          <span class="tagline">{{ LEVEL_TH[ins.level] }}</span>
-        </div>
-      </header>
-      <div class="insight-strategy"><strong>สิ่งที่ร้านทำได้</strong><p>{{ ins.strategy }}</p></div>
-      <div class="insight-reason"><strong>เสียงจากลูกค้า</strong><p>{{ ins.reason or ins.message }}</p></div>
-      {% if ins.evidence %}<div class="insight-evidence-wrap"><span>ประเด็นที่ถูกพูดถึง</span><div class="insight-evidence">{% for ev in ins.evidence %}<button class="evidence-trigger" type="button" data-evidence="{{ ev.evidence_review_ids|join(',') }}" data-evidence-query="{{ ev.text }}"{% if not ev.evidence_review_ids %} disabled{% endif %}>{{ ev.text }} <b class="mono">{{ ev.review_count or ev.count }}</b></button>{% endfor %}</div></div>{% endif %}
-      <div class="insight-footer">{{ evidence_button(ins.evidence_review_ids, '', 'เปิดดูรีวิวจริง') }}</div>
-    </article>
-    {% endfor %}
-  </div>
-</div>
-
-<!-- Priority watchlist intentionally closes the operator report -->
-<section class="panel critical-panel report-ending">
-  <div class="panel-head">
-    <div><div class="panel-kicker">รายการที่ต้องติดตาม · ท้ายรายงาน</div><h3>จุดวิกฤตและจุดเฝ้าระวัง</h3><div class="sub-h">สิ่งที่ร้านควรกลับมาตรวจหลังเห็นภาพรวมทั้งหมด พร้อมกลยุทธ์แก้ไขที่วัดผลได้</div></div>
-    <span class="critical-count mono">{{ a.critical_issues|length }} สัญญาณ</span>
-  </div>
-  {% if a.critical_issues %}
-  <div class="critical-grid">
-    {% for issue in a.critical_issues %}
-    <article class="critical-card {{ issue.severity }}">
-      <div class="critical-top"><span class="severity-pill">{{ 'จุดวิกฤต' if issue.severity == 'critical' else 'เฝ้าระวัง' }}</span><span>{{ issue.aspect_th }}</span></div>
-      <h4>{{ issue.text }}</h4>
-      <p class="critical-why">{{ issue.why }}</p>
-      {{ evidence_button(issue.evidence_review_ids, issue.text) }}
-      <div class="strategy-box"><strong>กลยุทธ์แนะนำ</strong><p>{{ issue.strategy }}</p></div>
-    </article>
-    {% endfor %}
-  </div>
-  {% else %}<p class="consumer-empty positive-empty">ยังไม่พบสัญญาณลบที่มีหลักฐานเพียงพอในรอบนี้ ควรติดตามรีวิวใหม่อย่างต่อเนื่อง</p>{% endif %}
-</section>
 </section>
 
 <div class="evidence-drawer-shell" id="evidenceDrawer" hidden>

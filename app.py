@@ -73,7 +73,7 @@ def inject_globals():
         "min_reviews": config.MIN_REVIEWS,
         "max_reviews_cap": config.MAX_REVIEWS_CAP,
         # Bump when shared CSS/JS changes so long-lived browser caches refresh.
-        "asset_version": "20260810-delete-all1",
+        "asset_version": "20260812-operator-plan1",
     }
 
 
@@ -265,11 +265,11 @@ def dashboard(aid):
     # Normalize provenance on every read so legacy analyses gain stable review
     # IDs where exact evidence can be reconstructed. Presentation fields are
     # deterministic and intentionally recomputed from the persisted analysis.
-    audience_insights.enrich_result(data)
     data["insights"] = insights.generate_insights(
         data.get("aspect_summary") or {}, data.get("keywords") or {},
         narrative=data.get("analysis_narrative") or {},
     )
+    audience_insights.enrich_result(data)
     return render_template(
         "dashboard.html", a=data, aspect_examples=_aspect_examples(data)
     )
