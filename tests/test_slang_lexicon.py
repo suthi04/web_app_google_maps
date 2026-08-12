@@ -111,6 +111,25 @@ class TestContemporaryThaiLexicon(unittest.TestCase):
             "negative",
         )
 
+    def test_fallback_does_not_match_polarity_inside_unrelated_words(self):
+        self.assertEqual(sentiment._predict_lexicon(["เงินสด"]), "neutral")
+        self.assertEqual(sentiment._predict_lexicon(["อาหารจานเดียว"]), "neutral")
+
+    def test_new_clear_slang_is_readable_and_negative(self):
+        cases = [
+            (["อาหาร", "เย็นชืด"], "อาหารเย็นชืด"),
+            (["เค็ม", "ปี๋"], "เค็มเกินไป"),
+            (["หวาน", "ตัด", "ขา"], "หวานเกินไป"),
+            (["รอ", "จน", "ท้อ"], "รอนานมาก"),
+        ]
+        for tokens, display in cases:
+            phrase = next(
+                p for p in prepared_phrases(tokens)
+                if p.pattern == "idiom"
+            )
+            self.assertEqual(phrase.display, display)
+            self.assertEqual(sentiment.classify_phrase(phrase, use_model=False), "negative")
+
 
 if __name__ == "__main__":
     unittest.main()

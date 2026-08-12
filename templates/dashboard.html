@@ -343,6 +343,11 @@
       {% endfor %}
     </div>
     <p class="consumer-review-empty" id="consumerReviewEmpty" hidden>ไม่พบรีวิวที่ตรงกับตัวกรองหรือคำค้นหา</p>
+    <nav class="review-pagination" id="consumerReviewPagination" aria-label="เปลี่ยนหน้ารายการรีวิวผู้บริโภค">
+      <button type="button" data-page-action="previous" aria-label="ไปหน้ารีวิวก่อนหน้า">ย้อนกลับ</button>
+      <span aria-live="polite"><b class="mono" data-page-current>1</b> / <span class="mono" data-page-total>1</span></span>
+      <button type="button" data-page-action="next" aria-label="ไปหน้ารีวิวถัดไป">ถัดไป</button>
+    </nav>
   </section>
 </section>
 
@@ -461,23 +466,31 @@
         <span><b class="mono">{{ item.evidence_count }}</b> รีวิวหลักฐาน</span>
       </div>
 
-      <div class="operator-task-body">
-        <div class="operator-task-context">
-          <strong>ทำไมเรื่องนี้จึงอยู่ลำดับนี้</strong>
-          <p>{{ item.reason }}</p>
+      <details class="operator-task-detail"{% if loop.first %} open{% endif %}>
+        <summary>
+          <span>เหตุผล วิธีทำ และเกณฑ์ติดตาม</span>
+          <b aria-hidden="true">⌄</b>
+        </summary>
+        <div class="operator-task-detail-content">
+          <div class="operator-task-body">
+            <div class="operator-task-context">
+              <strong>ทำไมเรื่องนี้จึงอยู่ลำดับนี้</strong>
+              <p>{{ item.reason }}</p>
+            </div>
+            <div class="operator-task-action">
+              <strong>สิ่งที่ร้านทำได้</strong>
+              <p>{{ item.action }}</p>
+            </div>
+          </div>
+          <div class="operator-task-check">
+            <span aria-hidden="true">↗</span>
+            <div><strong>ตรวจผลในรอบถัดไป</strong><p>{{ item.measure }}</p></div>
+          </div>
+          <footer class="operator-task-footer">
+            {{ evidence_button(item.evidence_review_ids, item.headline, 'เปิดดูรีวิวที่ใช้จัดอันดับ') }}
+          </footer>
         </div>
-        <div class="operator-task-action">
-          <strong>สิ่งที่ร้านทำได้</strong>
-          <p>{{ item.action }}</p>
-        </div>
-      </div>
-      <div class="operator-task-check">
-        <span aria-hidden="true">↗</span>
-        <div><strong>ตรวจผลในรอบถัดไป</strong><p>{{ item.measure }}</p></div>
-      </div>
-      <footer class="operator-task-footer">
-        {{ evidence_button(item.evidence_review_ids, item.headline, 'เปิดดูรีวิวที่ใช้จัดอันดับ') }}
-      </footer>
+      </details>
     </article>
     {% else %}
     <div class="operator-plan-empty">
@@ -488,6 +501,22 @@
   </div>
 </section>
 
+<details class="operator-deep-dive">
+  <summary>
+    <span class="operator-deep-dive-step" aria-hidden="true"><b>02</b><i></i><b>03</b></span>
+    <span class="operator-deep-dive-copy">
+      <small><span></span> แผนปฏิบัติการสำหรับทีม</small>
+      <strong>ลงมือทำอย่างไร และวัดผลอะไรต่อ</strong>
+      <em>เปิดดูแนวทางแก้จุดสะดุด ขยายจุดแข็ง และเกณฑ์เช็กรอบถัดไป</em>
+    </span>
+    <span class="operator-deep-dive-preview" aria-hidden="true">
+      <span><i>!</i><b>{{ a.operator_plan.playbook.risks|length }}</b><small>เรื่องควรแก้</small></span>
+      <span><i>↗</i><b>{{ a.operator_plan.playbook.opportunities|length }}</b><small>โอกาสต่อยอด</small></span>
+      <span><i>✓</i><b>{{ a.operator_plan.next_checks|length }}</b><small>จุดติดตาม</small></span>
+    </span>
+    <span class="operator-deep-dive-action"><span>เปิดแผน</span><b aria-hidden="true">⌄</b></span>
+  </summary>
+  <div class="operator-deep-dive-content">
 <section class="operator-playbook" aria-labelledby="operatorPlaybookTitle">
   <div class="operator-section-heading">
     <div>
@@ -562,6 +591,8 @@
     {% endfor %}
   </div>
 </section>
+  </div>
+</details>
 
 <div class="lower operator-result-only">
   <section class="panel result-panel operator-result-panel" aria-labelledby="operatorResultsTitle">
@@ -626,6 +657,11 @@
           {% endfor %}
         </tbody>
       </table>
+      <nav class="review-pagination operator-review-pagination" id="operatorReviewPagination" aria-label="เปลี่ยนหน้ารายการรีวิวผู้ประกอบการ">
+        <button type="button" data-page-action="previous" aria-label="ไปหน้ารีวิวก่อนหน้า">ย้อนกลับ</button>
+        <span aria-live="polite"><b class="mono" data-page-current>1</b> / <span class="mono" data-page-total>1</span></span>
+        <button type="button" data-page-action="next" aria-label="ไปหน้ารีวิวถัดไป">ถัดไป</button>
+      </nav>
     </div>
 
     <!-- Keywords -->

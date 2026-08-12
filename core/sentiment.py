@@ -15,7 +15,7 @@ import logging
 
 import config
 from core.lexicon import IDIOMS, SENTIMENT_WORDS
-from core.negation import starts_with_negator, word_polarity
+from core.negation import word_polarity
 
 _POS = set(SENTIMENT_WORDS["positive"])
 _NEG = set(SENTIMENT_WORDS["negative"])
@@ -118,13 +118,6 @@ def _predict_lexicon(tokens: list, clean_text: str | None = None) -> str:
     phrase_pos, phrase_neg = _idiom_polarity_counts(clean_text)
     pos += phrase_pos
     neg += phrase_neg
-
-    if pos == 0 and neg == 0:
-        # เผื่อคำที่ไม่ถูกตัดแยก ลองเช็คแบบ substring กับข้อความรวม
-        # ข้ามโทเคนที่ขึ้นต้นด้วยคำปฏิเสธ กันนับ "สะอาด" ใน "ไม่สะอาด" เป็นบวก
-        joined = "".join(t for t in tokens if not starts_with_negator(t))
-        pos = sum(1 for w in _POS if w in joined)
-        neg = sum(1 for w in _NEG if w in joined)
 
     if pos == 0 and neg == 0:
         return "neutral"

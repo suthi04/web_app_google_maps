@@ -15,6 +15,9 @@ preprocess.py
 import re
 
 from core import clause, negation
+from core.lexicon import SENTIMENT_WORDS
+
+_POLAR_WORDS = set(SENTIMENT_WORDS["positive"]) | set(SENTIMENT_WORDS["negative"])
 
 # พยายาม import PyThaiNLP — ถ้าไม่มีก็ใช้ fallback
 try:
@@ -74,7 +77,12 @@ def tokenize(text: str) -> list:
 
 
 def remove_stopwords(tokens: list) -> list:
-    return [t for t in tokens if t not in _STOPWORDS and t.strip()]
+    # PyThaiNLP marks a few opinion words (for example "รวดเร็ว") as stopwords.
+    # Preserve known polarity words or the fallback silently loses useful signal.
+    return [
+        t for t in tokens
+        if t.strip() and (t not in _STOPWORDS or t in _POLAR_WORDS)
+    ]
 
 
 def preprocess_review(text: str) -> dict:

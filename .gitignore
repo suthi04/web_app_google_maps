@@ -10,6 +10,7 @@ insightreview.db
 server.log
 .env
 data/phrase_annotations_*.json
+data/sentiment_label_queue.json
 eval/phrase_report.json
 eval/phrase_report.txt
 eval/phrase_errors.json

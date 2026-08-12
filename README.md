@@ -329,9 +329,19 @@ USE_MODEL=1 python eval/evaluate.py     # ประเมิน WangchanBERTa �
 Cohen's Kappa — พิมพ์ออกจอ + บันทึก `eval/report.txt`, `eval/confusion_matrix.csv`
 (และ `confusion_matrix.png` ถ้ามี matplotlib) คำนวณ metric เองทั้งหมด ไม่พึ่ง scikit-learn
 
+ทดสอบภาษาพูด สแลง ประโยคกลาง และคำปฏิเสธแยกจากคะแนนหลัก:
+```bash
+python eval/challenge_evaluate.py
+python eval/challenge_evaluate.py --engine rule   # ตรวจ fallback แบบไม่โหลดโมเดล
+```
+ชุด `data/sentiment_challenge_reviews.json` เป็น **curated challenge set 90 ประโยค**
+จึงใช้หา edge case เท่านั้นและไม่ถูกรวมกับคะแนน gold standard 60 รีวิว เพื่อไม่ให้ตัวเลข
+ดูดีเกินจริง
+
 ขยายชุดทดสอบให้ใหญ่ขึ้น (น่าเชื่อถือกว่า) ด้วยเครื่องมือช่วยติด label:
 ```bash
 python eval/label_tool.py               # ติด label ทีละรีวิว (p/u/n/s/q) ต่อท้ายไฟล์ gold
+python -m eval.build_sentiment_queue --target 300  # เตรียมรีวิวจริงในเครื่องสำหรับติด label
 ```
 
 ขั้นตอนทำวิจัยแบบครบวงจร: วิเคราะห์ร้านจริง → Export "รีวิวสำหรับติด label (JSON)"

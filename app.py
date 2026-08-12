@@ -79,7 +79,7 @@ def inject_globals():
         "max_reviews_cap": config.MAX_REVIEWS_CAP,
         "sidebar_recent": sidebar_recent,
         # Bump when shared CSS/JS changes so long-lived browser caches refresh.
-        "asset_version": "20260812-font1",
+        "asset_version": "20260812-ux3",
     }
 
 

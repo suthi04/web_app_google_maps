@@ -35,18 +35,21 @@ LABELS = ["positive", "neutral", "negative"]
 LABELS_TH = {"positive": "บวก", "neutral": "กลาง", "negative": "ลบ"}
 
 
-def load_dataset():
-    path = os.path.join(ROOT, "data", "labeled_reviews.json")
+def load_dataset(path=None):
+    path = path or os.path.join(ROOT, "data", "labeled_reviews.json")
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
     return [r for r in data["reviews"] if r.get("label") in LABELS]
 
 
-def predict_all(items):
+def predict_all(items, use_model=None):
     y_true, y_pred = [], []
     for it in items:
         pp = preprocess.preprocess_review(it["text"])
-        pred = sentiment.predict({"clean": pp["clean"], "tokens": pp["tokens"]})
+        pred = sentiment.predict(
+            {"clean": pp["clean"], "tokens": pp["tokens"]},
+            use_model=use_model,
+        )
         y_true.append(it["label"])
         y_pred.append(pred)
     return y_true, y_pred
@@ -87,7 +90,9 @@ def cohen_kappa(y_true, y_pred):
     return (po - pe) / (1 - pe) if (1 - pe) else 0.0
 
 
-def build_report(items, y_true, y_pred):
+def build_report(
+    items, y_true, y_pred, *, title=None, dataset_label=None, engine_label=None
+):
     cm = confusion_matrix(y_true, y_pred)
     pcm = per_class_metrics(cm)
     n = len(items)
@@ -98,9 +103,11 @@ def build_report(items, y_true, y_pred):
 
     L = []
     L.append("=" * 60)
-    L.append("  InsightReview — รายงานผลการประเมินโมเดลวิเคราะห์อารมณ์")
+    L.append(title or "  InsightReview — รายงานผลการประเมินโมเดลวิเคราะห์อารมณ์")
     L.append("=" * 60)
-    L.append(f"  Engine ที่ใช้   : {sentiment.engine_name()}")
+    L.append(f"  Engine ที่ใช้   : {engine_label or sentiment.engine_name()}")
+    if dataset_label:
+        L.append(f"  ชุดข้อมูล       : {dataset_label}")
     L.append(f"  จำนวนตัวอย่าง  : {n} รีวิว")
     L.append(f"  Accuracy       : {accuracy:.4f}  ({accuracy*100:.1f}%)")
     L.append(f"  Macro-F1       : {macro_f1:.4f}")
@@ -126,12 +133,12 @@ def build_report(items, y_true, y_pred):
     return "\n".join(L), cm
 
 
-def save_outputs(report_text, cm):
+def save_outputs(report_text, cm, *, prefix=""):
     eval_dir = os.path.join(ROOT, "eval")
-    with open(os.path.join(eval_dir, "report.txt"), "w", encoding="utf-8") as f:
+    with open(os.path.join(eval_dir, f"{prefix}report.txt"), "w", encoding="utf-8") as f:
         f.write(report_text + "\n")
     # CSV ของ confusion matrix
-    with open(os.path.join(eval_dir, "confusion_matrix.csv"), "w", encoding="utf-8") as f:
+    with open(os.path.join(eval_dir, f"{prefix}confusion_matrix.csv"), "w", encoding="utf-8") as f:
         f.write("true\\pred," + ",".join(LABELS) + "\n")
         for t in LABELS:
             f.write(t + "," + ",".join(str(cm[t][p]) for p in LABELS) + "\n")
@@ -153,7 +160,7 @@ def save_outputs(report_text, cm):
                         color="white" if mat[i][j] > max(max(mat)) / 2 else "black")
         fig.colorbar(im, fraction=0.046, pad=0.04)
         fig.tight_layout()
-        fig.savefig(os.path.join(eval_dir, "confusion_matrix.png"), dpi=150)
+        fig.savefig(os.path.join(eval_dir, f"{prefix}confusion_matrix.png"), dpi=150)
         return True
     except Exception:
         return False
