@@ -141,7 +141,7 @@ class TestConsumerSummary(unittest.TestCase):
         self.assertNotIn("วันนี้", plan["brief"]["detail"])
         self.assertEqual(len(plan["next_checks"]), 3)
 
-    def test_operator_strength_only_brief_uses_plain_customer_language(self):
+    def test_operator_strength_only_brief_uses_consistent_focus_language(self):
         plan = audience_insights.build_operator_plan([{
             "aspect": "food",
             "aspect_th": "อาหาร",
@@ -153,10 +153,10 @@ class TestConsumerSummary(unittest.TestCase):
             "evidence": [{"text": "อาหารอร่อย"}],
         }], [])
 
-        self.assertEqual(plan["brief"]["headline"], "ลูกค้าชอบอาหารของร้าน")
+        self.assertEqual(plan["brief"]["headline"], "จุดที่ร้านควรใส่ใจก่อน")
         self.assertEqual(
             plan["brief"]["detail"],
-            "รีวิวส่วนใหญ่พูดถึงอาหารในทางบวก ควรรักษาคุณภาพจุดนี้ให้ดีเหมือนเดิม",
+            "เรื่องอาหารถูกพูดถึงมากที่สุดในรีวิวชุดนี้",
         )
         self.assertNotIn("จุดจำที่ทำซ้ำได้", plan["brief"]["headline"])
         self.assertNotIn("ถอดเป็นมาตรฐาน", plan["brief"]["detail"])
