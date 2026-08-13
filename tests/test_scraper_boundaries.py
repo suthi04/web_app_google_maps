@@ -22,7 +22,47 @@ def _response(payload=None, error=None):
     return response
 
 
+def _redirect_response(url, status_code=200):
+    response = mock.Mock()
+    response.status_code = status_code
+    response.url = url
+    response.raise_for_status.side_effect = (
+        None if status_code < 400 else requests.HTTPError("private upstream detail")
+    )
+    return response
+
+
 class TestApifyResponseBoundaries(unittest.TestCase):
+    def test_short_maps_url_is_expanded_before_actor_request(self):
+        short_url = "https://maps.app.goo.gl/abc123"
+        direct_url = "https://www.google.com/maps/place/example/data=!4m2"
+        redirect = _redirect_response(direct_url)
+        actor_response = _response([])
+        with (
+            mock.patch.object(config, "get_apify_token", return_value="token"),
+            mock.patch.object(scraper.requests, "get", return_value=redirect) as get,
+            mock.patch.object(scraper.requests, "post", return_value=actor_response) as post,
+        ):
+            scraper._fetch_from_apify(short_url, 10)
+
+        get.assert_called_once()
+        self.assertEqual(
+            post.call_args.kwargs["json"]["startUrls"], [{"url": direct_url}]
+        )
+        redirect.close.assert_called_once_with()
+
+    def test_short_maps_url_redirecting_off_google_is_rejected(self):
+        redirect = _redirect_response("https://evil.example/maps/place/fake")
+        with mock.patch.object(scraper.requests, "get", return_value=redirect):
+            with self.assertRaisesRegex(RuntimeError, "ไม่ได้ชี้ไป"):
+                scraper._resolve_maps_url("https://maps.app.goo.gl/abc123")
+
+    def test_direct_maps_url_does_not_need_network_resolution(self):
+        direct_url = "https://www.google.com/maps/place/example"
+        with mock.patch.object(scraper.requests, "get") as get:
+            self.assertEqual(scraper._resolve_maps_url(direct_url), direct_url)
+        get.assert_not_called()
+
     @mock.patch.object(config, "get_apify_token", return_value="secret-token")
     def test_network_error_does_not_leak_token_or_request_url(self, _token):
         private_error = requests.ConnectionError(

@@ -84,37 +84,18 @@
   document.addEventListener("click", () => setFilterOpen(false));
   filterMenu.addEventListener("click", (e) => e.stopPropagation());
 
-  const REVIEW_PAGE_SIZE = 10;
   const operatorReviewBody = document.querySelector("#view-all tbody");
   const operatorReviewRows = [...document.querySelectorAll(".rev-row")];
-  const operatorPagination = document.getElementById("operatorReviewPagination");
-  let operatorReviewPage = 1;
   let operatorSentimentFilter = "all";
   let operatorFocusedIds = new Set();
   let activeEvidenceQuery = "";
 
-  function updatePagination(nav, page, totalPages, itemCount) {
-    if (!nav) return;
-    nav.hidden = itemCount === 0 || totalPages <= 1;
-    nav.querySelector("[data-page-current]").textContent = String(page);
-    nav.querySelector("[data-page-total]").textContent = String(totalPages);
-    nav.querySelector('[data-page-action="previous"]').disabled = page <= 1;
-    nav.querySelector('[data-page-action="next"]').disabled = page >= totalPages;
-  }
-
-  function renderOperatorReviewPage({ focusId = null } = {}) {
+  function renderOperatorReviews() {
     if (!operatorReviewBody) return;
     const matches = operatorReviewRows.filter((row) => (
       operatorSentimentFilter === "all" || row.dataset.sentiment === operatorSentimentFilter
     ));
-    const totalPages = Math.max(1, Math.ceil(matches.length / REVIEW_PAGE_SIZE));
-    if (focusId) {
-      const focusIndex = matches.findIndex((row) => row.dataset.reviewId === focusId);
-      if (focusIndex >= 0) operatorReviewPage = Math.floor(focusIndex / REVIEW_PAGE_SIZE) + 1;
-    }
-    operatorReviewPage = Math.min(Math.max(1, operatorReviewPage), totalPages);
-    const start = (operatorReviewPage - 1) * REVIEW_PAGE_SIZE;
-    operatorReviewBody.replaceChildren(...matches.slice(start, start + REVIEW_PAGE_SIZE));
+    operatorReviewBody.replaceChildren(...matches);
     operatorReviewRows.forEach((row) => {
       const focused = operatorFocusedIds.has(row.dataset.reviewId);
       row.classList.toggle("evidence-focus", focused);
@@ -124,21 +105,12 @@
         focused ? activeEvidenceQuery : "",
       );
     });
-    updatePagination(operatorPagination, operatorReviewPage, totalPages, matches.length);
   }
-
-  operatorPagination?.querySelectorAll("[data-page-action]").forEach((button) => {
-    button.addEventListener("click", () => {
-      operatorReviewPage += button.dataset.pageAction === "next" ? 1 : -1;
-      renderOperatorReviewPage();
-    });
-  });
 
   function applyFilter(value) {
     operatorSentimentFilter = value;
-    operatorReviewPage = 1;
     operatorFocusedIds = new Set();
-    renderOperatorReviewPage();
+    renderOperatorReviews();
     document.querySelectorAll(".chip").forEach((chip) => {
       const matches = value === "all" || chip.dataset.sentiment === value;
       chip.hidden = !matches;
@@ -173,13 +145,11 @@
   const consumerReviewSearch = document.getElementById("consumerReviewSearch");
   const consumerReviewEmpty = document.getElementById("consumerReviewEmpty");
   const consumerReviewVisibleCount = document.getElementById("consumerReviewVisibleCount");
-  const consumerReviewPagination = document.getElementById("consumerReviewPagination");
   const consumerFilterButtons = [...document.querySelectorAll("[data-consumer-filter]")];
   const consumerReviewById = new Map(
     consumerReviewCards.map((card) => [card.dataset.reviewId, card]),
   );
   let consumerSentimentFilter = "all";
-  let consumerReviewPage = 1;
   let consumerFocusedIds = new Set();
 
   function setHighlightedText(element, text, query) {
@@ -200,7 +170,7 @@
     element.append(mark, document.createTextNode(text.slice(index + needle.length)));
   }
 
-  function applyConsumerReviewFilter({ focusId = null } = {}) {
+  function applyConsumerReviewFilter() {
     if (!consumerReviewList) return;
     const query = (consumerReviewSearch?.value || "").trim().toLocaleLowerCase("th");
     const matches = consumerReviewCards.filter((card) => {
@@ -210,14 +180,7 @@
         || (card.dataset.reviewText || "").toLocaleLowerCase("th").includes(query);
       return matchesSentiment && matchesSearch;
     });
-    const totalPages = Math.max(1, Math.ceil(matches.length / REVIEW_PAGE_SIZE));
-    if (focusId) {
-      const focusIndex = matches.findIndex((card) => card.dataset.reviewId === focusId);
-      if (focusIndex >= 0) consumerReviewPage = Math.floor(focusIndex / REVIEW_PAGE_SIZE) + 1;
-    }
-    consumerReviewPage = Math.min(Math.max(1, consumerReviewPage), totalPages);
-    const start = (consumerReviewPage - 1) * REVIEW_PAGE_SIZE;
-    consumerReviewList.replaceChildren(...matches.slice(start, start + REVIEW_PAGE_SIZE));
+    consumerReviewList.replaceChildren(...matches);
     consumerReviewCards.forEach((card) => {
       const focused = consumerFocusedIds.has(card.dataset.reviewId);
       card.classList.toggle("evidence-focus", focused);
@@ -229,21 +192,11 @@
     });
     if (consumerReviewEmpty) consumerReviewEmpty.hidden = matches.length > 0;
     if (consumerReviewVisibleCount) {
-      const end = Math.min(start + REVIEW_PAGE_SIZE, matches.length);
       consumerReviewVisibleCount.textContent = matches.length
-        ? `แสดง ${start + 1}–${end} จาก ${matches.length} รีวิว`
+        ? `แสดง ${matches.length} รีวิว`
         : "ไม่พบรีวิวที่ตรงกับตัวกรอง";
     }
-    updatePagination(consumerReviewPagination, consumerReviewPage, totalPages, matches.length);
   }
-
-  consumerReviewPagination?.querySelectorAll("[data-page-action]").forEach((button) => {
-    button.addEventListener("click", () => {
-      consumerReviewPage += button.dataset.pageAction === "next" ? 1 : -1;
-      applyConsumerReviewFilter();
-      consumerReviewList?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    });
-  });
 
   consumerFilterButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -253,13 +206,11 @@
         item.classList.toggle("active", active);
         item.setAttribute("aria-pressed", active ? "true" : "false");
       });
-      consumerReviewPage = 1;
       consumerFocusedIds = new Set();
       applyConsumerReviewFilter();
     });
   });
   consumerReviewSearch?.addEventListener("input", () => {
-    consumerReviewPage = 1;
     consumerFocusedIds = new Set();
     applyConsumerReviewFilter();
   });
@@ -398,9 +349,8 @@
         item.setAttribute("aria-checked", active ? "true" : "false");
       });
       operatorSentimentFilter = "all";
-      operatorReviewPage = 1;
       operatorFocusedIds = focusIds;
-      renderOperatorReviewPage({ focusId: activeEvidenceIds[0] });
+      renderOperatorReviews();
       const firstOperatorReview = operatorReviewRows.find(
         (row) => row.dataset.reviewId === activeEvidenceIds[0],
       );
@@ -413,9 +363,8 @@
       button.classList.toggle("active", button.dataset.consumerFilter === "all");
     });
     if (consumerReviewSearch) consumerReviewSearch.value = "";
-    consumerReviewPage = 1;
     consumerFocusedIds = focusIds;
-    applyConsumerReviewFilter({ focusId: activeEvidenceIds[0] });
+    applyConsumerReviewFilter();
     const first = consumerReviewById.get(activeEvidenceIds[0]);
     first?.scrollIntoView({ behavior: "smooth", block: "center" });
   });

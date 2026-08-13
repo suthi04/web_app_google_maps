@@ -17,6 +17,7 @@ scraper.py
 """
 import json
 import os
+from urllib.parse import parse_qs, urlparse
 
 import requests
 
@@ -29,13 +30,82 @@ APIFY_ENDPOINT = (
     "compass~google-maps-reviews-scraper/run-sync-get-dataset-items"
 )
 
+_SHORT_MAPS_HOSTS = {"maps.app.goo.gl", "goo.gl"}
+
+
+def _is_direct_google_maps_url(url: str) -> bool:
+    """Accept only direct Google Maps destinations supported by the Actor."""
+    try:
+        parsed = urlparse((url or "").strip())
+    except ValueError:
+        return False
+    if parsed.scheme != "https" or not parsed.hostname:
+        return False
+    host = parsed.hostname.lower().rstrip(".")
+    path = parsed.path.lower()
+    is_google = (
+        host in {"google.com", "google.co.th"}
+        or host.endswith(".google.com")
+        or host.endswith(".google.co.th")
+    )
+    if not is_google:
+        return False
+    return (
+        path == "/maps"
+        or path.startswith(("/maps/", "/maps/place", "/maps/search", "/maps/reviews"))
+        or "cid" in parse_qs(parsed.query, keep_blank_values=True)
+    )
+
+
+def _resolve_maps_url(url: str) -> str:
+    """Expand Google Maps short links before passing them to Apify.
+
+    The reviews Actor validates direct place URLs and can reject ``maps.app.goo.gl``
+    links before a run is created.  Follow redirects without downloading the page
+    body, then fail closed unless the destination is still an HTTPS Google Maps URL.
+    """
+    original = (url or "").strip()
+    try:
+        parsed = urlparse(original)
+    except ValueError:
+        raise RuntimeError("ลิงก์ Google Maps ไม่ถูกต้อง กรุณาคัดลอกลิงก์ใหม่") from None
+    host = (parsed.hostname or "").lower().rstrip(".")
+    if host not in _SHORT_MAPS_HOSTS:
+        return original
+
+    response = None
+    try:
+        response = requests.get(
+            original,
+            allow_redirects=True,
+            stream=True,
+            timeout=min(config.APIFY_TIMEOUT, 20),
+            headers={"User-Agent": "Mozilla/5.0"},
+        )
+        response.raise_for_status()
+        resolved = response.url
+    except requests.RequestException:
+        raise RuntimeError(
+            "เปิดลิงก์ Google Maps แบบย่อไม่ได้ กรุณาลองคัดลอกลิงก์จาก Google Maps ใหม่"
+        ) from None
+    finally:
+        if response is not None:
+            response.close()
+
+    if not _is_direct_google_maps_url(resolved):
+        raise RuntimeError(
+            "ลิงก์แบบย่อไม่ได้ชี้ไปยังหน้าร้านบน Google Maps กรุณาตรวจสอบลิงก์"
+        )
+    return resolved
+
 
 def _fetch_from_apify(url: str, max_reviews: int) -> dict:
     """เรียก Apify จริง — ต้องมี APIFY_TOKEN และอินเทอร์เน็ต"""
     # NOTE: ชื่อฟิลด์ input ขึ้นกับ actor แต่ละตัว ตรวจได้ที่หน้า actor บน Apify (แท็บ Input)
     #       ด้านล่างเป็นค่าที่ใช้ได้กับ compass/google-maps-reviews-scraper
+    resolved_url = _resolve_maps_url(url)
     payload = {
-        "startUrls": [{"url": url}],
+        "startUrls": [{"url": resolved_url}],
         "maxReviews": max_reviews,
         "reviewsSort": "newest",   # newest | mostRelevant | highestRanking | lowestRanking
         "language": "th",

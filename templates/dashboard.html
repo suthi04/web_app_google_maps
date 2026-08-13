@@ -343,11 +343,6 @@
       {% endfor %}
     </div>
     <p class="consumer-review-empty" id="consumerReviewEmpty" hidden>ไม่พบรีวิวที่ตรงกับตัวกรองหรือคำค้นหา</p>
-    <nav class="review-pagination" id="consumerReviewPagination" aria-label="เปลี่ยนหน้ารายการรีวิวผู้บริโภค">
-      <button type="button" data-page-action="previous" aria-label="ไปหน้ารีวิวก่อนหน้า">ย้อนกลับ</button>
-      <span aria-live="polite"><b class="mono" data-page-current>1</b> / <span class="mono" data-page-total>1</span></span>
-      <button type="button" data-page-action="next" aria-label="ไปหน้ารีวิวถัดไป">ถัดไป</button>
-    </nav>
   </section>
 </section>
 
@@ -356,11 +351,11 @@
 <section class="operator-command" aria-labelledby="operatorPlanTitle">
   <div class="operator-command-hero">
     <div class="operator-command-copy">
-      <div class="operator-plan-kicker"><span></span> Executive Brief · รีวิวชุดนี้</div>
+      <div class="operator-plan-kicker"><span></span> สรุปสำหรับผู้ประกอบการ</div>
       <h2 id="operatorPlanTitle">{{ a.operator_plan.brief.headline }}</h2>
       <p>{{ a.operator_plan.brief.detail }}</p>
       <div class="operator-command-meta">
-        {{ evidence_button(a.operator_plan.brief.evidence_review_ids, 'หลักฐานของ Executive Brief', 'เปิดรีวิวที่ใช้วางแผน') }}
+        {{ evidence_button(a.operator_plan.brief.evidence_review_ids, 'หลักฐานของสรุปสำหรับผู้ประกอบการ', 'เปิดรีวิวที่ใช้วางแผน') }}
         <span>ไม่ได้จัดลำดับตามวันที่ของรีวิว</span>
       </div>
     </div>
@@ -657,11 +652,6 @@
           {% endfor %}
         </tbody>
       </table>
-      <nav class="review-pagination operator-review-pagination" id="operatorReviewPagination" aria-label="เปลี่ยนหน้ารายการรีวิวผู้ประกอบการ">
-        <button type="button" data-page-action="previous" aria-label="ไปหน้ารีวิวก่อนหน้า">ย้อนกลับ</button>
-        <span aria-live="polite"><b class="mono" data-page-current>1</b> / <span class="mono" data-page-total>1</span></span>
-        <button type="button" data-page-action="next" aria-label="ไปหน้ารีวิวถัดไป">ถัดไป</button>
-      </nav>
     </div>
 
     <!-- Keywords -->

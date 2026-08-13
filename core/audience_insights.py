@@ -550,11 +550,8 @@ def build_operator_plan(
             f"ขณะเดียวกัน{strength['aspect_th']}มีฐานที่ควรรักษาและต่อยอดเป็นจุดจำของร้าน"
         )
     elif focus:
-        headline = f"เริ่มจาก{focus['aspect_th']} แล้วตรวจผลจากรีวิวรอบถัดไป"
-        detail = (
-            f"ประเด็นด้าน{focus['aspect_th']}อยู่ลำดับแรกจากสัดส่วนความคิดเห็น "
-            "จำนวนรีวิวไม่ซ้ำ และหลักฐานที่ตรวจย้อนกลับได้"
-        )
+        headline = "จุดที่ร้านควรใส่ใจก่อน"
+        detail = f"เรื่อง{focus['aspect_th']}ถูกพูดถึงมากที่สุดในรีวิวชุดนี้"
     elif strength:
         headline = f"เปลี่ยน{strength['aspect_th']}ให้เป็นจุดจำที่ทำซ้ำได้"
         detail = (

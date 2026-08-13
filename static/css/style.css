@@ -82,12 +82,13 @@ button{font-family:inherit}
   position:sticky;top:0;height:100vh;z-index:60;
   overflow:hidden;transition:transform .24s var(--ease),box-shadow var(--t);
 }
-.sidebar-head{display:flex;align-items:center;gap:8px;margin-bottom:30px;padding:0 5px}
-.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1;border-radius:11px}
-.brand-mark{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:var(--accent);color:var(--accent)}
-.brand .logo{width:28px;height:28px;border-radius:8px}
+.sidebar-head{display:flex;align-items:center;gap:8px;min-height:38px;margin-bottom:28px;padding:0 10px}
+.brand{display:flex;align-items:center;gap:9px;min-width:0;flex:1;border-radius:11px}
+.brand-mark{display:grid;place-items:center;width:34px;height:34px;flex:0 0 34px}
+.brand .logo{display:block;width:32px;height:32px}
 .brand-copy{display:flex;min-width:0;align-items:center;line-height:1}
-.brand-copy strong{font-size:15.5px;font-weight:700;letter-spacing:-.35px;color:var(--ink)}
+.brand-copy strong{font-size:15px;font-weight:700;letter-spacing:-.35px;color:var(--ink)}
+.brand-copy strong span{color:var(--accent-ink);font-weight:700}
 .sidebar-close{display:none;width:34px;height:34px;flex:0 0 34px;place-items:center;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--ink-2);cursor:pointer}
 .sidebar-close:hover{background:#fff;color:var(--ink)}.sidebar-close svg{width:18px;height:18px;stroke-width:1.8}
 
@@ -487,7 +488,6 @@ body.aspect-modal-open{overflow:hidden}
 .consumer-review-card-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:15px;padding-top:12px;border-top:1px solid var(--border)}
 .consumer-review-facts{display:flex;align-items:center;gap:10px;color:var(--ink-3);font-size:11px}.review-rating{display:inline-flex;align-items:center;gap:4px;color:var(--neu-ink)}.review-rating svg{width:13px;height:13px;fill:var(--neu);stroke:none}.review-rating strong{font-size:11px}.consumer-review-aspects{display:flex;align-items:center;gap:5px;flex-wrap:wrap;justify-content:flex-end}.consumer-review-aspects span{font-size:10.5px;color:var(--ink-2);background:var(--surface-2);padding:3px 7px;border-radius:var(--r-pill)}
 .consumer-review-empty{text-align:center;color:var(--ink-2);font-size:13.5px;padding:30px;margin:0 28px 22px;border:1px dashed var(--border-strong);border-radius:var(--r-sm);background:var(--surface-2)}
-.review-pagination{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 28px 22px;padding-top:2px}.review-pagination button{min-width:76px;min-height:38px;padding:7px 12px;border:1px solid var(--border-strong);border-radius:10px;background:var(--surface);color:var(--ink-2);font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:background var(--t),border-color var(--t),color var(--t)}.review-pagination button:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}.review-pagination button:disabled{cursor:not-allowed;opacity:.42}.review-pagination>span{min-width:56px;text-align:center;color:var(--ink-3);font-size:12px}.review-pagination>span b{color:var(--ink)}
 
 /* Evidence drawer: desktop side sheet, mobile bottom sheet */
 body.evidence-open{overflow:hidden}
@@ -732,7 +732,6 @@ table.reviews tr:hover td{background:var(--surface-hover)}
 .operator-result-counts{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(82px,1fr));gap:7px}.operator-result-counts article{min-width:82px;padding:10px 12px;border:1px solid rgba(52,121,112,.12);border-radius:12px;background:rgba(255,255,255,.82)}.operator-result-counts strong{display:block;color:var(--ink);font-size:22px;line-height:1}.operator-result-counts span{display:block;margin-top:4px;color:var(--ink-3);font-size:9.5px}.operator-result-counts .positive strong{color:var(--pos-ink)}.operator-result-counts .negative strong{color:var(--neg-ink)}
 .operator-result-toolbar{display:flex;align-items:center;gap:16px;padding:12px 16px;border-bottom:1px solid var(--border);background:#fff}.operator-result-toolbar .seg{border:1px solid var(--border);background:var(--surface-2)}.operator-result-toolbar .seg button{min-height:36px;padding:7px 18px}.operator-result-toolbar .seg button.active{color:var(--accent-ink)}.operator-filter-wrap{margin-left:auto}.operator-filter-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:8px 13px;border:1px solid var(--border-strong);border-radius:11px;background:#fff;color:var(--ink-2);font-family:inherit;font-size:11.5px;font-weight:600;cursor:pointer;transition:border-color var(--t),background var(--t),color var(--t)}.operator-filter-button:hover,.operator-filter-button[aria-expanded="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-ink)}.operator-filter-button svg{width:16px;height:16px}
 .operator-result-panel #view-all{margin:0;padding:0 16px 16px;background:#f5f8f6}.operator-result-panel table.reviews{border-collapse:separate;border-spacing:0 9px}.operator-result-panel table.reviews th{top:0;padding:12px 14px 3px;background:#f5f8f6;color:var(--ink-3);font-size:10.5px}.operator-result-panel table.reviews th.r{width:120px}.operator-result-panel table.reviews td{padding:15px 16px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#fff}.operator-result-panel table.reviews td:first-child{border-left:1px solid var(--border);border-radius:14px 0 0 14px}.operator-result-panel table.reviews td:last-child{border-right:1px solid var(--border);border-radius:0 14px 14px 0}.operator-result-panel table.reviews tr:hover td{border-color:var(--border-strong);background:#fff;box-shadow:0 7px 20px rgba(31,60,52,.035)}
-.operator-review-pagination{margin:4px 0 2px;padding:4px 0 2px}
 .operator-result-panel table.reviews tr.evidence-focus td{border-color:rgba(52,121,112,.45);background:#f1faf6;box-shadow:0 0 0 2px rgba(52,121,112,.1)}
 .operator-review-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;color:var(--ink-3);font-size:10.5px}.operator-review-id{display:inline-flex;align-items:center;gap:4px;padding:4px 7px;border-radius:7px;background:var(--surface-2)}.operator-review-id b{color:var(--ink-2)}.operator-review-meta .rating{align-items:center;margin:0}.operator-review-meta .rating span{color:var(--neu-ink);font-size:10.5px}.operator-review-meta time{padding-left:10px;border-left:1px solid var(--border)}.operator-result-panel .review-text{font-size:13px;line-height:1.7}.operator-review-aspects{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}.operator-review-aspects span{padding:4px 7px;border-radius:7px;background:var(--accent-soft);color:var(--accent-ink);font-size:9.5px}.operator-result-panel .sent-cell{padding-top:17px}
 .operator-result-panel #view-keywords{margin:0;padding:12px 16px 16px;background:#f5f8f6}.operator-result-panel .kw-aspect{margin-bottom:9px;padding:17px 18px;border:1px solid var(--border);border-radius:14px;background:#fff}.operator-result-panel .kw-aspect:first-child{padding-top:17px}.operator-result-panel .kw-aspect:last-child{margin-bottom:0}
@@ -922,7 +921,6 @@ table.reviews tr:hover td{background:var(--surface-hover)}
   .consumer-review-list{max-height:600px;margin:0 10px 16px;padding-inline:8px}
   .consumer-review-card{padding:16px}
   .consumer-review-card-foot{align-items:flex-start;flex-direction:column}
-  .review-pagination{margin:0 16px 18px}.review-pagination button{min-width:72px;min-height:44px}
   .consumer-review-aspects{justify-content:flex-start}
   .evidence-drawer-shell{display:flex;align-items:flex-end}
   .evidence-backdrop{position:absolute;inset:0}
