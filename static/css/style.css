@@ -7,9 +7,9 @@
    ============================================================ */
 
 :root{
-  /* Forest & Cream: original identity with a softer sage accent */
+  /* White canvas with a softer sage accent */
   /* ---- neutrals ---- */
-  --bg:#fff8e8;
+  --bg:#ffffff;
   --surface:#fffdf8;
   --surface-hover:#fff7e5;
   --surface-2:#fff0d1;
@@ -979,7 +979,7 @@ table.reviews tr:hover td{background:var(--surface-hover)}
 
 .sidebar-recent-copy strong { font-size:12.5px; }
 
-/* ===================== Forest & Cream reduced-green theme =====================
+/* ===================== White Canvas reduced-green theme =====================
    Color-only overrides. Layout, typography, spacing, radius and behavior
    remain owned by the original design system above. */
 :focus-visible{outline-color:rgba(83,118,90,.34)}
@@ -1034,7 +1034,7 @@ input:disabled,select:disabled,button:disabled{border-color:#d9c191;color:#85877
 .btn-danger{background:#a61707;color:#fffdf8}.btn-danger:hover{background:#7f1308}
 
 /* Landing */
-.landing{background:radial-gradient(circle at 50% 42%,rgba(255,175,3,.16),transparent 31%),radial-gradient(circle at 14% 18%,rgba(198,210,188,.11),transparent 23%),linear-gradient(160deg,#fffdfa 0%,#fff8e8 54%,#fff7e5 100%)}
+.landing{background:radial-gradient(circle at 50% 42%,#fff,transparent 31%),radial-gradient(circle at 14% 18%,#fff,transparent 23%),linear-gradient(160deg,#fff 0%,#fff 54%,#fff 100%)}
 .landing::before{background-image:linear-gradient(rgba(83,118,90,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(83,118,90,.055) 1px,transparent 1px)}
 .landing::after{border-color:rgba(83,118,90,.1);box-shadow:0 0 0 70px rgba(255,255,255,.22),0 0 0 140px rgba(255,248,232,.18)}
 .landing .eyebrow{border-color:rgba(83,118,90,.2);background:rgba(255,255,255,.82);box-shadow:0 6px 18px rgba(63,88,68,.08),inset 0 1px 0 #fffdf8}
