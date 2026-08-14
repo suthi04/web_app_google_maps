@@ -1,11 +1,15 @@
 import os
 import sys
+import threading
+import time
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from unittest import mock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from background_jobs import BackgroundJobRunner
+from request_limits import ConcurrencyGate
 
 
 OWNER = "device:test"
@@ -161,6 +165,49 @@ class TestBackgroundJobRunner(unittest.TestCase):
         self.assertEqual(kwargs["extract_engine"], "rule")
         self.assertEqual(kwargs["max_reviews"], 20)
         self.assertTrue(callable(kwargs["progress_callback"]))
+
+    def test_three_workers_can_run_three_jobs_at_the_same_time(self):
+        state = {"active": 0, "maximum": 0}
+        state_lock = threading.Lock()
+        all_started = threading.Event()
+        release = threading.Event()
+
+        def analysis(_url, progress_callback=None):
+            with state_lock:
+                state["active"] += 1
+                state["maximum"] = max(state["maximum"], state["active"])
+                if state["active"] == 3:
+                    all_started.set()
+            release.wait(2)
+            with state_lock:
+                state["active"] -= 1
+            return {"total_reviews": 1}
+
+        runner, database = self._runner(analysis)
+        original_executor = runner._executor
+        runner._executor = ThreadPoolExecutor(max_workers=3)
+        runner._max_workers = 3
+        runner._capacity = ConcurrencyGate(3)
+        original_executor.shutdown()
+        try:
+            for index in range(3):
+                self.assertTrue(runner.reserve())
+                self.assertTrue(
+                    runner.submit_reserved(f"job-{index}", "url", OWNER)
+                )
+            self.assertTrue(all_started.wait(1), "three jobs did not start together")
+            self.assertEqual(runner.snapshot()["inflight"], 3)
+            release.set()
+            deadline = time.monotonic() + 2
+            while database.mark_job_completed.call_count < 3:
+                if time.monotonic() >= deadline:
+                    self.fail("three concurrent jobs did not finish")
+                time.sleep(0.01)
+        finally:
+            release.set()
+            runner.shutdown()
+
+        self.assertEqual(state["maximum"], 3)
 
 
 if __name__ == "__main__":

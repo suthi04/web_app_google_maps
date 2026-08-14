@@ -291,8 +291,9 @@ insightreview/
 > ระบบไม่มีบัญชีผู้ใช้หรือผู้ดูแลตามขอบเขตของโครงงาน แต่ข้อมูลแต่ละเบราว์เซอร์แยกจากกัน;
 > การล้าง cookie หรือใช้โหมดไม่ระบุตัวตนจะเริ่มเป็นอุปกรณ์ใหม่ `/analyze` มี sliding-window
 > rate limit ต่อ anonymous device และจำกัดจำนวนงานที่รันพร้อมกัน เพื่อป้องกันการใช้
-> Apify/โมเดลเกินโควตา ค่าตั้งต้นคือ 10 ครั้ง/ชั่วโมง/อุปกรณ์, 1 worker และคิวรอ 10 งาน
-> ปรับหรือปิด rate limit ได้จาก `.env`
+> Apify/โมเดลเกินโควตา ค่าตั้งต้นคือ 10 ครั้ง/ชั่วโมง/อุปกรณ์, 3 workers และคิวรอ 10 งาน
+> โดยช่วง inference ของ WangchanBERTa ทำพร้อมกันสูงสุด 2 งานเพื่อคุม RAM/CPU
+> (`WANGCHAN_MAX_CONCURRENT=2`) ปรับหรือปิด rate limit ได้จาก `.env`
 
 ก่อน deploy หลัง HTTPS ให้กำหนด `SECRET_KEY` แบบยาวและ `SESSION_COOKIE_SECURE=1`
 แล้วรัน `python serve.py`; หากต้อง scale หลาย process ควรย้าย worker queue/rate-limit
@@ -302,7 +303,7 @@ coordination ไป Redis/Celery/RQ ก่อน เพื่อไม่ให�
 
 ## 🧪 การทดสอบ
 
-มีชุดทดสอบ **314 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
+มีชุดทดสอบ **318 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
 
 ```bash
 python -m unittest discover -s tests          # รันทั้งหมด

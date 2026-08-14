@@ -12,6 +12,7 @@ sentiment.py
 ใช้แบบ singleton: โมเดลถูกโหลดครั้งเดียวตอนเรียกครั้งแรก (lazy load)
 """
 import logging
+import threading
 
 import config
 from core.lexicon import IDIOMS, SENTIMENT_WORDS
@@ -31,7 +32,24 @@ _WISESIGHT_MAP = {
 _model_pipe = None    # cache โมเดล
 _model_status = None  # None=ยังไม่ลอง, "ok"=โหลดได้, "failed"=โหลดไม่สำเร็จ
 _unknown_label_warned = False  # เตือนเรื่อง label ที่แมปไม่ได้ครั้งเดียวพอ
+_model_load_lock = threading.Lock()
+# สามารถดึงรีวิว/ทำ Rule-based/Gemini ได้พร้อมกัน 3 งาน แต่จำกัดช่วงที่กิน
+# CPU/RAM มากที่สุดไว้ 2 งาน เพื่อให้เครื่อง 16 GB ไม่หน่วงจนเว็บล่ม
+_model_inference_gate = threading.BoundedSemaphore(
+    config.WANGCHAN_MAX_CONCURRENT
+)
 log = logging.getLogger(__name__)
+
+
+def _build_model_pipeline():
+    """Build the heavyweight pipeline behind a small, testable boundary."""
+    from transformers import pipeline   # import ตอนใช้จริงเท่านั้น
+    return pipeline(
+        task="sentiment-analysis",
+        model=config.MODEL_NAME,
+        revision=config.MODEL_REVISION,
+        tokenizer=config.MODEL_NAME,
+    )
 
 
 def _load_model():
@@ -39,14 +57,13 @@ def _load_model():
     global _model_pipe, _model_status
     if _model_pipe is not None:
         return _model_pipe
-    from transformers import pipeline   # import ตอนใช้จริงเท่านั้น
-    _model_pipe = pipeline(
-        task="sentiment-analysis",
-        model=config.MODEL_NAME,
-        revision=config.MODEL_REVISION,
-        tokenizer=config.MODEL_NAME,
-    )
-    _model_status = "ok"
+    # Double-check ใต้ lock ป้องกัน 2-3 worker โหลดโมเดลก้อนเดียวกันซ้ำพร้อมกัน
+    # ซึ่งอาจทำให้ RAM พุ่งหลาย GB ในช่วงเริ่มงานแรก
+    with _model_load_lock:
+        if _model_pipe is not None:
+            return _model_pipe
+        _model_pipe = _build_model_pipeline()
+        _model_status = "ok"
     return _model_pipe
 
 
@@ -69,10 +86,11 @@ def _label_from_output(output: dict) -> str:
 
 
 def _predict_model(clean_text: str) -> str:
-    pipe = _load_model()
-    # ให้ tokenizer เป็นผู้ตัดตามจำนวน token จริง; การ slice 512 ตัวอักษรไม่รับประกัน
-    # ว่าจะไม่เกิน model context โดยเฉพาะข้อความภาษาไทย
-    out = pipe(clean_text, truncation=True, max_length=512)
+    with _model_inference_gate:
+        pipe = _load_model()
+        # ให้ tokenizer เป็นผู้ตัดตามจำนวน token จริง; การ slice 512 ตัวอักษรไม่รับประกัน
+        # ว่าจะไม่เกิน model context โดยเฉพาะข้อความภาษาไทย
+        out = pipe(clean_text, truncation=True, max_length=512)
     return _label_from_output(out[0])
 
 
@@ -164,13 +182,14 @@ def analyze_all(reviews: list, use_model: bool | None = None) -> list:
     # และทำให้ failure เกิดครั้งเดียวแทนการลองโหลดโมเดลซ้ำทุกข้อความ
     if model_enabled and _model_status != "failed" and targets:
         try:
-            pipe = _load_model()
-            outputs = pipe(
-                [item["clean"] for item in targets],
-                truncation=True,
-                max_length=512,
-                batch_size=16,
-            )
+            with _model_inference_gate:
+                pipe = _load_model()
+                outputs = pipe(
+                    [item["clean"] for item in targets],
+                    truncation=True,
+                    max_length=512,
+                    batch_size=16,
+                )
             if len(outputs) != len(targets):
                 raise RuntimeError(
                     f"โมเดลคืนผล {len(outputs)} รายการ แต่ส่งไป {len(targets)} รายการ"
