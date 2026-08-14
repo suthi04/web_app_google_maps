@@ -22,13 +22,20 @@ from urllib.parse import parse_qs, urlparse
 
 from flask import (
     Flask, render_template, request, redirect, url_for, jsonify, abort, flash,
-    Response,
+    Response, g,
 )
 
 import config
 from background_jobs import BackgroundJobRunner
 from core import pipeline, export, audience_insights, insights
 from db import database
+from device_identity import (
+    COOKIE_MAX_AGE_SECONDS,
+    COOKIE_NAME,
+    is_valid_token,
+    new_token,
+    owner_id_from_token,
+)
 from request_limits import SlidingWindowRateLimiter
 from web_security import add_security_headers, csrf_token, protect_csrf
 
@@ -60,14 +67,45 @@ job_runner = BackgroundJobRunner(
     max_queued=config.ANALYZE_MAX_QUEUED,
 )
 
+def bind_anonymous_device() -> None:
+    """Attach a stable, login-free owner id to every browser request."""
+    token = request.cookies.get(COOKIE_NAME)
+    if not is_valid_token(token):
+        token = new_token()
+        g.new_device_token = token
+    g.owner_id = owner_id_from_token(token)
+
+
+def persist_anonymous_device(response):
+    token = getattr(g, "new_device_token", None)
+    if token:
+        host = (request.host or "").partition(":")[0].lower()
+        response.set_cookie(
+            COOKIE_NAME,
+            token,
+            max_age=COOKIE_MAX_AGE_SECONDS,
+            httponly=True,
+            secure=(
+                config.SESSION_COOKIE_SECURE
+                or request.is_secure
+                or host.endswith(".ts.net")
+            ),
+            samesite="Lax",
+            path="/",
+        )
+    return response
+
+
+app.before_request(bind_anonymous_device)
 app.before_request(protect_csrf)
 app.after_request(add_security_headers)
+app.after_request(persist_anonymous_device)
 
 
 @app.context_processor
 def inject_globals():
     try:
-        sidebar_recent = database.list_analyses(limit=3)
+        sidebar_recent = database.list_analyses(g.owner_id, limit=3)
     except Exception:
         log.warning("Could not load recent analyses for sidebar", exc_info=True)
         sidebar_recent = []
@@ -187,7 +225,7 @@ def analyze():
             5,
         )
 
-    allowed, retry_after = analysis_limiter.consume(request.remote_addr or "unknown")
+    allowed, retry_after = analysis_limiter.consume(g.owner_id)
     if not allowed:
         job_runner.cancel_reservation()
         return _analysis_unavailable(
@@ -198,14 +236,14 @@ def analyze():
         )
 
     try:
-        job_id = database.create_job(url)
+        job_id = database.create_job(url, g.owner_id)
     except Exception as e:  # noqa: BLE001 - release reserved queue capacity
         job_runner.cancel_reservation()
         log.exception("Could not create analysis job: %s", e)
         flash("สร้างงานวิเคราะห์ไม่สำเร็จ กรุณาลองใหม่", "err")
         return redirect(url_for("index"))
 
-    if not job_runner.submit_reserved(job_id, url, analysis_options):
+    if not job_runner.submit_reserved(job_id, url, g.owner_id, analysis_options):
         database.delete_job(job_id)
         return _analysis_unavailable(
             503, "เริ่มตัวประมวลผลไม่สำเร็จ", "กรุณารอสักครู่แล้วลองใหม่", 5
@@ -215,7 +253,7 @@ def analyze():
 
 @app.route("/jobs/<job_id>")
 def job_status(job_id):
-    job = database.get_job(job_id)
+    job = database.get_job(job_id, g.owner_id)
     if not job:
         abort(404)
     if job["status"] == "completed" and job.get("analysis_id"):
@@ -225,7 +263,7 @@ def job_status(job_id):
 
 @app.route("/api/jobs/<job_id>")
 def api_job_status(job_id):
-    job = database.get_job(job_id)
+    job = database.get_job(job_id, g.owner_id)
     if not job:
         abort(404)
     payload = dict(job)
@@ -265,7 +303,7 @@ def _aspect_examples(data: dict, per_bucket: int = 3, max_len: int = 220) -> dic
 
 @app.route("/dashboard/<int:aid>")
 def dashboard(aid):
-    data = database.get_analysis(aid)
+    data = database.get_analysis(aid, g.owner_id)
     if not data:
         abort(404)
     # Normalize provenance on every read so legacy analyses gain stable review
@@ -283,11 +321,11 @@ def dashboard(aid):
 
 @app.route("/history")
 def history():
-    items = database.list_analyses()
+    items = database.list_analyses(g.owner_id)
     return render_template(
         "history.html", items=items, page="history",
         title="ประวัติการวิเคราะห์",
-        subtitle="รายการวิเคราะห์ทั้งหมดของคุณ ({} รายการ)".format(len(items)),
+        subtitle="ผลวิเคราะห์ที่บันทึกไว้ในเบราว์เซอร์นี้ ({} รายการ)".format(len(items)),
         empty="ยังไม่มีประวัติการวิเคราะห์",
         empty_sub="เมื่อคุณวิเคราะห์ร้านอาหาร ผลลัพธ์จะถูกบันทึกไว้ที่นี่",
     )
@@ -295,11 +333,11 @@ def history():
 
 @app.route("/saved")
 def saved():
-    items = database.list_saved()
+    items = database.list_saved(g.owner_id)
     return render_template(
         "history.html", items=items, page="saved",
         title="รายการโปรด",
-        subtitle="ร้านที่คุณบันทึกไว้ ({} รายการ)".format(len(items)),
+        subtitle="ร้านที่บันทึกไว้ในเบราว์เซอร์นี้ ({} รายการ)".format(len(items)),
         empty="ยังไม่มีรายการที่บันทึกไว้",
         empty_sub="กดไอคอนบุ๊กมาร์กบนผลวิเคราะห์เพื่อเก็บไว้ดูภายหลัง",
     )
@@ -307,7 +345,7 @@ def saved():
 
 @app.route("/toggle-save/<int:aid>", methods=["POST"])
 def toggle_save(aid):
-    is_saved = database.toggle_saved(aid)
+    is_saved = database.toggle_saved(aid, g.owner_id)
     if is_saved is None:
         abort(404)
     return jsonify({"id": aid, "is_saved": is_saved})
@@ -315,7 +353,7 @@ def toggle_save(aid):
 
 @app.route("/delete/<int:aid>", methods=["POST"])
 def delete(aid):
-    ok = database.delete_analysis(aid)
+    ok = database.delete_analysis(aid, g.owner_id)
     if not ok:
         abort(404)
     return jsonify({"id": aid, "deleted": ok})
@@ -323,13 +361,13 @@ def delete(aid):
 
 @app.route("/delete-all", methods=["POST"])
 def delete_all():
-    deleted_count = database.delete_all_analyses()
+    deleted_count = database.delete_all_analyses(g.owner_id)
     return jsonify({"deleted": True, "deleted_count": deleted_count})
 
 
 @app.route("/api/analysis/<int:aid>")
 def api_analysis(aid):
-    data = database.get_analysis(aid)
+    data = database.get_analysis(aid, g.owner_id)
     if not data:
         abort(404)
     return jsonify(data)
@@ -385,7 +423,7 @@ def _download(text: str, filename: str, mime: str) -> Response:
 
 @app.route("/export/<int:aid>/reviews.csv")
 def export_reviews(aid):
-    a = database.get_analysis(aid)
+    a = database.get_analysis(aid, g.owner_id)
     if not a:
         abort(404)
     return _download(export.reviews_csv(a), f"reviews_{aid}.csv", "text/csv; charset=utf-8")
@@ -393,7 +431,7 @@ def export_reviews(aid):
 
 @app.route("/export/<int:aid>/summary.csv")
 def export_summary(aid):
-    a = database.get_analysis(aid)
+    a = database.get_analysis(aid, g.owner_id)
     if not a:
         abort(404)
     return _download(export.summary_csv(a), f"summary_{aid}.csv", "text/csv; charset=utf-8")
@@ -401,7 +439,7 @@ def export_summary(aid):
 
 @app.route("/export/<int:aid>/labeling.json")
 def export_labeling(aid):
-    a = database.get_analysis(aid)
+    a = database.get_analysis(aid, g.owner_id)
     if not a:
         abort(404)
     return _download(export.labeling_json(a), f"for_labeling_{aid}.json",

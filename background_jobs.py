@@ -38,12 +38,13 @@ class BackgroundJobRunner:
         self,
         job_id: str,
         source_url: str,
+        owner_id: str,
         analysis_options: dict | None = None,
     ) -> bool:
         """Submit a previously reserved job and release capacity when it ends."""
         try:
             future = self._executor.submit(
-                self._run_job, job_id, source_url, analysis_options
+                self._run_job, job_id, source_url, owner_id, analysis_options
             )
         except RuntimeError:
             self._capacity.release()
@@ -55,6 +56,7 @@ class BackgroundJobRunner:
         self,
         job_id: str,
         source_url: str,
+        owner_id: str,
         analysis_options: dict | None = None,
     ) -> None:
         if not self._database.mark_job_running(job_id):
@@ -81,7 +83,7 @@ class BackgroundJobRunner:
                 )
                 return
 
-            analysis_id = self._database.save_analysis(result)
+            analysis_id = self._database.save_analysis(result, owner_id)
             if not self._database.mark_job_completed(job_id, analysis_id):
                 log.error("Could not complete analysis job %s", job_id)
         except Exception as exc:  # noqa: BLE001 - worker must persist a safe failure

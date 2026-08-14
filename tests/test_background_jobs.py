@@ -8,6 +8,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from background_jobs import BackgroundJobRunner
 
 
+OWNER = "device:test"
+
+
 class _ImmediateFuture:
     def add_done_callback(self, callback):
         callback(self)
@@ -44,10 +47,10 @@ class TestBackgroundJobRunner(unittest.TestCase):
     def test_successful_job_saves_analysis_and_completes(self):
         runner, database = self._runner()
         try:
-            runner._run_job("job", "url")
+            runner._run_job("job", "url", OWNER)
         finally:
             runner.shutdown()
-        database.save_analysis.assert_called_once_with({"total_reviews": 1})
+        database.save_analysis.assert_called_once_with({"total_reviews": 1}, OWNER)
         database.mark_job_completed.assert_called_once_with("job", 77)
         database.mark_job_failed.assert_not_called()
 
@@ -56,7 +59,7 @@ class TestBackgroundJobRunner(unittest.TestCase):
             lambda _url, progress_callback=None: {"total_reviews": 0}
         )
         try:
-            runner._run_job("job", "url")
+            runner._run_job("job", "url", OWNER)
         finally:
             runner.shutdown()
         database.save_analysis.assert_not_called()
@@ -69,7 +72,7 @@ class TestBackgroundJobRunner(unittest.TestCase):
             )
         )
         try:
-            runner._run_job("job", "url")
+            runner._run_job("job", "url", OWNER)
         finally:
             runner.shutdown()
         message = database.mark_job_failed.call_args.args[1]
@@ -80,7 +83,7 @@ class TestBackgroundJobRunner(unittest.TestCase):
         runner, database = self._runner(analysis)
         database.mark_job_running.return_value = False
         try:
-            runner._run_job("job", "url")
+            runner._run_job("job", "url", OWNER)
         finally:
             runner.shutdown()
         analysis.assert_not_called()
@@ -93,7 +96,7 @@ class TestBackgroundJobRunner(unittest.TestCase):
 
         runner, database = self._runner(analysis)
         try:
-            runner._run_job("job", "url")
+            runner._run_job("job", "url", OWNER)
         finally:
             runner.shutdown()
         self.assertEqual(
@@ -111,7 +114,7 @@ class TestBackgroundJobRunner(unittest.TestCase):
         original_executor.shutdown()
 
         self.assertTrue(runner.reserve())
-        self.assertTrue(runner.submit_reserved("job", "url"))
+        self.assertTrue(runner.submit_reserved("job", "url", OWNER))
         self.assertTrue(runner.reserve())
         runner.cancel_reservation()
 
@@ -122,7 +125,7 @@ class TestBackgroundJobRunner(unittest.TestCase):
         original_executor.shutdown()
 
         self.assertTrue(runner.reserve())
-        self.assertFalse(runner.submit_reserved("job", "url"))
+        self.assertFalse(runner.submit_reserved("job", "url", OWNER))
         self.assertTrue(runner.reserve())
         runner.cancel_reservation()
 
@@ -147,7 +150,7 @@ class TestBackgroundJobRunner(unittest.TestCase):
         runner, _database = self._runner(analysis)
         try:
             runner._run_job(
-                "job", "url",
+                "job", "url", OWNER,
                 {"use_model": False, "extract_engine": "rule", "max_reviews": 20},
             )
         finally:

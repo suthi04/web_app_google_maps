@@ -61,6 +61,7 @@ def init_db():
                 pct_neutral   INTEGER,
                 pct_negative  INTEGER,
                 is_saved      INTEGER DEFAULT 0,
+                owner_id      TEXT,
                 payload       TEXT
             )
         """)
@@ -74,21 +75,47 @@ def init_db():
                 finished_at   TEXT,
                 analysis_id   INTEGER,
                 error_message TEXT,
+                owner_id      TEXT,
                 stage         TEXT NOT NULL DEFAULT 'queued',
                 progress      INTEGER NOT NULL DEFAULT 0,
                 CHECK (status IN ('queued', 'running', 'completed', 'failed'))
             )
         """)
-        # Additive migration for databases created before background progress existed.
-        columns = {row["name"] for row in c.execute("PRAGMA table_info(analysis_job)")}
-        if "stage" not in columns:
+        # Additive migrations preserve old results without exposing them to a
+        # newly-created anonymous browser identity. Legacy rows keep owner_id
+        # NULL and therefore match no public request.
+        analysis_columns = {
+            row["name"] for row in c.execute("PRAGMA table_info(analysis)")
+        }
+        if "owner_id" not in analysis_columns:
+            c.execute("ALTER TABLE analysis ADD COLUMN owner_id TEXT")
+
+        job_columns = {
+            row["name"] for row in c.execute("PRAGMA table_info(analysis_job)")
+        }
+        if "stage" not in job_columns:
             c.execute(
                 "ALTER TABLE analysis_job ADD COLUMN stage TEXT NOT NULL DEFAULT 'queued'"
             )
-        if "progress" not in columns:
+        if "progress" not in job_columns:
             c.execute(
                 "ALTER TABLE analysis_job ADD COLUMN progress INTEGER NOT NULL DEFAULT 0"
             )
+        if "owner_id" not in job_columns:
+            c.execute("ALTER TABLE analysis_job ADD COLUMN owner_id TEXT")
+
+        c.execute(
+            "CREATE INDEX IF NOT EXISTS idx_analysis_owner_id "
+            "ON analysis(owner_id, id DESC)"
+        )
+        c.execute(
+            "CREATE INDEX IF NOT EXISTS idx_analysis_owner_saved "
+            "ON analysis(owner_id, is_saved, id DESC)"
+        )
+        c.execute(
+            "CREATE INDEX IF NOT EXISTS idx_analysis_job_owner_id "
+            "ON analysis_job(owner_id, id)"
+        )
 
 
 def healthcheck() -> bool:
@@ -97,26 +124,35 @@ def healthcheck() -> bool:
         return c.execute("SELECT 1").fetchone()[0] == 1
 
 
-def create_job(source_url: str) -> str:
+def _require_owner_id(owner_id: str) -> str:
+    if not isinstance(owner_id, str) or not owner_id:
+        raise ValueError("owner_id is required")
+    return owner_id
+
+
+def create_job(source_url: str, owner_id: str) -> str:
     """Persist a queued analysis job and return an unguessable public id."""
     job_id = uuid.uuid4().hex
     with _conn() as c:
         c.execute(
             """INSERT INTO analysis_job
-               (id, status, source_url, created_at, stage, progress)
-               VALUES (?, 'queued', ?, ?, 'queued', 0)""",
-            (job_id, source_url, datetime.now().isoformat(timespec="seconds")),
+               (id, status, source_url, created_at, owner_id, stage, progress)
+               VALUES (?, 'queued', ?, ?, ?, 'queued', 0)""",
+            (
+                job_id, source_url, datetime.now().isoformat(timespec="seconds"),
+                _require_owner_id(owner_id),
+            ),
         )
     return job_id
 
 
-def get_job(job_id: str) -> dict | None:
+def get_job(job_id: str, owner_id: str) -> dict | None:
     with _conn() as c:
         row = c.execute(
             """SELECT id, status, created_at, started_at, finished_at,
                       analysis_id, error_message, stage, progress
-               FROM analysis_job WHERE id = ?""",
-            (job_id,),
+               FROM analysis_job WHERE id = ? AND owner_id = ?""",
+            (job_id, _require_owner_id(owner_id)),
         ).fetchone()
         return dict(row) if row else None
 
@@ -153,8 +189,16 @@ def mark_job_completed(job_id: str, analysis_id: int) -> bool:
                SET status = 'completed', stage = 'completed', progress = 100,
                    analysis_id = ?, finished_at = ?,
                    error_message = NULL
-               WHERE id = ? AND status = 'running'""",
-            (analysis_id, datetime.now().isoformat(timespec="seconds"), job_id),
+               WHERE id = ? AND status = 'running'
+                 AND EXISTS (
+                     SELECT 1 FROM analysis
+                     WHERE analysis.id = ?
+                       AND analysis.owner_id = analysis_job.owner_id
+                 )""",
+            (
+                analysis_id, datetime.now().isoformat(timespec="seconds"),
+                job_id, analysis_id,
+            ),
         )
         return cur.rowcount == 1
 
@@ -205,41 +249,43 @@ def prune_finished_jobs(retention_days: int = 7) -> int:
         return cur.rowcount
 
 
-def save_analysis(result: dict) -> int:
+def save_analysis(result: dict, owner_id: str) -> int:
     pct = result["distribution"]["pct"]
     with _conn() as c:
         cur = c.execute(
             """INSERT INTO analysis
                (store_name, source_url, analyzed_at, total_reviews,
-                pct_positive, pct_neutral, pct_negative, payload)
-               VALUES (?,?,?,?,?,?,?,?)""",
+                pct_positive, pct_neutral, pct_negative, owner_id, payload)
+               VALUES (?,?,?,?,?,?,?,?,?)""",
             (
                 result["store_name"],
                 result["source_url"],
                 datetime.now().isoformat(timespec="seconds"),
                 result["total_reviews"],
                 pct["positive"], pct["neutral"], pct["negative"],
+                _require_owner_id(owner_id),
                 json.dumps(result, ensure_ascii=False),
             ),
         )
         return cur.lastrowid
 
 
-def list_analyses(limit: int = 50) -> list:
+def list_analyses(owner_id: str, limit: int = 50) -> list:
     with _conn() as c:
         rows = c.execute(
             """SELECT id, store_name, source_url, analyzed_at, total_reviews,
                       pct_positive, pct_neutral, pct_negative, is_saved
-               FROM analysis ORDER BY id DESC LIMIT ?""",
-            (limit,),
+               FROM analysis WHERE owner_id = ? ORDER BY id DESC LIMIT ?""",
+            (_require_owner_id(owner_id), limit),
         ).fetchall()
         return [dict(r) for r in rows]
 
 
-def get_analysis(aid: int) -> dict | None:
+def get_analysis(aid: int, owner_id: str) -> dict | None:
     with _conn() as c:
         row = c.execute(
-            "SELECT payload, is_saved FROM analysis WHERE id = ?", (aid,)
+            "SELECT payload, is_saved FROM analysis WHERE id = ? AND owner_id = ?",
+            (aid, _require_owner_id(owner_id)),
         ).fetchone()
         if not row:
             return None
@@ -253,38 +299,49 @@ def get_analysis(aid: int) -> dict | None:
         return data
 
 
-def toggle_saved(aid: int) -> bool | None:
+def toggle_saved(aid: int, owner_id: str) -> bool | None:
     with _conn() as c:
         row = c.execute(
-            "SELECT is_saved FROM analysis WHERE id = ?", (aid,)
+            "SELECT is_saved FROM analysis WHERE id = ? AND owner_id = ?",
+            (aid, _require_owner_id(owner_id)),
         ).fetchone()
         if not row:
             return None
         new_val = 0 if row["is_saved"] else 1
-        c.execute("UPDATE analysis SET is_saved = ? WHERE id = ?", (new_val, aid))
+        c.execute(
+            "UPDATE analysis SET is_saved = ? WHERE id = ? AND owner_id = ?",
+            (new_val, aid, owner_id),
+        )
         return bool(new_val)
 
 
-def list_saved(limit: int = 50) -> list:
+def list_saved(owner_id: str, limit: int = 50) -> list:
     with _conn() as c:
         rows = c.execute(
             """SELECT id, store_name, source_url, analyzed_at, total_reviews,
                       pct_positive, pct_neutral, pct_negative, is_saved
-               FROM analysis WHERE is_saved = 1 ORDER BY id DESC LIMIT ?""",
-            (limit,),
+               FROM analysis WHERE owner_id = ? AND is_saved = 1
+               ORDER BY id DESC LIMIT ?""",
+            (_require_owner_id(owner_id), limit),
         ).fetchall()
         return [dict(r) for r in rows]
 
 
-def delete_analysis(aid: int) -> bool:
+def delete_analysis(aid: int, owner_id: str) -> bool:
     """ลบผลวิเคราะห์ 1 รายการ (ใช้กับปุ่มลบในหน้า History)"""
     with _conn() as c:
-        cur = c.execute("DELETE FROM analysis WHERE id = ?", (aid,))
+        cur = c.execute(
+            "DELETE FROM analysis WHERE id = ? AND owner_id = ?",
+            (aid, _require_owner_id(owner_id)),
+        )
         return cur.rowcount > 0
 
 
-def delete_all_analyses() -> int:
-    """ลบผลวิเคราะห์ทั้งหมดและคืนจำนวนรายการที่ถูกลบ"""
+def delete_all_analyses(owner_id: str) -> int:
+    """ลบผลวิเคราะห์ของเบราว์เซอร์ปัจจุบันและคืนจำนวนรายการที่ถูกลบ"""
     with _conn() as c:
-        cur = c.execute("DELETE FROM analysis")
+        cur = c.execute(
+            "DELETE FROM analysis WHERE owner_id = ?",
+            (_require_owner_id(owner_id),),
+        )
         return cur.rowcount

@@ -9,6 +9,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from db import database
 
 
+OWNER_A = "device:test-a"
+OWNER_B = "device:test-b"
+
+
 def _analysis_result():
     return {
         "store_name": "ร้านทดสอบ",
@@ -35,29 +39,31 @@ class TestDatabaseLifecycle(unittest.TestCase):
         self.temp_dir.cleanup()
 
     def test_save_get_toggle_and_delete_round_trip(self):
-        aid = database.save_analysis(_analysis_result())
-        loaded = database.get_analysis(aid)
+        aid = database.save_analysis(_analysis_result(), OWNER_A)
+        loaded = database.get_analysis(aid, OWNER_A)
         self.assertEqual(loaded["store_name"], "ร้านทดสอบ")
         self.assertFalse(loaded["is_saved"])
 
-        self.assertTrue(database.toggle_saved(aid))
-        self.assertTrue(database.get_analysis(aid)["is_saved"])
-        self.assertTrue(database.delete_analysis(aid))
-        self.assertIsNone(database.get_analysis(aid))
+        self.assertTrue(database.toggle_saved(aid, OWNER_A))
+        self.assertTrue(database.get_analysis(aid, OWNER_A)["is_saved"])
+        self.assertTrue(database.delete_analysis(aid, OWNER_A))
+        self.assertIsNone(database.get_analysis(aid, OWNER_A))
 
     def test_missing_record_is_distinct_from_unsaved_record(self):
-        self.assertIsNone(database.toggle_saved(999999))
-        self.assertFalse(database.delete_analysis(999999))
+        self.assertIsNone(database.toggle_saved(999999, OWNER_A))
+        self.assertFalse(database.delete_analysis(999999, OWNER_A))
 
     def test_delete_all_analyses_includes_saved_items(self):
-        first = database.save_analysis(_analysis_result())
-        database.save_analysis(_analysis_result())
-        database.toggle_saved(first)
+        first = database.save_analysis(_analysis_result(), OWNER_A)
+        database.save_analysis(_analysis_result(), OWNER_A)
+        database.save_analysis(_analysis_result(), OWNER_B)
+        database.toggle_saved(first, OWNER_A)
 
-        self.assertEqual(database.delete_all_analyses(), 2)
-        self.assertEqual(database.list_analyses(), [])
-        self.assertEqual(database.list_saved(), [])
-        self.assertEqual(database.delete_all_analyses(), 0)
+        self.assertEqual(database.delete_all_analyses(OWNER_A), 2)
+        self.assertEqual(database.list_analyses(OWNER_A), [])
+        self.assertEqual(database.list_saved(OWNER_A), [])
+        self.assertEqual(len(database.list_analyses(OWNER_B)), 1)
+        self.assertEqual(database.delete_all_analyses(OWNER_A), 0)
 
     def test_connection_is_closed_after_context(self):
         with database._conn() as connection:
@@ -69,18 +75,18 @@ class TestDatabaseLifecycle(unittest.TestCase):
         self.assertTrue(database.healthcheck())
 
     def test_job_lifecycle(self):
-        job_id = database.create_job("https://maps.google.com/maps")
-        queued = database.get_job(job_id)
+        job_id = database.create_job("https://maps.google.com/maps", OWNER_A)
+        queued = database.get_job(job_id, OWNER_A)
         self.assertEqual(queued["status"], "queued")
         self.assertEqual(queued["stage"], "queued")
         self.assertEqual(queued["progress"], 0)
 
         self.assertTrue(database.mark_job_running(job_id))
         self.assertTrue(database.update_job_progress(job_id, "sentiment", 50))
-        aid = database.save_analysis(_analysis_result())
+        aid = database.save_analysis(_analysis_result(), OWNER_A)
         self.assertTrue(database.mark_job_completed(job_id, aid))
 
-        completed = database.get_job(job_id)
+        completed = database.get_job(job_id, OWNER_A)
         self.assertEqual(completed["status"], "completed")
         self.assertEqual(completed["analysis_id"], aid)
         self.assertEqual(completed["stage"], "completed")
@@ -88,7 +94,7 @@ class TestDatabaseLifecycle(unittest.TestCase):
         self.assertIsNotNone(completed["finished_at"])
 
     def test_job_transitions_are_conditional(self):
-        job_id = database.create_job("")
+        job_id = database.create_job("", OWNER_A)
         self.assertFalse(database.mark_job_completed(job_id, 1))
         self.assertTrue(database.mark_job_failed(job_id, "failed"))
         self.assertFalse(database.mark_job_running(job_id))
@@ -118,25 +124,25 @@ class TestDatabaseLifecycle(unittest.TestCase):
         self.assertIn("progress", columns)
 
     def test_recover_interrupted_jobs_marks_only_unfinished(self):
-        queued = database.create_job("")
-        running = database.create_job("")
-        completed = database.create_job("")
+        queued = database.create_job("", OWNER_A)
+        running = database.create_job("", OWNER_A)
+        completed = database.create_job("", OWNER_A)
         database.mark_job_running(running)
         database.mark_job_running(completed)
-        aid = database.save_analysis(_analysis_result())
+        aid = database.save_analysis(_analysis_result(), OWNER_A)
         database.mark_job_completed(completed, aid)
 
         self.assertEqual(database.recover_interrupted_jobs(), 2)
-        self.assertEqual(database.get_job(queued)["status"], "failed")
-        self.assertEqual(database.get_job(running)["status"], "failed")
-        self.assertEqual(database.get_job(completed)["status"], "completed")
+        self.assertEqual(database.get_job(queued, OWNER_A)["status"], "failed")
+        self.assertEqual(database.get_job(running, OWNER_A)["status"], "failed")
+        self.assertEqual(database.get_job(completed, OWNER_A)["status"], "completed")
 
     def test_prune_finished_jobs_preserves_analysis_and_recent_jobs(self):
-        old_job = database.create_job("")
-        recent_job = database.create_job("")
+        old_job = database.create_job("", OWNER_A)
+        recent_job = database.create_job("", OWNER_A)
         for job_id in (old_job, recent_job):
             database.mark_job_running(job_id)
-        aid = database.save_analysis(_analysis_result())
+        aid = database.save_analysis(_analysis_result(), OWNER_A)
         database.mark_job_completed(old_job, aid)
         database.mark_job_completed(recent_job, aid)
         with database._conn() as connection:
@@ -146,9 +152,30 @@ class TestDatabaseLifecycle(unittest.TestCase):
             )
 
         self.assertEqual(database.prune_finished_jobs(7), 1)
-        self.assertIsNone(database.get_job(old_job))
-        self.assertIsNotNone(database.get_job(recent_job))
-        self.assertIsNotNone(database.get_analysis(aid))
+        self.assertIsNone(database.get_job(old_job, OWNER_A))
+        self.assertIsNotNone(database.get_job(recent_job, OWNER_A))
+        self.assertIsNotNone(database.get_analysis(aid, OWNER_A))
+
+    def test_analysis_and_job_reads_are_isolated_by_owner(self):
+        aid = database.save_analysis(_analysis_result(), OWNER_A)
+        job_id = database.create_job("", OWNER_A)
+
+        self.assertIsNone(database.get_analysis(aid, OWNER_B))
+        self.assertEqual(database.list_analyses(OWNER_B), [])
+        self.assertIsNone(database.toggle_saved(aid, OWNER_B))
+        self.assertFalse(database.delete_analysis(aid, OWNER_B))
+        self.assertIsNone(database.get_job(job_id, OWNER_B))
+
+        self.assertIsNotNone(database.get_analysis(aid, OWNER_A))
+        self.assertIsNotNone(database.get_job(job_id, OWNER_A))
+
+    def test_job_cannot_complete_with_another_owners_analysis(self):
+        job_id = database.create_job("", OWNER_A)
+        database.mark_job_running(job_id)
+        other_analysis_id = database.save_analysis(_analysis_result(), OWNER_B)
+
+        self.assertFalse(database.mark_job_completed(job_id, other_analysis_id))
+        self.assertEqual(database.get_job(job_id, OWNER_A)["status"], "running")
 
 
 if __name__ == "__main__":

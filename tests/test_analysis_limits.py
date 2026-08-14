@@ -79,9 +79,12 @@ class TestAnalysisRequestGuards(unittest.TestCase):
             response = self._post()
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.headers["Location"], "/jobs/job123")
-        create.assert_called_once_with("")
+        create.assert_called_once()
+        source_url, owner_id = create.call_args.args
+        self.assertEqual(source_url, "")
+        self.assertTrue(owner_id.startswith("device:"))
         submit.assert_called_once_with(
-            "job123", "",
+            "job123", "", owner_id,
             {"use_model": False, "extract_engine": "rule", "max_reviews": 20},
         )
 

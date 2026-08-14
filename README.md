@@ -283,11 +283,16 @@ insightreview/
 
 > ความปลอดภัย: Flask debug ปิดเป็นค่าเริ่มต้น (เปิดด้วย `FLASK_DEBUG=1` เฉพาะตอนพัฒนา);
 > `SECRET_KEY` อ่านจาก env ถ้ามี ไม่งั้นสุ่มต่อโปรเซส; POST ทุก route ตรวจ CSRF token;
-> session cookie เป็น `HttpOnly`/`SameSite=Lax`; มี browser security headers, จำกัด request 1 MiB,
+> session cookie เป็น `HttpOnly`/`SameSite=Lax`; แต่ละเบราว์เซอร์ได้รับ anonymous device token
+> แบบสุ่ม 256 บิตใน `HttpOnly` cookie และฐานข้อมูลเก็บเฉพาะ SHA-256 digest ของ token;
+> ทุก route ของงาน ผลวิเคราะห์ ประวัติ รายการโปรด การส่งออก และการลบตรวจ owner เดียวกัน;
+> มี browser security headers, จำกัด request 1 MiB,
 > ตรวจ Google Maps URL แบบแยก hostname/path, ใช้ parameterized SQL และ Jinja2 autoescape
-> ระบบไม่มีบัญชีผู้ใช้หรือผู้ดูแลตามขอบเขตของโครงงาน แต่ `/analyze` มี sliding-window
-> rate limit ต่อ IP และจำกัดจำนวนงานที่รันพร้อมกัน เพื่อป้องกันการใช้ Apify/โมเดลเกินโควตา
-> ค่าตั้งต้นคือ 10 ครั้ง/ชั่วโมง/IP, 1 worker และคิวรอ 10 งาน ปรับหรือปิด rate limit ได้จาก `.env`
+> ระบบไม่มีบัญชีผู้ใช้หรือผู้ดูแลตามขอบเขตของโครงงาน แต่ข้อมูลแต่ละเบราว์เซอร์แยกจากกัน;
+> การล้าง cookie หรือใช้โหมดไม่ระบุตัวตนจะเริ่มเป็นอุปกรณ์ใหม่ `/analyze` มี sliding-window
+> rate limit ต่อ anonymous device และจำกัดจำนวนงานที่รันพร้อมกัน เพื่อป้องกันการใช้
+> Apify/โมเดลเกินโควตา ค่าตั้งต้นคือ 10 ครั้ง/ชั่วโมง/อุปกรณ์, 1 worker และคิวรอ 10 งาน
+> ปรับหรือปิด rate limit ได้จาก `.env`
 
 ก่อน deploy หลัง HTTPS ให้กำหนด `SECRET_KEY` แบบยาวและ `SESSION_COOKIE_SECURE=1`
 แล้วรัน `python serve.py`; หากต้อง scale หลาย process ควรย้าย worker queue/rate-limit
@@ -297,7 +302,7 @@ coordination ไป Redis/Celery/RQ ก่อน เพื่อไม่ให�
 
 ## 🧪 การทดสอบ
 
-มีชุดทดสอบ **295 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
+มีชุดทดสอบ **314 เทสต์** (ใช้ `unittest` ใน standard library — ไม่ต้องติดตั้ง pytest):
 
 ```bash
 python -m unittest discover -s tests          # รันทั้งหมด
@@ -311,7 +316,8 @@ python -m unittest tests.test_extract_grammar # รันไฟล์เดี�
 การรวมคำพ้อง, การจัดหมวด 4 ชั้น, อารมณ์รายวลีตามบริบท, phrase evaluation,
 CSRF/security headers, settings แบบ atomic, SQLite lifecycle, ขอบเขต Apify response,
 มุมมองผู้บริโภค/ผู้ประกอบการ และตัวกรองหลักฐานไม่ให้สร้างเมนูหรือสัญญาณลบผิด
-และสโม้คเทสต์ทั้ง pipeline (ไม่เรียก API จริงและไม่ขึ้นกับ `.env`)
+การแยกข้อมูลระหว่าง anonymous devices และสโม้คเทสต์ทั้ง pipeline
+(ไม่เรียก API จริงและไม่ขึ้นกับ `.env`)
 
 ---
 

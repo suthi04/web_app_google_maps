@@ -70,7 +70,8 @@ class TestWebSecurity(unittest.TestCase):
         self.assertEqual(
             response.get_json(), {"deleted": True, "deleted_count": 3}
         )
-        delete_all.assert_called_once_with()
+        delete_all.assert_called_once()
+        self.assertTrue(delete_all.call_args.args[0].startswith("device:"))
 
     def test_security_headers_are_present_on_success_and_error(self):
         for path in ("/", "/does-not-exist"):
