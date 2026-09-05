@@ -9,6 +9,9 @@
   const progressWrap = document.getElementById("jobProgressWrap");
   const stage = document.getElementById("jobStage");
   const percent = document.getElementById("jobPercent");
+  const sample = document.getElementById("jobSample");
+  const eyebrow = document.getElementById("jobEyebrow");
+  const note = document.getElementById("jobBackgroundNote");
   const STAGE_LABELS = {
     queued: "รอคิว",
     fetching_reviews: "กำลังดึงรีวิว",
@@ -41,6 +44,10 @@
 
   function showFailure(text) {
     stopped = true;
+    clearTimeout(timerId);
+    if (sample) sample.hidden = false;
+    if (eyebrow) eyebrow.textContent = "สถานะการวิเคราะห์";
+    if (note) note.textContent = "ดูผลตัวอย่างที่เตรียมไว้ได้ทันที โดยไม่ต้องรอวิเคราะห์ใหม่";
     spinner?.classList.add("failed");
     progressWrap?.classList.add("failed");
     title.textContent = "วิเคราะห์ไม่สำเร็จ";
@@ -49,14 +56,19 @@
 
   async function poll() {
     if (stopped) return;
+    const controller = new AbortController();
+    const requestTimeout = setTimeout(() => controller.abort(), 12000);
     try {
       const response = await fetch(card.dataset.apiUrl, {
         headers: { "Accept": "application/json" },
         cache: "no-store",
+        signal: controller.signal,
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const job = await response.json();
       consecutiveErrors = 0;
+      if (sample) sample.hidden = true;
+      if (note) note.textContent = "ออกจากหน้านี้ได้ ระบบจะวิเคราะห์ต่อและแสดงสถานะไว้ที่มุมหน้าจอ";
       const progressValue = Math.max(0, Math.min(100, Number(job.progress) || 0));
       if (progress) progress.value = progressValue;
       if (stage) stage.textContent = STAGE_LABELS[job.stage] || "กำลังประมวลผล";
@@ -83,6 +95,8 @@
       }
     } catch (_error) {
       consecutiveErrors += 1;
+      if (sample) sample.hidden = false;
+      if (note) note.textContent = "ระหว่างรอเชื่อมต่อใหม่ คุณเปิดดูข้อมูลตัวอย่างก่อนได้";
       title.textContent = "การเชื่อมต่อขัดข้องชั่วคราว";
       message.textContent = "ยังไม่ยกเลิกงาน ระบบกำลังลองเชื่อมต่อใหม่โดยอัตโนมัติ…";
       if (stage) stage.textContent = "กำลังเชื่อมต่อใหม่";
@@ -92,6 +106,8 @@
       );
       schedule(retryDelay);
       return;
+    } finally {
+      clearTimeout(requestTimeout);
     }
     schedule();
   }
@@ -99,5 +115,9 @@
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden && !stopped) schedule(0);
   });
-  poll();
+  if (card.dataset.jobStatus === "failed") {
+    showFailure(message.textContent.trim());
+  } else {
+    poll();
+  }
 })();

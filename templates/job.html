@@ -18,10 +18,11 @@
 <div class="job-wrap">
   <div class="panel job-card" id="jobCard"
        data-job-id="{{ job.id }}"
+       data-job-status="{{ job.status }}"
        data-api-url="{{ url_for('api_job_status', job_id=job.id) }}"
        data-job-url="{{ url_for('job_status', job_id=job.id) }}">
     <div class="job-spinner {{ 'failed' if job.status == 'failed' }}" id="jobSpinner" aria-hidden="true"></div>
-    <div class="eyebrow-label">กำลังประมวลผลเบื้องหลัง</div>
+    <div class="eyebrow-label" id="jobEyebrow">{{ 'สถานะการวิเคราะห์' if job.status == 'failed' else 'กำลังประมวลผลเบื้องหลัง' }}</div>
     <h1 id="jobTitle">
       {% if job.status == 'failed' %}วิเคราะห์ไม่สำเร็จ{% elif job.status == 'running' %}กำลังวิเคราะห์รีวิว{% else %}กำลังรอคิววิเคราะห์{% endif %}
     </h1>
@@ -33,8 +34,11 @@
       <div class="job-progress-meta"><span id="jobStage">{{ STAGE_LABELS.get(job.stage or job.status, 'กำลังประมวลผล') }}</span><span class="mono" id="jobPercent">{{ job.progress or 0 }}%</span></div>
     </div>
     <div class="job-meta mono">รหัสงาน {{ job.id[:8] }}</div>
-    <a href="{{ url_for('index') }}" class="btn btn-ghost job-back" id="jobBack">กลับหน้าแรก</a>
-    <p class="job-background-note">ออกจากหน้านี้ได้ ระบบจะวิเคราะห์ต่อและแสดงสถานะไว้ที่มุมหน้าจอ</p>
+    <div class="recovery-actions">
+      <a href="{{ url_for('sample_dashboard') }}" class="btn btn-primary" id="jobSample" {% if job.status != 'failed' %}hidden{% endif %}>ดูข้อมูลตัวอย่าง</a>
+      <a href="{{ url_for('index') }}" class="btn btn-ghost" id="jobBack">กลับหน้าแรก</a>
+    </div>
+    <p class="job-background-note" id="jobBackgroundNote">{% if job.status == 'failed' %}ดูผลตัวอย่างที่เตรียมไว้ได้ทันที โดยไม่ต้องรอวิเคราะห์ใหม่{% else %}ออกจากหน้านี้ได้ ระบบจะวิเคราะห์ต่อและแสดงสถานะไว้ที่มุมหน้าจอ{% endif %}</p>
   </div>
 </div>
 {% endblock %}

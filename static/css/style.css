@@ -823,6 +823,12 @@ table.reviews tr:hover td{background:var(--surface-hover)}
 .job-progress-wrap progress::-moz-progress-bar{background:var(--accent);border-radius:99px}
 .job-progress-meta{display:flex;justify-content:space-between;gap:12px;margin-top:9px;font-size:13px;color:var(--ink-2)}
 .job-back{display:inline-flex;margin-top:22px}
+.recovery-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:22px}
+.recovery-actions [hidden]{display:none}
+.tracker-sample{display:inline-block;margin-top:8px;color:var(--accent-dark);font-size:12px;text-decoration:underline;text-underline-offset:3px;padding:4px 0}
+.tracker-sample[hidden]{display:none}
+.sample-notice{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;margin-bottom:22px;border:1px solid var(--border);border-radius:16px;background:var(--accent-soft);color:var(--ink)}
+.sample-notice p{margin:5px 0 0;color:var(--ink-2);font-size:14px;line-height:1.6}
 .job-background-note{margin:11px auto 0!important;max-width:360px!important;font-size:12px!important;color:var(--ink-3)!important}
 
 /* ---------- Persistent background-analysis tracker ---------- */

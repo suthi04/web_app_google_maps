@@ -10,6 +10,12 @@
 {% endblock %}
 
 {% block content %}
+{% if get_flashed_messages(category_filter=['err']) %}
+<div class="sample-notice" role="note">
+  <div><strong>ยังวิเคราะห์ไม่ได้?</strong><p>เปิดดูผลจากข้อมูลตัวอย่างที่เตรียมไว้ก่อนได้</p></div>
+  <a class="btn btn-primary" href="{{ url_for('sample_dashboard') }}">ดูข้อมูลตัวอย่าง</a>
+</div>
+{% endif %}
 <div class="landing">
   <div class="landing-copy">
     <span class="eyebrow">

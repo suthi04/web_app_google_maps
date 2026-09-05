@@ -17,7 +17,7 @@
 {% block topbar %}
   <form class="analysis-composer compact" method="post" action="{{ url_for('analyze') }}" id="analyzeForm" data-guard-submit
         data-actual-extract-engine="{{ a.get('extract_engine', 'rule') }}"
-        data-sync-result-engine="{{ '1' if a.get('extract_engine_requested') else '0' }}"
+        data-sync-result-engine="{{ '1' if a.get('extract_engine_requested') and not is_sample else '0' }}"
         data-extract-fallback="{{ '1' if a.get('extract_engine_requested') == 'llm' and a.get('extract_engine', 'rule') == 'rule' else '0' }}">
     <input type="hidden" name="_csrf_token" value="{{ csrf_token }}">
     <div class="search-box">
@@ -56,6 +56,12 @@
 {% endblock %}
 
 {% block content %}
+{% if is_sample %}
+<div class="sample-notice" role="note">
+  <div><strong>คุณกำลังดูข้อมูลตัวอย่าง</strong><p>ผลจากรีวิวตัวอย่าง “{{ a.store_name }}” ที่เตรียมไว้ ไม่ใช่ผลของร้านที่คุณส่งวิเคราะห์</p></div>
+  <a class="btn btn-ghost" href="{{ url_for('index') }}">กลับไปวิเคราะห์ร้านของคุณ</a>
+</div>
+{% endif %}
 <div class="dash-head">
   <div>
     <div class="eyebrow-label">ภาพรวมการวิเคราะห์</div>
@@ -92,6 +98,7 @@
     </div>
   </div>
   <div class="actions">
+    {% if not is_sample %}
     <div class="dropdown">
       <button class="btn btn-ghost" id="exportBtn" type="button" aria-haspopup="menu" aria-controls="exportMenu" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3v12M8 11l4 4 4-4M5 21h14" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -108,6 +115,7 @@
       <svg viewBox="0 0 24 24" fill="{{ 'currentColor' if a.is_saved else 'none' }}" stroke="currentColor"><path d="M6 4h12v16l-6-4-6 4V4z" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <span id="saveLabel">{{ 'บันทึกแล้ว' if a.is_saved else 'บันทึก' }}</span>
     </button>
+    {% endif %}
   </div>
 </div>
 

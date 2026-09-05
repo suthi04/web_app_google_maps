@@ -115,6 +115,7 @@ function _trackerElements() {
     progress: document.getElementById("analysisTrackerProgress"),
     link: document.getElementById("analysisTrackerLink"),
     close: document.getElementById("analysisTrackerClose"),
+    sample: document.getElementById("analysisTrackerSample"),
   };
 }
 
@@ -149,6 +150,7 @@ function _renderAnalysisTracker(job) {
     : (_activeAnalysisJob?.jobUrl || "#");
   ui.link.textContent = done ? "เปิดผลลัพธ์" : failed ? "ดูรายละเอียด" : "ดูสถานะ";
   ui.close.hidden = !(done || failed);
+  if (ui.sample) ui.sample.hidden = !failed;
 }
 
 function _scheduleAnalysisTracker(delay = 1800) {
@@ -196,6 +198,7 @@ async function _pollAnalysisTracker() {
     if (ui.root) ui.root.hidden = false;
     if (ui.title) ui.title.textContent = "งานยังทำอยู่เบื้องหลัง";
     if (ui.stage) ui.stage.textContent = "กำลังเชื่อมต่อสถานะอีกครั้ง";
+    if (ui.sample) ui.sample.hidden = false;
     _scheduleAnalysisTracker(Math.min(15000, 1800 * (2 ** Math.min(_analysisTrackerErrors, 3))));
   }
 }

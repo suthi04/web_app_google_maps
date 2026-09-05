@@ -13,9 +13,14 @@
   <h4 style="font-size:34px;color:var(--ink);letter-spacing:-1px" class="mono">{{ code }}</h4>
   <h4>{{ title }}</h4>
   <p>{{ message }}</p>
-  <a class="btn btn-primary" href="{{ url_for('index') }}">
+  <div class="recovery-actions">
+  {% if code|string in ['429', '500', '503'] %}
+  <a class="btn btn-primary" href="{{ url_for('sample_dashboard') }}">ดูข้อมูลตัวอย่าง</a>
+  {% endif %}
+  <a class="btn btn-ghost" href="{{ url_for('index') }}">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l9-7 9 7M5 10v10h14V10" stroke-linecap="round" stroke-linejoin="round"/></svg>
     กลับหน้าแรก
   </a>
+  </div>
 </div>
 {% endblock %}

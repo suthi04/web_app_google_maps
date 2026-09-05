@@ -201,7 +201,7 @@ class TestAudienceDashboard(unittest.TestCase):
         self.assertIn('class="operator-deep-dive"', html)
         self.assertNotIn('id="operatorReviewPagination"', html)
         self.assertIn('data-review-id="R001"', html)
-        self.assertIn("js/dashboard.js?v=20260813-reviews1", html)
+        self.assertIn("js/dashboard.js?v=20260905-sample1", html)
         self.assertIn("กรองอารมณ์", html)
         self.assertNotIn('class="metrics"', html)
         self.assertNotIn('class="panel sentiment-panel"', html)

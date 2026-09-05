@@ -17,7 +17,9 @@ Routes:
 หมายเหตุ: ทุก route ที่อาจล้มเหลว (โดยเฉพาะ /analyze ที่เรียก Apify/โมเดล)
 ถูกครอบด้วย error handling เพื่อไม่ให้ผู้ใช้เจอหน้า 500 ดิบ ๆ
 """
+import json
 import logging
+from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from flask import (
@@ -117,7 +119,7 @@ def inject_globals():
         "max_reviews_cap": config.MAX_REVIEWS_CAP,
         "sidebar_recent": sidebar_recent,
         # Bump when shared CSS/JS changes so long-lived browser caches refresh.
-        "asset_version": "20260813-reviews1",
+        "asset_version": "20260905-sample1",
     }
 
 
@@ -164,6 +166,18 @@ def _looks_like_maps_url(url: str) -> bool:
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/sample")
+def sample_dashboard():
+    """Read a prepared example without scraping, inference or database writes."""
+    path = Path(config.DATA_DIR) / "sample_analysis.json"
+    with path.open(encoding="utf-8") as handle:
+        data = json.load(handle)
+    return render_template(
+        "dashboard.html", a=data, aspect_examples=_aspect_examples(data),
+        is_sample=True,
+    )
 
 
 def _analysis_unavailable(status: int, title: str, message: str, retry_after: int):
