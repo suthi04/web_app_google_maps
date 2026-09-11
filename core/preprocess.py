@@ -160,7 +160,3 @@ def filter_and_prepare(reviews: list) -> list:
             "clauses": clauses,
         })
     return prepared
-
-
-def has_pythainlp() -> bool:
-    return _HAS_PYTHAINLP

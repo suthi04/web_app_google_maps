@@ -1,4 +1,3 @@
-import json
 import os
 import sys
 import tempfile
@@ -52,31 +51,6 @@ class TestRobustSettings(unittest.TestCase):
                     )
                     with mock.patch.object(config, "SETTINGS_PATH", path):
                         self.assertEqual(config._load_overrides(), {})
-
-    def test_save_is_normalized_allowlisted_and_leaves_no_temp_file(self):
-        with tempfile.TemporaryDirectory() as directory:
-            path = os.path.join(directory, "settings.json")
-            with mock.patch.object(config, "SETTINGS_PATH", path):
-                config.save_settings(
-                    {
-                        "max_reviews": config.MAX_REVIEWS_CAP + 999,
-                        "use_model": "false",
-                        "extract_engine": "llm",
-                        "secret": "must-not-be-written",
-                    }
-                )
-            with open(path, encoding="utf-8") as file:
-                saved = json.load(file)
-
-            self.assertEqual(saved["max_reviews"], config.MAX_REVIEWS_CAP)
-            self.assertFalse(saved["use_model"])
-            self.assertEqual(saved["extract_engine"], "llm")
-            self.assertNotIn("secret", saved)
-            self.assertEqual(
-                [name for name in os.listdir(directory) if name.endswith(".tmp")],
-                [],
-            )
-
 
 if __name__ == "__main__":
     unittest.main()

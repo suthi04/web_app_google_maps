@@ -377,15 +377,6 @@ def match_topic(text: str) -> str | None:
     return None
 
 
-def _evidence_label(review_count: int) -> tuple[str, str]:
-    # Product heuristic, deliberately not described as statistical confidence.
-    if review_count <= 1:
-        return "preliminary", "พูดถึง 1 ครั้ง"
-    if review_count <= 3:
-        return "repeated", "พูดถึงหลายครั้ง"
-    return "frequent", "ถูกพูดถึงบ่อย"
-
-
 def _status_for(evidence: dict[str, list[str]]) -> str:
     if evidence["mixed"] or (evidence["positive"] and evidence["negative"]):
         return "mixed"
@@ -394,28 +385,6 @@ def _status_for(evidence: dict[str, list[str]]) -> str:
     if evidence["positive"]:
         return "positive"
     return "neutral"
-
-
-def _summary(topic: dict, status: str, evidence: dict[str, list[str]], total: int) -> str:
-    positive = len(set(evidence["positive"]))
-    negative = len(set(evidence["negative"]))
-    if status == "mixed":
-        if positive and negative:
-            return f"พบความคิดเห็นเชิงบวก {positive} ความเห็น และเชิงลบ {negative} ความเห็น จากทั้งหมด {total} ความเห็นในเรื่องนี้"
-        return f"มี {total} ความคิดเห็นที่พูดถึงทั้งข้อดีและข้อจำกัดในเรื่องเดียวกัน"
-    if status == "positive":
-        return f"พบข้อมูลในทางบวกจาก {total} ความคิดเห็นเรื่อง{topic['label']}"
-    if status == "negative":
-        return f"พบข้อจำกัดจาก {total} ความคิดเห็นเรื่อง{topic['label']}"
-    return f"มี {total} ความคิดเห็นในเรื่องนี้ แต่ยังสรุปทิศทางไม่ได้ชัดเจน"
-
-
-def _context_text(contexts: list[str]) -> str:
-    if not contexts:
-        return ""
-    if len(contexts) == 1:
-        return f"มีผู้พูดถึงใน{contexts[0]}"
-    return f"มีผู้พูดถึงใน{contexts[0]}และ{contexts[1]}"
 
 
 def build_practical_insights(
@@ -466,7 +435,6 @@ def build_practical_insights(
             continue
 
         status = _status_for(evidence)
-        evidence_level, evidence_label = _evidence_label(len(all_ids))
         presentation = _STATUS_PRESENTATION[status]
         query = query_counts.most_common(1)[0][0] if query_counts else topic["label"]
         contexts = [cue for cue, _ in context_counts.most_common(2)]
@@ -480,20 +448,13 @@ def build_practical_insights(
             "sentiment": "neutral" if status == "mixed" else status,
             "title": topic["titles"][status],
             "text": topic["titles"][status],
-            "summary": _summary(topic, status, evidence, len(all_ids)),
             "advice": topic["advice"][status],
             "review_count": len(all_ids),
-            "count": len(all_ids),
-            "evidence_level": evidence_level,
-            "evidence_label": evidence_label,
             "action_tier": presentation["action_tier"],
             "status_label": presentation["status_label"],
             "evidence_review_ids": all_ids,
-            "positive_review_count": len(set(evidence["positive"])),
             "negative_review_count": len(set(evidence["negative"])),
-            "neutral_review_count": len(set(evidence["neutral"])),
             "context_labels": contexts,
-            "context_text": _context_text(contexts),
             "query": query,
             "aspect_th": topic["label"],
             "_score": score,
@@ -535,20 +496,5 @@ def enrich_result(result: dict, limit: int = 6) -> dict:
         phrase_items=phrase_items,
         limit=limit,
     )
-    evidence_review_ids = list(dict.fromkeys(
-        review_id
-        for item in items
-        for review_id in item.get("evidence_review_ids", [])
-    ))
     result["practical_insights"] = items
-    result["practical_insights_meta"] = {
-        "topic_count": len(items),
-        "evidence_review_count": len(evidence_review_ids),
-        "attention_count": sum(
-            item.get("action_tier") == "plan" for item in items
-        ),
-        "repeated_count": sum(
-            int(item.get("review_count") or 0) >= 2 for item in items
-        ),
-    }
     return result

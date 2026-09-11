@@ -258,9 +258,7 @@ insightreview/
 | `distribution` | สัดส่วนอารมณ์รวม (counts + % บวก/กลาง/ลบ) |
 | `aspect_summary` | นับอารมณ์ราย aspect (ระดับอนุประโยค) |
 | `keywords` | **วลีความเห็นราย aspect/อารมณ์** → แต่ละวลีมี `word`, จำนวน occurrence (`count`), จำนวนรีวิวไม่ซ้ำ (`review_count`) และ `evidence_review_ids` |
-| `insights` | ข้อสรุปเชิงปฏิบัติราย aspect พร้อมเหตุผล หลักฐาน และกลยุทธ์ |
 | `consumer_summary` | สิ่งที่ควรรู้ก่อนไป, บทสรุปสั้น และข้อควรระวัง |
-| `critical_issues` | จุดวิกฤต/เฝ้าระวังจากวลีลบ พร้อมรหัสรีวิวอ้างอิง เหตุผล และกลยุทธ์แนะนำ |
 | `operator_plan` | Executive Brief, Strategic Roadmap, Tactical Playbook แยกจุดเสี่ยง/โอกาส และวิธีตรวจผลรอบถัดไป โดยทุกประเด็นเชื่อมกลับไปยังรีวิวหลักฐาน |
 | `reviews` | ตารางรีวิวรายรายการ (ข้อความ, ดาว, วันที่, อารมณ์, หมวด) |
 
@@ -280,7 +278,6 @@ insightreview/
 | `POST /delete/<aid>` | ลบผลวิเคราะห์ (คืน JSON) |
 | `GET /api/analysis/<aid>` | คืนผลวิเคราะห์เต็มเป็น JSON |
 | `GET /healthz` | readiness ของ SQLite + ความจุ background queue เป็น JSON |
-| `GET /settings` / `POST /settings` | route compatibility เดิม; GET พากลับหน้า URL และ UI ใหม่ส่งค่าต่อการวิเคราะห์ |
 | `GET /export/<aid>/reviews.csv` | ส่งออกรีวิวรายรายการ (CSV, มี BOM ให้ Excel อ่านไทยถูก) |
 | `GET /export/<aid>/summary.csv` | ส่งออกสถิติสรุป (CSV) |
 | `GET /export/<aid>/labeling.json` | ส่งออกรีวิวล้วนสำหรับนำไปติด label (JSON) |

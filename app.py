@@ -315,6 +315,15 @@ def _aspect_examples(data: dict, per_bucket: int = 3, max_len: int = 220) -> dic
     return examples
 
 
+def _prepare_analysis_view(data: dict) -> dict:
+    """Rebuild current presentation fields and discard obsolete intermediates."""
+    data["insights"] = insights.generate_insights(
+        data.get("aspect_summary") or {}, data.get("keywords") or {},
+        narrative=data.get("analysis_narrative") or {},
+    )
+    return audience_insights.enrich_result(data)
+
+
 @app.route("/dashboard/<int:aid>")
 def dashboard(aid):
     data = database.get_analysis(aid, g.owner_id)
@@ -323,11 +332,7 @@ def dashboard(aid):
     # Normalize provenance on every read so legacy analyses gain stable review
     # IDs where exact evidence can be reconstructed. Presentation fields are
     # deterministic and intentionally recomputed from the persisted analysis.
-    data["insights"] = insights.generate_insights(
-        data.get("aspect_summary") or {}, data.get("keywords") or {},
-        narrative=data.get("analysis_narrative") or {},
-    )
-    audience_insights.enrich_result(data)
+    _prepare_analysis_view(data)
     return render_template(
         "dashboard.html", a=data, aspect_examples=_aspect_examples(data)
     )
@@ -384,7 +389,7 @@ def api_analysis(aid):
     data = database.get_analysis(aid, g.owner_id)
     if not data:
         abort(404)
-    return jsonify(data)
+    return jsonify(_prepare_analysis_view(data))
 
 
 @app.route("/healthz")
@@ -400,32 +405,6 @@ def healthz():
         "database": "ok",
         "jobs": job_runner.snapshot(),
     })
-
-
-# ---------- legacy settings compatibility (UI ย้ายไปอยู่ข้างช่อง URLแล้ว) ----------
-@app.route("/settings")
-def settings():
-    flash("ย้ายตัวเลือกการวิเคราะห์มาไว้ข้างช่องวางลิงก์แล้ว", "info")
-    return redirect(url_for("index"))
-
-
-@app.route("/settings", methods=["POST"])
-def save_settings():
-    changes = {"use_model": request.form.get("engine") == "model"}
-
-    engine = request.form.get("extract_engine")
-    if engine in ("rule", "llm"):
-        changes["extract_engine"] = engine
-
-    # จำนวนรีวิว: รับค่าแล้วให้ config บีบเข้าเพดาน [MIN_REVIEWS, MAX_REVIEWS_CAP] เอง
-    try:
-        changes["max_reviews"] = int(request.form.get("max_reviews", ""))
-    except (TypeError, ValueError):
-        pass
-
-    config.save_settings(changes)
-    flash("บันทึกค่าเริ่มต้นแล้ว ตัวเลือกอยู่ข้างช่องวางลิงก์", "ok")
-    return redirect(url_for("index"))
 
 
 # ---------- export (สำหรับงานวิจัย) ----------
@@ -448,7 +427,11 @@ def export_summary(aid):
     a = database.get_analysis(aid, g.owner_id)
     if not a:
         abort(404)
-    return _download(export.summary_csv(a), f"summary_{aid}.csv", "text/csv; charset=utf-8")
+    return _download(
+        export.summary_csv(_prepare_analysis_view(a)),
+        f"summary_{aid}.csv",
+        "text/csv; charset=utf-8",
+    )
 
 
 @app.route("/export/<int:aid>/labeling.json")

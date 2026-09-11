@@ -66,8 +66,8 @@ class TestPipelineSmoke(unittest.TestCase):
             "expected at least one negation-merged keyword in output",
         )
 
-    def test_insights_present_for_each_aspect(self):
-        aspects = {i["aspect"] for i in self.result["insights"]}
+    def test_operator_plan_present_for_each_aspect(self):
+        aspects = {i["aspect"] for i in self.result["operator_plan"]["items"]}
         self.assertTrue({"food", "service", "ambience"}.issubset(aspects))
 
     def test_audience_views_are_built_from_the_same_analysis(self):
@@ -76,7 +76,10 @@ class TestPipelineSmoke(unittest.TestCase):
             set(consumer),
             {"things_to_know", "lazy_summary", "cautions"},
         )
-        self.assertIn("critical_issues", self.result)
+        self.assertIn("operator_plan", self.result)
+        self.assertNotIn("critical_issues", self.result)
+        self.assertNotIn("insights", self.result)
+        self.assertNotIn("practical_insights", self.result)
 
     def test_keywords_are_phrases_not_bare_nouns(self):
         bad = {"อาหาร", "เมนู", "ร้าน", "ดี", "อร่อย", "ชอบ", "แนะนำ"}

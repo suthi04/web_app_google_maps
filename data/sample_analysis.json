@@ -366,153 +366,6 @@
       ]
     }
   },
-  "insights": [
-    {
-      "aspect": "food",
-      "aspect_th": "อาหาร",
-      "level": "improve",
-      "sample_size": 21,
-      "positive_pct": 48,
-      "negative_pct": 33,
-      "message": "ด้านอาหารมีความไม่พอใจ 33% โดยเฉพาะเรื่อง อาหารน่าผิดหวังมาก, ไม่ค่อยประทับใจ, วัตถุดิบไม่สด",
-      "reason": "ด้านอาหารมีความไม่พอใจ 33% โดยเฉพาะเรื่อง อาหารน่าผิดหวังมาก, ไม่ค่อยประทับใจ, วัตถุดิบไม่สด",
-      "strategy": "ตรวจตัวอย่างอาหารและ feedback รายเมนู หา root cause กับทีมครัว แล้วติดตามจำนวนคำร้องเรียนเดิมรายสัปดาห์",
-      "evidence": [
-        {
-          "text": "อาหารน่าผิดหวังมาก",
-          "count": 1,
-          "review_count": 1,
-          "evidence_review_ids": [
-            "R013"
-          ]
-        },
-        {
-          "text": "ไม่ค่อยประทับใจ",
-          "count": 1,
-          "review_count": 1,
-          "evidence_review_ids": [
-            "R009"
-          ]
-        },
-        {
-          "text": "วัตถุดิบไม่สด",
-          "count": 1,
-          "review_count": 1,
-          "evidence_review_ids": [
-            "R013"
-          ]
-        }
-      ],
-      "evidence_review_ids": [
-        "R013",
-        "R009"
-      ],
-      "keywords": [
-        "อาหารน่าผิดหวังมาก",
-        "ไม่ค่อยประทับใจ",
-        "วัตถุดิบไม่สด"
-      ],
-      "source": "rule"
-    },
-    {
-      "aspect": "service",
-      "aspect_th": "บริการ",
-      "level": "improve",
-      "sample_size": 13,
-      "positive_pct": 46,
-      "negative_pct": 38,
-      "message": "ด้านบริการมีความไม่พอใจ 38% โดยเฉพาะเรื่อง บริการช้ามาก, บริการน่าผิดหวังมาก, พนักงานหยาบคายมาก",
-      "reason": "ด้านบริการมีความไม่พอใจ 38% โดยเฉพาะเรื่อง บริการช้ามาก, บริการน่าผิดหวังมาก, พนักงานหยาบคายมาก",
-      "strategy": "วัดเวลารอตามช่วงเวลา จัดกำลังคนช่วงพีค และตั้งเป้าเวลารับออเดอร์–เสิร์ฟที่ตรวจติดตามได้ทุกสัปดาห์",
-      "evidence": [
-        {
-          "text": "บริการช้ามาก",
-          "count": 2,
-          "review_count": 2,
-          "evidence_review_ids": [
-            "R004",
-            "R026"
-          ]
-        },
-        {
-          "text": "บริการน่าผิดหวังมาก",
-          "count": 1,
-          "review_count": 1,
-          "evidence_review_ids": [
-            "R023"
-          ]
-        },
-        {
-          "text": "พนักงานหยาบคายมาก",
-          "count": 1,
-          "review_count": 1,
-          "evidence_review_ids": [
-            "R006"
-          ]
-        }
-      ],
-      "evidence_review_ids": [
-        "R004",
-        "R026",
-        "R023",
-        "R006"
-      ],
-      "keywords": [
-        "บริการช้ามาก",
-        "บริการน่าผิดหวังมาก",
-        "พนักงานหยาบคายมาก"
-      ],
-      "source": "rule"
-    },
-    {
-      "aspect": "ambience",
-      "aspect_th": "บรรยากาศ",
-      "level": "improve",
-      "sample_size": 10,
-      "positive_pct": 60,
-      "negative_pct": 30,
-      "message": "ด้านบรรยากาศมีความไม่พอใจ 30% โดยเฉพาะเรื่อง ร้านเสียงดังมาก, บรรยากาศแย่มาก, บรรยากาศอึดอัด",
-      "reason": "ด้านบรรยากาศมีความไม่พอใจ 30% โดยเฉพาะเรื่อง ร้านเสียงดังมาก, บรรยากาศแย่มาก, บรรยากาศอึดอัด",
-      "strategy": "ตรวจสภาพพื้นที่ตามช่วงเวลา แยกโซนหรือปรับเสียง/อุณหภูมิ และเก็บ feedback หลังแก้เพื่อยืนยันผล",
-      "evidence": [
-        {
-          "text": "ร้านเสียงดังมาก",
-          "count": 1,
-          "review_count": 1,
-          "evidence_review_ids": [
-            "R012"
-          ]
-        },
-        {
-          "text": "บรรยากาศแย่มาก",
-          "count": 1,
-          "review_count": 1,
-          "evidence_review_ids": [
-            "R007"
-          ]
-        },
-        {
-          "text": "บรรยากาศอึดอัด",
-          "count": 1,
-          "review_count": 1,
-          "evidence_review_ids": [
-            "R018"
-          ]
-        }
-      ],
-      "evidence_review_ids": [
-        "R012",
-        "R007",
-        "R018"
-      ],
-      "keywords": [
-        "ร้านเสียงดังมาก",
-        "บรรยากาศแย่มาก",
-        "บรรยากาศอึดอัด"
-      ],
-      "source": "rule"
-    }
-  ],
   "reviews": [
     {
       "review_id": "R001",
@@ -826,203 +679,6 @@
       ]
     }
   ],
-  "practical_insights": [
-    {
-      "topic": "queue",
-      "topic_label": "คิวและเวลารอ",
-      "aspect": "service",
-      "status": "mixed",
-      "sentiment": "neutral",
-      "title": "เวลารอของแต่ละคนไม่เหมือนกัน",
-      "text": "เวลารอของแต่ละคนไม่เหมือนกัน",
-      "summary": "พบความคิดเห็นเชิงบวก 2 ความเห็น และเชิงลบ 5 ความเห็น จากทั้งหมด 7 ความเห็นในเรื่องนี้",
-      "advice": "ควรเช็กคิวล่าสุดและเผื่อเวลาไว้",
-      "review_count": 7,
-      "count": 7,
-      "evidence_level": "frequent",
-      "evidence_label": "ถูกพูดถึงบ่อย",
-      "action_tier": "plan",
-      "status_label": "ข้อมูลไม่ตรงกัน",
-      "evidence_review_ids": [
-        "R002",
-        "R011",
-        "R004",
-        "R015",
-        "R023",
-        "R026",
-        "R030"
-      ],
-      "positive_review_count": 2,
-      "negative_review_count": 5,
-      "neutral_review_count": 0,
-      "context_labels": [
-        "ช่วงพีค"
-      ],
-      "context_text": "มีผู้พูดถึงในช่วงพีค",
-      "query": "ช้ามาก",
-      "aspect_th": "คิวและเวลารอ",
-      "rank": 1
-    },
-    {
-      "topic": "price",
-      "topic_label": "ราคา",
-      "aspect": "food",
-      "status": "mixed",
-      "sentiment": "neutral",
-      "title": "แต่ละคนมองเรื่องราคาไม่เหมือนกัน",
-      "text": "แต่ละคนมองเรื่องราคาไม่เหมือนกัน",
-      "summary": "พบความคิดเห็นเชิงบวก 4 ความเห็น และเชิงลบ 1 ความเห็น จากทั้งหมด 7 ความเห็นในเรื่องนี้",
-      "advice": "ควรดูทั้งราคาและปริมาณอาหารจากเมนูล่าสุด",
-      "review_count": 7,
-      "count": 7,
-      "evidence_level": "frequent",
-      "evidence_label": "ถูกพูดถึงบ่อย",
-      "action_tier": "plan",
-      "status_label": "ข้อมูลไม่ตรงกัน",
-      "evidence_review_ids": [
-        "R001",
-        "R005",
-        "R022",
-        "R024",
-        "R017",
-        "R027",
-        "R009"
-      ],
-      "positive_review_count": 4,
-      "negative_review_count": 1,
-      "neutral_review_count": 2,
-      "context_labels": [],
-      "context_text": "",
-      "query": "ราคา",
-      "aspect_th": "ราคา",
-      "rank": 2
-    },
-    {
-      "topic": "comfort",
-      "topic_label": "ที่นั่งและความสบาย",
-      "aspect": "ambience",
-      "status": "mixed",
-      "sentiment": "neutral",
-      "title": "ความคิดเห็นเรื่องที่นั่งไม่ตรงกัน",
-      "text": "ความคิดเห็นเรื่องที่นั่งไม่ตรงกัน",
-      "summary": "พบความคิดเห็นเชิงบวก 3 ความเห็น และเชิงลบ 1 ความเห็น จากทั้งหมด 4 ความเห็นในเรื่องนี้",
-      "advice": "ถามร้านเรื่องโซนและที่นั่งก่อนมา",
-      "review_count": 4,
-      "count": 4,
-      "evidence_level": "frequent",
-      "evidence_label": "ถูกพูดถึงบ่อย",
-      "action_tier": "plan",
-      "status_label": "ข้อมูลไม่ตรงกัน",
-      "evidence_review_ids": [
-        "R003",
-        "R021",
-        "R025",
-        "R018"
-      ],
-      "positive_review_count": 3,
-      "negative_review_count": 1,
-      "neutral_review_count": 0,
-      "context_labels": [],
-      "context_text": "",
-      "query": "แอร์",
-      "aspect_th": "ที่นั่งและความสบาย",
-      "rank": 3
-    },
-    {
-      "topic": "crowd_noise",
-      "topic_label": "คนเยอะและเสียงดัง",
-      "aspect": "ambience",
-      "status": "negative",
-      "sentiment": "negative",
-      "title": "ร้านอาจคนเยอะหรือเสียงดัง",
-      "text": "ร้านอาจคนเยอะหรือเสียงดัง",
-      "summary": "พบข้อจำกัดจาก 2 ความคิดเห็นเรื่องคนเยอะและเสียงดัง",
-      "advice": "ถ้าต้องการความสงบ ควรถามร้านว่าช่วงไหนคนไม่เยอะ",
-      "review_count": 2,
-      "count": 2,
-      "evidence_level": "repeated",
-      "evidence_label": "พูดถึงหลายครั้ง",
-      "action_tier": "plan",
-      "status_label": "ควรวางแผน",
-      "evidence_review_ids": [
-        "R030",
-        "R012"
-      ],
-      "positive_review_count": 0,
-      "negative_review_count": 1,
-      "neutral_review_count": 1,
-      "context_labels": [
-        "ช่วงพีค"
-      ],
-      "context_text": "มีผู้พูดถึงในช่วงพีค",
-      "query": "เสียงดัง",
-      "aspect_th": "คนเยอะและเสียงดัง",
-      "rank": 4
-    },
-    {
-      "topic": "parking",
-      "topic_label": "ที่จอดรถ",
-      "aspect": "ambience",
-      "status": "positive",
-      "sentiment": "positive",
-      "title": "มีที่จอดรถ",
-      "text": "มีที่จอดรถ",
-      "summary": "พบข้อมูลในทางบวกจาก 2 ความคิดเห็นเรื่องที่จอดรถ",
-      "advice": "ช่วงคนเยอะที่จอดอาจเต็ม ควรมีจุดจอดสำรอง",
-      "review_count": 2,
-      "count": 2,
-      "evidence_level": "repeated",
-      "evidence_label": "พูดถึงหลายครั้ง",
-      "action_tier": "ready",
-      "status_label": "ข้อมูลที่เป็นประโยชน์",
-      "evidence_review_ids": [
-        "R010",
-        "R025"
-      ],
-      "positive_review_count": 2,
-      "negative_review_count": 0,
-      "neutral_review_count": 0,
-      "context_labels": [],
-      "context_text": "",
-      "query": "ที่จอดรถ",
-      "aspect_th": "ที่จอดรถ",
-      "rank": 5
-    },
-    {
-      "topic": "cleanliness",
-      "topic_label": "ความสะอาด",
-      "aspect": "ambience",
-      "status": "negative",
-      "sentiment": "negative",
-      "title": "มีคนเตือนเรื่องความสะอาด",
-      "text": "มีคนเตือนเรื่องความสะอาด",
-      "summary": "พบข้อจำกัดจาก 1 ความคิดเห็นเรื่องความสะอาด",
-      "advice": "ควรอ่านความคิดเห็นจริงและดูข้อมูลล่าสุดก่อนตัดสินใจ",
-      "review_count": 1,
-      "count": 1,
-      "evidence_level": "preliminary",
-      "evidence_label": "พูดถึง 1 ครั้ง",
-      "action_tier": "plan",
-      "status_label": "ควรวางแผน",
-      "evidence_review_ids": [
-        "R007"
-      ],
-      "positive_review_count": 0,
-      "negative_review_count": 1,
-      "neutral_review_count": 0,
-      "context_labels": [],
-      "context_text": "",
-      "query": "ห้องน้ำโทรม",
-      "aspect_th": "ความสะอาด",
-      "rank": 6
-    }
-  ],
-  "practical_insights_meta": {
-    "topic_count": 6,
-    "evidence_review_count": 21,
-    "attention_count": 5,
-    "repeated_count": 5
-  },
   "sentiment_evidence": {
     "positive": [
       "R001",
@@ -1071,12 +727,9 @@
         "sentiment": "neutral",
         "title": "เวลารอของแต่ละคนไม่เหมือนกัน",
         "text": "เวลารอของแต่ละคนไม่เหมือนกัน",
-        "summary": "พบความคิดเห็นเชิงบวก 2 ความเห็น และเชิงลบ 5 ความเห็น จากทั้งหมด 7 ความเห็นในเรื่องนี้",
         "advice": "ควรเช็กคิวล่าสุดและเผื่อเวลาไว้",
         "review_count": 7,
         "count": 7,
-        "evidence_level": "frequent",
-        "evidence_label": "ถูกพูดถึงบ่อย",
         "action_tier": "plan",
         "status_label": "ข้อมูลไม่ตรงกัน",
         "evidence_review_ids": [
@@ -1088,13 +741,10 @@
           "R026",
           "R030"
         ],
-        "positive_review_count": 2,
         "negative_review_count": 5,
-        "neutral_review_count": 0,
         "context_labels": [
           "ช่วงพีค"
         ],
-        "context_text": "มีผู้พูดถึงในช่วงพีค",
         "query": "ช้ามาก",
         "aspect_th": "คิวและเวลารอ",
         "rank": 1
@@ -1107,12 +757,9 @@
         "sentiment": "neutral",
         "title": "แต่ละคนมองเรื่องราคาไม่เหมือนกัน",
         "text": "แต่ละคนมองเรื่องราคาไม่เหมือนกัน",
-        "summary": "พบความคิดเห็นเชิงบวก 4 ความเห็น และเชิงลบ 1 ความเห็น จากทั้งหมด 7 ความเห็นในเรื่องนี้",
         "advice": "ควรดูทั้งราคาและปริมาณอาหารจากเมนูล่าสุด",
         "review_count": 7,
         "count": 7,
-        "evidence_level": "frequent",
-        "evidence_label": "ถูกพูดถึงบ่อย",
         "action_tier": "plan",
         "status_label": "ข้อมูลไม่ตรงกัน",
         "evidence_review_ids": [
@@ -1124,11 +771,8 @@
           "R027",
           "R009"
         ],
-        "positive_review_count": 4,
         "negative_review_count": 1,
-        "neutral_review_count": 2,
         "context_labels": [],
-        "context_text": "",
         "query": "ราคา",
         "aspect_th": "ราคา",
         "rank": 2
@@ -1141,12 +785,9 @@
         "sentiment": "neutral",
         "title": "ความคิดเห็นเรื่องที่นั่งไม่ตรงกัน",
         "text": "ความคิดเห็นเรื่องที่นั่งไม่ตรงกัน",
-        "summary": "พบความคิดเห็นเชิงบวก 3 ความเห็น และเชิงลบ 1 ความเห็น จากทั้งหมด 4 ความเห็นในเรื่องนี้",
         "advice": "ถามร้านเรื่องโซนและที่นั่งก่อนมา",
         "review_count": 4,
         "count": 4,
-        "evidence_level": "frequent",
-        "evidence_label": "ถูกพูดถึงบ่อย",
         "action_tier": "plan",
         "status_label": "ข้อมูลไม่ตรงกัน",
         "evidence_review_ids": [
@@ -1155,11 +796,8 @@
           "R025",
           "R018"
         ],
-        "positive_review_count": 3,
         "negative_review_count": 1,
-        "neutral_review_count": 0,
         "context_labels": [],
-        "context_text": "",
         "query": "แอร์",
         "aspect_th": "ที่นั่งและความสบาย",
         "rank": 3
@@ -1172,25 +810,19 @@
         "sentiment": "negative",
         "title": "ร้านอาจคนเยอะหรือเสียงดัง",
         "text": "ร้านอาจคนเยอะหรือเสียงดัง",
-        "summary": "พบข้อจำกัดจาก 2 ความคิดเห็นเรื่องคนเยอะและเสียงดัง",
         "advice": "ถ้าต้องการความสงบ ควรถามร้านว่าช่วงไหนคนไม่เยอะ",
         "review_count": 2,
         "count": 2,
-        "evidence_level": "repeated",
-        "evidence_label": "พูดถึงหลายครั้ง",
         "action_tier": "plan",
         "status_label": "ควรวางแผน",
         "evidence_review_ids": [
           "R030",
           "R012"
         ],
-        "positive_review_count": 0,
         "negative_review_count": 1,
-        "neutral_review_count": 1,
         "context_labels": [
           "ช่วงพีค"
         ],
-        "context_text": "มีผู้พูดถึงในช่วงพีค",
         "query": "เสียงดัง",
         "aspect_th": "คนเยอะและเสียงดัง",
         "rank": 4
@@ -1203,23 +835,17 @@
         "sentiment": "positive",
         "title": "มีที่จอดรถ",
         "text": "มีที่จอดรถ",
-        "summary": "พบข้อมูลในทางบวกจาก 2 ความคิดเห็นเรื่องที่จอดรถ",
         "advice": "ช่วงคนเยอะที่จอดอาจเต็ม ควรมีจุดจอดสำรอง",
         "review_count": 2,
         "count": 2,
-        "evidence_level": "repeated",
-        "evidence_label": "พูดถึงหลายครั้ง",
         "action_tier": "ready",
         "status_label": "ข้อมูลที่เป็นประโยชน์",
         "evidence_review_ids": [
           "R010",
           "R025"
         ],
-        "positive_review_count": 2,
         "negative_review_count": 0,
-        "neutral_review_count": 0,
         "context_labels": [],
-        "context_text": "",
         "query": "ที่จอดรถ",
         "aspect_th": "ที่จอดรถ",
         "rank": 5
@@ -1232,22 +858,16 @@
         "sentiment": "negative",
         "title": "มีคนเตือนเรื่องความสะอาด",
         "text": "มีคนเตือนเรื่องความสะอาด",
-        "summary": "พบข้อจำกัดจาก 1 ความคิดเห็นเรื่องความสะอาด",
         "advice": "ควรอ่านความคิดเห็นจริงและดูข้อมูลล่าสุดก่อนตัดสินใจ",
         "review_count": 1,
         "count": 1,
-        "evidence_level": "preliminary",
-        "evidence_label": "พูดถึง 1 ครั้ง",
         "action_tier": "plan",
         "status_label": "ควรวางแผน",
         "evidence_review_ids": [
           "R007"
         ],
-        "positive_review_count": 0,
         "negative_review_count": 1,
-        "neutral_review_count": 0,
         "context_labels": [],
-        "context_text": "",
         "query": "ห้องน้ำโทรม",
         "aspect_th": "ความสะอาด",
         "rank": 6
@@ -1287,12 +907,9 @@
         "sentiment": "neutral",
         "title": "เวลารอของแต่ละคนไม่เหมือนกัน",
         "text": "เวลารอของแต่ละคนไม่เหมือนกัน",
-        "summary": "พบความคิดเห็นเชิงบวก 2 ความเห็น และเชิงลบ 5 ความเห็น จากทั้งหมด 7 ความเห็นในเรื่องนี้",
         "advice": "ควรเช็กคิวล่าสุดและเผื่อเวลาไว้",
         "review_count": 7,
         "count": 7,
-        "evidence_level": "frequent",
-        "evidence_label": "ถูกพูดถึงบ่อย",
         "action_tier": "plan",
         "status_label": "ข้อมูลไม่ตรงกัน",
         "evidence_review_ids": [
@@ -1304,13 +921,10 @@
           "R026",
           "R030"
         ],
-        "positive_review_count": 2,
         "negative_review_count": 5,
-        "neutral_review_count": 0,
         "context_labels": [
           "ช่วงพีค"
         ],
-        "context_text": "มีผู้พูดถึงในช่วงพีค",
         "query": "ช้ามาก",
         "aspect_th": "คิวและเวลารอ",
         "rank": 1,
@@ -1326,12 +940,9 @@
         "sentiment": "neutral",
         "title": "แต่ละคนมองเรื่องราคาไม่เหมือนกัน",
         "text": "แต่ละคนมองเรื่องราคาไม่เหมือนกัน",
-        "summary": "พบความคิดเห็นเชิงบวก 4 ความเห็น และเชิงลบ 1 ความเห็น จากทั้งหมด 7 ความเห็นในเรื่องนี้",
         "advice": "ควรดูทั้งราคาและปริมาณอาหารจากเมนูล่าสุด",
         "review_count": 7,
         "count": 7,
-        "evidence_level": "frequent",
-        "evidence_label": "ถูกพูดถึงบ่อย",
         "action_tier": "plan",
         "status_label": "ข้อมูลไม่ตรงกัน",
         "evidence_review_ids": [
@@ -1343,11 +954,8 @@
           "R027",
           "R009"
         ],
-        "positive_review_count": 4,
         "negative_review_count": 1,
-        "neutral_review_count": 2,
         "context_labels": [],
-        "context_text": "",
         "query": "ราคา",
         "aspect_th": "ราคา",
         "rank": 2,
@@ -1363,12 +971,9 @@
         "sentiment": "neutral",
         "title": "ความคิดเห็นเรื่องที่นั่งไม่ตรงกัน",
         "text": "ความคิดเห็นเรื่องที่นั่งไม่ตรงกัน",
-        "summary": "พบความคิดเห็นเชิงบวก 3 ความเห็น และเชิงลบ 1 ความเห็น จากทั้งหมด 4 ความเห็นในเรื่องนี้",
         "advice": "ถามร้านเรื่องโซนและที่นั่งก่อนมา",
         "review_count": 4,
         "count": 4,
-        "evidence_level": "frequent",
-        "evidence_label": "ถูกพูดถึงบ่อย",
         "action_tier": "plan",
         "status_label": "ข้อมูลไม่ตรงกัน",
         "evidence_review_ids": [
@@ -1377,11 +982,8 @@
           "R025",
           "R018"
         ],
-        "positive_review_count": 3,
         "negative_review_count": 1,
-        "neutral_review_count": 0,
         "context_labels": [],
-        "context_text": "",
         "query": "แอร์",
         "aspect_th": "ที่นั่งและความสบาย",
         "rank": 3,
@@ -1397,25 +999,19 @@
         "sentiment": "negative",
         "title": "ร้านอาจคนเยอะหรือเสียงดัง",
         "text": "ร้านอาจคนเยอะหรือเสียงดัง",
-        "summary": "พบข้อจำกัดจาก 2 ความคิดเห็นเรื่องคนเยอะและเสียงดัง",
         "advice": "ถ้าต้องการความสงบ ควรถามร้านว่าช่วงไหนคนไม่เยอะ",
         "review_count": 2,
         "count": 2,
-        "evidence_level": "repeated",
-        "evidence_label": "พูดถึงหลายครั้ง",
         "action_tier": "plan",
         "status_label": "ควรวางแผน",
         "evidence_review_ids": [
           "R030",
           "R012"
         ],
-        "positive_review_count": 0,
         "negative_review_count": 1,
-        "neutral_review_count": 1,
         "context_labels": [
           "ช่วงพีค"
         ],
-        "context_text": "มีผู้พูดถึงในช่วงพีค",
         "query": "เสียงดัง",
         "aspect_th": "คนเยอะและเสียงดัง",
         "rank": 4,
@@ -1431,22 +1027,16 @@
         "sentiment": "negative",
         "title": "มีคนเตือนเรื่องความสะอาด",
         "text": "มีคนเตือนเรื่องความสะอาด",
-        "summary": "พบข้อจำกัดจาก 1 ความคิดเห็นเรื่องความสะอาด",
         "advice": "ควรอ่านความคิดเห็นจริงและดูข้อมูลล่าสุดก่อนตัดสินใจ",
         "review_count": 1,
         "count": 1,
-        "evidence_level": "preliminary",
-        "evidence_label": "พูดถึง 1 ครั้ง",
         "action_tier": "plan",
         "status_label": "ควรวางแผน",
         "evidence_review_ids": [
           "R007"
         ],
-        "positive_review_count": 0,
         "negative_review_count": 1,
-        "neutral_review_count": 0,
         "context_labels": [],
-        "context_text": "",
         "query": "ห้องน้ำโทรม",
         "aspect_th": "ความสะอาด",
         "rank": 6,
@@ -1456,208 +1046,6 @@
       }
     ]
   },
-  "critical_issues": [
-    {
-      "topic": "queue",
-      "topic_label": "คิวและเวลารอ",
-      "aspect": "service",
-      "status": "mixed",
-      "sentiment": "neutral",
-      "title": "เวลารอของแต่ละคนไม่เหมือนกัน",
-      "text": "เวลารอของแต่ละคนไม่เหมือนกัน",
-      "summary": "พบความคิดเห็นเชิงบวก 2 ความเห็น และเชิงลบ 5 ความเห็น จากทั้งหมด 7 ความเห็นในเรื่องนี้",
-      "advice": "ควรเช็กคิวล่าสุดและเผื่อเวลาไว้",
-      "review_count": 7,
-      "count": 7,
-      "evidence_level": "frequent",
-      "evidence_label": "ถูกพูดถึงบ่อย",
-      "action_tier": "plan",
-      "status_label": "ข้อมูลไม่ตรงกัน",
-      "evidence_review_ids": [
-        "R002",
-        "R011",
-        "R004",
-        "R015",
-        "R023",
-        "R026",
-        "R030"
-      ],
-      "positive_review_count": 2,
-      "negative_review_count": 5,
-      "neutral_review_count": 0,
-      "context_labels": [
-        "ช่วงพีค"
-      ],
-      "context_text": "มีผู้พูดถึงในช่วงพีค",
-      "query": "ช้ามาก",
-      "aspect_th": "คิวและเวลารอ",
-      "rank": 1,
-      "negative_pct": 71,
-      "severity": "critical",
-      "source": "practical_rules",
-      "why": "พบวลีนี้ 7 ครั้ง จาก 7 รีวิวไม่ซ้ำ และความเห็นด้านคิวและเวลารอเป็นลบ 71%",
-      "strategy": "วัดเวลารอตามช่วงเวลา จัดกำลังคนช่วงพีค และตั้งเป้าเวลารับออเดอร์–เสิร์ฟที่ตรวจติดตามได้ทุกสัปดาห์"
-    },
-    {
-      "topic": "price",
-      "topic_label": "ราคา",
-      "aspect": "food",
-      "status": "mixed",
-      "sentiment": "neutral",
-      "title": "แต่ละคนมองเรื่องราคาไม่เหมือนกัน",
-      "text": "แต่ละคนมองเรื่องราคาไม่เหมือนกัน",
-      "summary": "พบความคิดเห็นเชิงบวก 4 ความเห็น และเชิงลบ 1 ความเห็น จากทั้งหมด 7 ความเห็นในเรื่องนี้",
-      "advice": "ควรดูทั้งราคาและปริมาณอาหารจากเมนูล่าสุด",
-      "review_count": 7,
-      "count": 7,
-      "evidence_level": "frequent",
-      "evidence_label": "ถูกพูดถึงบ่อย",
-      "action_tier": "plan",
-      "status_label": "ข้อมูลไม่ตรงกัน",
-      "evidence_review_ids": [
-        "R001",
-        "R005",
-        "R022",
-        "R024",
-        "R017",
-        "R027",
-        "R009"
-      ],
-      "positive_review_count": 4,
-      "negative_review_count": 1,
-      "neutral_review_count": 2,
-      "context_labels": [],
-      "context_text": "",
-      "query": "ราคา",
-      "aspect_th": "ราคา",
-      "rank": 2,
-      "negative_pct": 14,
-      "severity": "critical",
-      "source": "practical_rules",
-      "why": "พบวลีนี้ 7 ครั้ง จาก 7 รีวิวไม่ซ้ำ และความเห็นด้านราคาเป็นลบ 14%",
-      "strategy": "ทบทวนราคาเทียบปริมาณและต้นทุน สื่อสารคุณค่าของวัตถุดิบให้ชัด และทดลองชุดเมนูที่รับรู้ว่าคุ้มขึ้น"
-    },
-    {
-      "topic": "comfort",
-      "topic_label": "ที่นั่งและความสบาย",
-      "aspect": "ambience",
-      "status": "mixed",
-      "sentiment": "neutral",
-      "title": "ความคิดเห็นเรื่องที่นั่งไม่ตรงกัน",
-      "text": "ความคิดเห็นเรื่องที่นั่งไม่ตรงกัน",
-      "summary": "พบความคิดเห็นเชิงบวก 3 ความเห็น และเชิงลบ 1 ความเห็น จากทั้งหมด 4 ความเห็นในเรื่องนี้",
-      "advice": "ถามร้านเรื่องโซนและที่นั่งก่อนมา",
-      "review_count": 4,
-      "count": 4,
-      "evidence_level": "frequent",
-      "evidence_label": "ถูกพูดถึงบ่อย",
-      "action_tier": "plan",
-      "status_label": "ข้อมูลไม่ตรงกัน",
-      "evidence_review_ids": [
-        "R003",
-        "R021",
-        "R025",
-        "R018"
-      ],
-      "positive_review_count": 3,
-      "negative_review_count": 1,
-      "neutral_review_count": 0,
-      "context_labels": [],
-      "context_text": "",
-      "query": "แอร์",
-      "aspect_th": "ที่นั่งและความสบาย",
-      "rank": 3,
-      "negative_pct": 25,
-      "severity": "critical",
-      "source": "practical_rules",
-      "why": "พบวลีนี้ 4 ครั้ง จาก 4 รีวิวไม่ซ้ำ และความเห็นด้านที่นั่งและความสบายเป็นลบ 25%",
-      "strategy": "ตรวจ customer journey ตั้งแต่หน้าร้านถึงโต๊ะ ระบุจุดที่สร้างประสบการณ์ลบและแก้ทีละจุดพร้อมวัดผล"
-    },
-    {
-      "topic": "crowd_noise",
-      "topic_label": "คนเยอะและเสียงดัง",
-      "aspect": "ambience",
-      "status": "negative",
-      "sentiment": "negative",
-      "title": "ร้านอาจคนเยอะหรือเสียงดัง",
-      "text": "ร้านอาจคนเยอะหรือเสียงดัง",
-      "summary": "พบข้อจำกัดจาก 2 ความคิดเห็นเรื่องคนเยอะและเสียงดัง",
-      "advice": "ถ้าต้องการความสงบ ควรถามร้านว่าช่วงไหนคนไม่เยอะ",
-      "review_count": 2,
-      "count": 2,
-      "evidence_level": "repeated",
-      "evidence_label": "พูดถึงหลายครั้ง",
-      "action_tier": "plan",
-      "status_label": "ควรวางแผน",
-      "evidence_review_ids": [
-        "R030",
-        "R012"
-      ],
-      "positive_review_count": 0,
-      "negative_review_count": 1,
-      "neutral_review_count": 1,
-      "context_labels": [
-        "ช่วงพีค"
-      ],
-      "context_text": "มีผู้พูดถึงในช่วงพีค",
-      "query": "เสียงดัง",
-      "aspect_th": "คนเยอะและเสียงดัง",
-      "rank": 4,
-      "negative_pct": 50,
-      "severity": "critical",
-      "source": "practical_rules",
-      "why": "พบวลีนี้ 2 ครั้ง จาก 2 รีวิวไม่ซ้ำ และความเห็นด้านคนเยอะและเสียงดังเป็นลบ 50%",
-      "strategy": "ตรวจสภาพพื้นที่ตามช่วงเวลา แยกโซนหรือปรับเสียง/อุณหภูมิ และเก็บ feedback หลังแก้เพื่อยืนยันผล"
-    },
-    {
-      "topic": "cleanliness",
-      "topic_label": "ความสะอาด",
-      "aspect": "ambience",
-      "status": "negative",
-      "sentiment": "negative",
-      "title": "มีคนเตือนเรื่องความสะอาด",
-      "text": "มีคนเตือนเรื่องความสะอาด",
-      "summary": "พบข้อจำกัดจาก 1 ความคิดเห็นเรื่องความสะอาด",
-      "advice": "ควรอ่านความคิดเห็นจริงและดูข้อมูลล่าสุดก่อนตัดสินใจ",
-      "review_count": 1,
-      "count": 1,
-      "evidence_level": "preliminary",
-      "evidence_label": "พูดถึง 1 ครั้ง",
-      "action_tier": "plan",
-      "status_label": "ควรวางแผน",
-      "evidence_review_ids": [
-        "R007"
-      ],
-      "positive_review_count": 0,
-      "negative_review_count": 1,
-      "neutral_review_count": 0,
-      "context_labels": [],
-      "context_text": "",
-      "query": "ห้องน้ำโทรม",
-      "aspect_th": "ความสะอาด",
-      "rank": 6,
-      "negative_pct": 100,
-      "severity": "watch",
-      "source": "practical_rules",
-      "why": "พบวลีนี้ 1 ครั้ง จาก 1 รีวิวไม่ซ้ำ และความเห็นด้านความสะอาดเป็นลบ 100%",
-      "strategy": "ใช้ cleaning checklist ระบุผู้รับผิดชอบและเวลาตรวจ โดยให้หัวหน้ากะลงชื่อก่อนช่วงลูกค้าหนาแน่น"
-    },
-    {
-      "text": "บรรยากาศแย่มาก",
-      "count": 1,
-      "review_count": 1,
-      "evidence_review_ids": [
-        "R007"
-      ],
-      "aspect": "ambience",
-      "aspect_th": "บรรยากาศ",
-      "sentiment": "negative",
-      "negative_pct": 30,
-      "severity": "watch",
-      "why": "พบวลีนี้ 1 ครั้ง จาก 1 รีวิวไม่ซ้ำ และความเห็นด้านบรรยากาศเป็นลบ 30%",
-      "strategy": "ตรวจ customer journey ตั้งแต่หน้าร้านถึงโต๊ะ ระบุจุดที่สร้างประสบการณ์ลบและแก้ทีละจุดพร้อมวัดผล"
-    }
-  ],
   "operator_plan": {
     "items": [
       {

@@ -6,7 +6,6 @@ from unittest import mock
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import app
-import config
 
 
 class TestWebSecurity(unittest.TestCase):
@@ -24,27 +23,6 @@ class TestWebSecurity(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'name="csrf-token"', response.data)
         self.assertIn(b'name="_csrf_token"', response.data)
-
-    def test_post_without_token_is_rejected_before_route(self):
-        with mock.patch.object(config, "save_settings") as save:
-            response = self.client.post("/settings", data={"engine": "lexicon"})
-        self.assertEqual(response.status_code, 400)
-        save.assert_not_called()
-
-    def test_form_token_allows_state_changing_route(self):
-        token = self._set_token()
-        with mock.patch.object(config, "save_settings") as save:
-            response = self.client.post(
-                "/settings",
-                data={
-                    "engine": "lexicon",
-                    "extract_engine": "rule",
-                    "max_reviews": "20",
-                    "_csrf_token": token,
-                },
-            )
-        self.assertEqual(response.status_code, 302)
-        save.assert_called_once()
 
     def test_header_token_allows_fetch_style_request_and_missing_is_404(self):
         token = self._set_token()
@@ -124,7 +102,7 @@ class TestWebSecurity(unittest.TestCase):
     def test_request_body_larger_than_limit_is_rejected(self):
         token = self._set_token()
         response = self.client.post(
-            "/settings",
+            "/analyze",
             data={"_csrf_token": token, "oversized": "x" * (1024 * 1024)},
         )
         self.assertEqual(response.status_code, 413)

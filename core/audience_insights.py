@@ -137,13 +137,9 @@ def _gemini_visit_tips(narrative: dict | None) -> list[dict]:
             "status_label": status_labels[sentiment],
             "action_tier": action_tiers[sentiment],
             "text": text,
-            "summary": item.get("detail"),
-            "count": len(evidence_ids),
             "review_count": len(evidence_ids),
             "evidence_review_ids": evidence_ids,
             "negative_review_count": len(evidence_ids) if sentiment == "negative" else 0,
-            "positive_review_count": len(evidence_ids) if sentiment == "positive" else 0,
-            "neutral_review_count": len(evidence_ids) if sentiment == "neutral" else 0,
             "context_labels": [],
             "query": text,
             "aspect_th": ASPECT_LABELS_TH.get(aspect, aspect),
@@ -336,11 +332,6 @@ def build_critical_issues(
     for item in issues[:limit]:
         result.append({
             **item,
-            "why": (
-                f"พบวลีนี้ {item['count']} ครั้ง จาก {item['review_count']} รีวิวไม่ซ้ำ "
-                f"และความเห็นด้าน{item['aspect_th']}"
-                f"เป็นลบ {item['negative_pct']}%"
-            ),
             "strategy": strategy_for_issue(item["text"], item["aspect"]),
         })
     return result
@@ -518,7 +509,7 @@ def build_operator_plan(
             "priority_label": priority_label,
             "score": score,
             "headline": headline,
-            "reason": insight.get("reason") or insight.get("message") or "",
+            "reason": insight.get("reason") or "",
             "action": insight.get("strategy") or "",
             "measure": measure,
             "positive_pct": positive_pct,
@@ -596,7 +587,7 @@ def build_operator_plan(
 
 
 def enrich_result(result: dict) -> dict:
-    """Add presentation fields to new or legacy persisted results in-place."""
+    """Build only the presentation fields consumed by the current dashboard."""
     _prepare_evidence(result)
     practical_rules.enrich_result(result)
     result["sentiment_evidence"] = {
@@ -619,16 +610,22 @@ def enrich_result(result: dict) -> dict:
         result.get("practical_insights") or [],
         narrative,
     )
-    result["critical_issues"] = build_critical_issues(
+    critical_issues = build_critical_issues(
         result.get("keywords") or {},
         result.get("aspect_summary") or {},
         planning_insights,
     )
     result["operator_plan"] = build_operator_plan(
         result.get("insights") or [],
-        result["critical_issues"],
+        critical_issues,
         result.get("keywords") or {},
         result.get("distribution") or {},
         result.get("total_reviews") or len(result.get("reviews") or []),
     )
+    # Build-time values used above are not part of the current dashboard/API.
+    # Drop stale copies from legacy payloads as well as newly generated ones.
+    result.pop("insights", None)
+    result.pop("practical_insights", None)
+    result.pop("critical_issues", None)
+    result.pop("practical_insights_meta", None)
     return result

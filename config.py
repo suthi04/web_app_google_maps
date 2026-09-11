@@ -11,7 +11,6 @@ config.py
 """
 import os
 import secrets
-import tempfile
 import threading
 
 # ---- พาธ ----
@@ -115,7 +114,7 @@ if _SECRET_KEY_IS_RANDOM:
 #   - APIFY_TOKEN  : กุญแจดึงรีวิว (operator เป็นคนจ่ายค่า Apify จึงไม่เปิดให้ user ใส่เอง)
 #   - MAX_REVIEWS  : "เพดาน" จำนวนรีวิวต่อครั้ง — user เลือกได้ไม่เกินค่านี้ (กันเปลืองเครดิต)
 #
-# ค่าเริ่มต้นของแบบฟอร์ม (เก็บใน data/settings.json เพื่อ compatibility):
+# ค่าเริ่มต้นของแบบฟอร์ม (เก็บใน data/settings.json):
 # ผู้ใช้เลือก use_model / extract_engine / max_reviews ต่อหนึ่งงานข้างช่อง URL
 # และค่าจากงานหนึ่งจะไม่เปลี่ยนค่าร่วมของงานอื่น
 import json   # noqa: E402
@@ -194,54 +193,6 @@ def get_settings() -> dict:
                 else _DEFAULTS["extract_engine"]
             ),
         }
-
-
-def save_settings(changes: dict) -> None:
-    """บันทึกเฉพาะ key ที่ผู้ใช้ปรับได้ (กันเขียน key อื่นปนเข้ามา)"""
-    with _settings_lock:
-        current = get_settings()
-        normalized = {}
-        if "max_reviews" in changes:
-            raw_max = _coerce_int(changes["max_reviews"], current["max_reviews"])
-            normalized["max_reviews"] = max(
-                MIN_REVIEWS, min(MAX_REVIEWS_CAP, raw_max)
-            )
-        if "use_model" in changes:
-            normalized["use_model"] = _coerce_bool(
-                changes["use_model"], current["use_model"]
-            )
-        if changes.get("extract_engine") in ("rule", "llm"):
-            normalized["extract_engine"] = changes["extract_engine"]
-
-        overrides = dict(_load_overrides())
-        overrides.update(normalized)
-        settings_dir = os.path.dirname(os.path.abspath(SETTINGS_PATH))
-        os.makedirs(settings_dir, exist_ok=True)
-
-        temp_path = None
-        try:
-            with tempfile.NamedTemporaryFile(
-                mode="w",
-                encoding="utf-8",
-                dir=settings_dir,
-                prefix=".settings-",
-                suffix=".tmp",
-                delete=False,
-            ) as temp_file:
-                temp_path = temp_file.name
-                json.dump(overrides, temp_file, ensure_ascii=False, indent=2)
-                temp_file.flush()
-                os.fsync(temp_file.fileno())
-            os.replace(temp_path, SETTINGS_PATH)
-            temp_path = None
-        finally:
-            if temp_path:
-                try:
-                    os.unlink(temp_path)
-                except OSError:
-                    pass
-
-        _settings_cache.update({"path": None, "mtime": None, "data": {}})
 
 
 def get_apify_token() -> str:

@@ -33,7 +33,6 @@ def _result():
         },
         "aspect_summary": {},
         "keywords": {},
-        "insights": [],
         "reviews": [
             {
                 "text": "อร่อย",

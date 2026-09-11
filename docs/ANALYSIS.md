@@ -158,8 +158,8 @@ function ทำงานบน `Phrase` dataclass หนึ่งตัว (อ�
 **`run_analysis(url, max_reviews=None, use_model=None, extract_engine=None, progress_callback=None) -> dict`** ([pipeline.py](../core/pipeline.py))
 - **จุดประสงค์:** ร้อยทุกขั้นเป็นผลลัพธ์ก้อนเดียวที่พร้อมเก็บ DB + ส่ง dashboard
 - **Return:** dict หลัก — `store_name`, `source_url`, `total_reviews`, `fetched_reviews`, `engine`,
-  `extract_engine`, `analysis_narrative`, `distribution`, `aspect_summary`, `keywords`, `insights`, `reviews`,
-  `consumer_summary`, `critical_issues`, `operator_plan`
+  `extract_engine`, `analysis_narrative`, `distribution`, `aspect_summary`, `keywords`, `reviews`,
+  `consumer_summary`, `operator_plan`
 
 `operator_plan` แบ่งข้อมูลเจ้าของร้านเป็น 4 ชั้นที่ไม่ทำหน้าที่ซ้ำกัน: `brief` สรุปทิศทาง,
 `items` เป็น Strategic Roadmap รายด้าน, `playbook.risks`/`playbook.opportunities`
@@ -329,7 +329,6 @@ is_saved(0/1, default 0), payload(TEXT = JSON ทั้งก้อน)
 | `/toggle-save/<int:aid>` | POST | — | JSON `{id,is_saved}` | int converter | คืน False เงียบถ้าไม่พบ |
 | `/delete/<int:aid>` | POST | — | JSON `{id,deleted}` | int converter | rowcount>0 |
 | `/api/analysis/<int:aid>` | GET | — | **JSON payload เต็ม** | int converter | abort(404) |
-| `/settings` | GET/POST | legacy compatibility | redirect หน้าแรก | engine allowlist, บีบเพดาน | try/except int |
 | `/export/<aid>/{reviews,summary}.csv`,`labeling.json` | GET | — | ไฟล์ดาวน์โหลด | abort(404) | — |
 | 404/500 | — | — | error.html | — | หน้าเป็นมิตร ไม่โชว์ traceback |
 

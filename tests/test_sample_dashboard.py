@@ -42,6 +42,11 @@ class TestSampleDashboard(unittest.TestCase):
         self.assertEqual(sum(prepared["distribution"]["pct"].values()), 100)
         ids = {r["review_id"] for r in prepared["reviews"]}
         self.assertEqual(len(ids), prepared["total_reviews"])
+        for obsolete in (
+            "insights", "practical_insights", "practical_insights_meta",
+            "critical_issues",
+        ):
+            self.assertNotIn(obsolete, prepared)
 
         def check_evidence(value):
             if isinstance(value, dict):

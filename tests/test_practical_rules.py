@@ -29,8 +29,8 @@ class TestPracticalRules(unittest.TestCase):
         ])
         parking = next(item for item in items if item["topic"] == "parking")
         self.assertEqual(parking["status"], "mixed")
-        self.assertEqual(parking["positive_review_count"], 1)
         self.assertEqual(parking["negative_review_count"], 1)
+        self.assertEqual(parking["evidence_review_ids"], ["R001", "R002"])
 
     def test_negated_cues_are_not_double_counted(self):
         items = practical_rules.build_practical_insights([
@@ -103,8 +103,8 @@ class TestPracticalRules(unittest.TestCase):
         ])
         group = next(item for item in items if item["topic"] == "group_accessibility")
         self.assertEqual(group["status"], "mixed")
-        self.assertEqual(group["positive_review_count"], 1)
         self.assertEqual(group["negative_review_count"], 1)
+        self.assertEqual(group["evidence_review_ids"], ["R001", "R002"])
 
     def test_completed_takeaway_action_is_positive_evidence(self):
         items = practical_rules.build_practical_insights([
@@ -117,7 +117,7 @@ class TestPracticalRules(unittest.TestCase):
         takeaway = next(item for item in items if item["topic"] == "takeaway")
         self.assertEqual(takeaway["status"], "positive")
 
-    def test_enrich_result_uses_phrase_evidence_and_adds_meta(self):
+    def test_enrich_result_uses_phrase_evidence_without_unused_meta(self):
         result = {
             "reviews": [{"text": "รีวิวเดิมไม่มีข้อความเต็ม", "sentiment": "negative"}],
             "keywords": {
@@ -132,7 +132,7 @@ class TestPracticalRules(unittest.TestCase):
         practical_rules.enrich_result(result)
         self.assertEqual(result["reviews"][0]["review_id"], "R001")
         self.assertEqual(result["practical_insights"][0]["topic"], "queue")
-        self.assertEqual(result["practical_insights_meta"]["evidence_review_count"], 1)
+        self.assertNotIn("practical_insights_meta", result)
 
 
 class TestSharedRuleOutputs(unittest.TestCase):
@@ -155,13 +155,15 @@ class TestSharedRuleOutputs(unittest.TestCase):
 
         before_you_go = result["consumer_summary"]["things_to_know"][0]
         caution = result["consumer_summary"]["cautions"][0]
-        operator_issue = result["critical_issues"][0]
+        operator_issue = result["operator_plan"]["playbook"]["risks"][0]
         self.assertEqual(before_you_go["topic"], "queue")
         self.assertEqual(caution["topic"], "queue")
-        self.assertEqual(operator_issue["topic"], "queue")
+        self.assertEqual(operator_issue["aspect"], "service")
+        self.assertEqual(operator_issue["evidence_review_ids"], ["R001", "R002"])
         self.assertEqual(caution["source"], "practical_rules")
-        self.assertIn("ช่วงพีค", operator_issue["strategy"])
+        self.assertIn("ช่วงพีค", operator_issue["action"])
         self.assertIn(before_you_go["advice"], result["consumer_summary"]["lazy_summary"]["detail"])
+        self.assertNotIn("critical_issues", result)
 
     def test_matching_rule_prevents_duplicate_phrase_caution(self):
         result = {

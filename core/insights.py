@@ -77,8 +77,7 @@ def generate_insights(
         "level": "improve" | "strength" | "neutral" | "insufficient",
         "positive_pct": int,
         "negative_pct": int,
-        "message": "ข้อความสรุป",
-        "keywords": ["รอนาน", ...]
+        "reason": "เหตุผลที่แสดงในแผนผู้ประกอบการ"
       }, ...
     ]
     """
@@ -105,13 +104,10 @@ def generate_insights(
                 "sample_size": total,
                 "positive_pct": 0,
                 "negative_pct": 0,
-                "message": f"ข้อมูลด้าน{aspect_th}ยังน้อย (พบความเห็นที่กล่าวถึง {total} ครั้ง) "
-                           f"ยังสรุปแนวโน้มได้ไม่ชัด",
                 "reason": f"พบความเห็นด้าน{aspect_th}เพียง {total} ครั้ง",
                 "strategy": "เก็บรีวิวเพิ่มก่อนตัดสินใจเปลี่ยนกลยุทธ์ และติดตามสัญญาณเดิมซ้ำในรอบถัดไป",
                 "evidence": [],
                 "evidence_review_ids": [],
-                "keywords": [],
             })
             continue
 
@@ -128,7 +124,6 @@ def generate_insights(
             kw_text = ("โดยเฉพาะเรื่อง " + ", ".join(neg_words)) if neg_words else ""
             reason = (f"ด้าน{aspect_th}มีความไม่พอใจ {neg_pct}% "
                       f"{kw_text}".strip())
-            message = reason
             strategy = strategy_for_issue(neg_words[0] if neg_words else "", aspect)
         elif pos_ratio >= STRONG_THRESHOLD:
             level = "strength"
@@ -138,7 +133,6 @@ def generate_insights(
             )
             reason = (f"ด้าน{aspect_th}เป็นจุดแข็ง เพราะมีความเห็นเชิงบวก {pos_pct}%"
                       + (f" โดยลูกค้าชมเรื่อง {evidence_text}" if evidence_text else ""))
-            message = reason
             strategy = _strength_strategy(aspect, evidence)
         else:
             level = "neutral"
@@ -148,7 +142,6 @@ def generate_insights(
             )
             reason = (f"ด้าน{aspect_th}ยังไม่มีสัญญาณนำชัดเจน "
                       f"(บวก {pos_pct}% / ลบ {neg_pct}%)")
-            message = reason
             strategy = strategy_for_issue(
                 evidence[0]["text"] if evidence else "", aspect
             )
@@ -159,7 +152,6 @@ def generate_insights(
         narrative_action = narrative_actions.get(aspect)
         if aspect_narrative:
             reason = aspect_narrative["detail"]
-            message = reason
             narrative_ids.extend(aspect_narrative.get("evidence_review_ids", []))
             source = "gemini"
         if narrative_action:
@@ -174,14 +166,12 @@ def generate_insights(
             "sample_size": total,
             "positive_pct": pos_pct,
             "negative_pct": neg_pct,
-            "message": message,
             "reason": reason,
             "strategy": strategy,
             "evidence": evidence,
             "evidence_review_ids": list(dict.fromkeys(
                 narrative_ids or _evidence_ids(evidence)
             )),
-            "keywords": neg_words,
             "source": source,
         })
 

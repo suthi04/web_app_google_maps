@@ -20,7 +20,7 @@ def _payload(extract_engine="rule"):
         "total_reviews": 10, "fetched_reviews": 12,
         "engine": "WangchanBERTa",
         "distribution": {"counts": counts, "total": 10, "pct": pct},
-        "aspect_summary": {}, "keywords": {}, "insights": [],
+        "aspect_summary": {}, "keywords": {},
         "reviews": [{"text": "อร่อย", "rating": 5, "review_date": None,
                      "sentiment": "positive", "aspects": ["food"]}],
     }

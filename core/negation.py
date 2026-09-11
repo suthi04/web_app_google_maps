@@ -56,11 +56,6 @@ def apply_negation(tokens: list) -> list:
     return out
 
 
-def starts_with_negator(tok: str) -> bool:
-    """โทเคนนี้ขึ้นต้นด้วยคำปฏิเสธหรือไม่ (เช่น 'ไม่อร่อย', 'ไม่สะอาด')"""
-    return any(tok.startswith(p) and len(tok) > len(p) for p in NEGATORS)
-
-
 def word_polarity(tok: str) -> int:
     """
     ขั้วของโทเคนเดียว: +1 บวก, -1 ลบ, 0 กลาง

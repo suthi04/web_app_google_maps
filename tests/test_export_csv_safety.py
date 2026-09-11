@@ -18,7 +18,7 @@ def _analysis(text="อร่อยมาก", store="ครัวบ้าน�
         "engine": "lexicon",
         "distribution": {"pct": {}, "counts": {}},
         "aspect_summary": {},
-        "insights": [],
+        "operator_plan": {"items": []},
         "reviews": [{"text": text, "rating": 5, "review_date": "2026-01-01",
                      "sentiment": "positive", "aspects": ["food"]}],
     }
@@ -49,6 +49,20 @@ class TestCsvFormulaInjection(unittest.TestCase):
     def test_store_name_escaped_in_summary_csv(self):
         csv_text = export.summary_csv(_analysis(store="=cmd()"))
         self.assertIn("'=cmd()", csv_text)
+
+    def test_summary_export_uses_current_operator_plan(self):
+        analysis = _analysis()
+        analysis["operator_plan"]["items"] = [{
+            "aspect_th": "บริการ",
+            "priority_label": "ควรจัดการก่อน",
+            "headline": "ลดเวลารอ",
+            "reason": "พบเสียงลบจากหลายรีวิว",
+            "action": "จัดกำลังคนช่วงพีค",
+        }]
+        csv_text = export.summary_csv(analysis)
+        self.assertIn("ลำดับงานที่ทีมควรเดินต่อ", csv_text)
+        self.assertIn("ลดเวลารอ", csv_text)
+        self.assertNotIn("ข้อสรุปเชิงปฏิบัติ", csv_text)
 
 
 if __name__ == "__main__":

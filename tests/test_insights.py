@@ -17,7 +17,7 @@ def _summary(pos=0, neu=0, neg=0):
 class TestInsightWording(unittest.TestCase):
     def test_insufficient_message_does_not_say_review(self):
         out = insights.generate_insights(_summary(pos=1), {})
-        msg = out[0]["message"]
+        msg = out[0]["reason"]
         self.assertEqual(out[0]["level"], "insufficient")
         self.assertNotIn("รีวิว", msg)        # นับ clause ไม่ใช่รีวิว — ห้ามเขียนว่ารีวิว
         self.assertIn("ความเห็น", msg)

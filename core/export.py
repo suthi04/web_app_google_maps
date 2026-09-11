@@ -87,9 +87,15 @@ def summary_csv(a: dict) -> str:
         ])
 
     rows.append(["", ""])
-    rows.append(["ข้อสรุปเชิงปฏิบัติ", ""])
-    for ins in a.get("insights", []):
-        rows.append([ins.get("aspect_th", ""), ins.get("message", "")])
+    rows.append(["ลำดับงานที่ทีมควรเดินต่อ", ""])
+    for item in (a.get("operator_plan") or {}).get("items", []):
+        rows.append([
+            item.get("aspect_th", ""),
+            item.get("priority_label", ""),
+            item.get("headline", ""),
+            item.get("reason", ""),
+            item.get("action", ""),
+        ])
 
     # ใช้ writer ตรง ๆ เพราะจำนวนคอลัมน์ไม่เท่ากัน
     buf = io.StringIO()
