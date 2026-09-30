@@ -222,7 +222,7 @@ insightreview/
 │
 ├── data/
 │   ├── sample_reviews.json    # ข้อมูลตัวอย่างโหมด demo (30 รีวิว)
-│   ├── labeled_reviews.json   # ชุดทดสอบ gold standard ติด label มือ (60 รีวิว)
+│   ├── labeled_reviews.json   # รีวิวจริง Pupen Seafood 60 รายการ; AI ติดป้าย รอตรวจโดยมนุษย์
 │   └── settings.json          # ค่าเริ่มต้นเดิม/compatibility; งานใหม่รับตัวเลือกจากแบบฟอร์ม
 │
 ├── eval/                  # การประเมินผลโมเดลอารมณ์ (ดูหัวข้อ "การประเมินผล")
@@ -328,17 +328,25 @@ CSRF/security headers, settings แบบ atomic, SQLite lifecycle, ขอบเ
 
 ## 📈 การประเมินผลโมเดล (สำหรับบทที่ 4)
 
-ประเมินความแม่นของการจำแนก **อารมณ์** เทียบกับชุดทดสอบที่ติด label มือ
-(`data/labeled_reviews.json`, ปัจจุบัน 60 รายการ):
+ประเมินความแม่นของการจำแนก **อารมณ์** เทียบกับรีวิวจริงของ **Pupen Seafood**
+ใน `data/labeled_reviews.json` จำนวน 60 รายการ (บวก/กลาง/ลบ กลุ่มละ 20)
+เก็บจาก Google Maps เมื่อ 2026-09-29 พร้อมรหัสรีวิวและที่มารายข้อความ
+**ป้ายกำกับจัดทำโดย AI ก่อนรันโมเดล ยังไม่ใช่ human gold standard**
+ไฟล์หลักมีเฉพาะ `text` กับ `label`; ที่มาและเหตุผลแยกไว้ใน `data/labeled_reviews.provenance.json`
 
 ```bash
-python eval/evaluate.py                 # ประเมิน engine ปัจจุบัน (demo = lexicon)
-USE_MODEL=1 python eval/evaluate.py     # ประเมิน WangchanBERTa จริง
+python -m eval.evaluate --engine model  # WangchanBERTa; หยุดเมื่อโมเดลล้มเหลว ไม่ fallback
+python -m eval.evaluate --engine rule   # lexicon (จะเขียนทับรายงานหลัก)
 ```
 
 ได้: Accuracy, Precision/Recall/F1 รายคลาส, Macro/Weighted-F1, Confusion Matrix และ
 Cohen's Kappa — พิมพ์ออกจอ + บันทึก `eval/report.txt`, `eval/confusion_matrix.csv`
 (และ `confusion_matrix.png` ถ้ามี matplotlib) คำนวณ metric เองทั้งหมด ไม่พึ่ง scikit-learn
+
+ผล WangchanBERTa วันที่ 2026-09-29: **Accuracy 75.0%, Macro-F1 0.7182, Kappa 0.6250**
+ผลทำนายรายรายการ รุ่นโมเดลและ SHA-256 ของชุดข้อมูลอยู่ใน `eval/predictions.json`
+วิธีคัดเลือกและข้อจำกัดอยู่ใน [รายงาน Pupen Seafood](docs/PUPEN-EVALUATION.md)
+ชุดเดิมและคะแนน 88.3% เก็บใน `data/evaluation_archive/2026-09-29-original/`
 
 ทดสอบภาษาพูด สแลง ประโยคกลาง และคำปฏิเสธแยกจากคะแนนหลัก:
 ```bash
@@ -346,7 +354,7 @@ python eval/challenge_evaluate.py
 python eval/challenge_evaluate.py --engine rule   # ตรวจ fallback แบบไม่โหลดโมเดล
 ```
 ชุด `data/sentiment_challenge_reviews.json` เป็น **curated challenge set 90 ประโยค**
-จึงใช้หา edge case เท่านั้นและไม่ถูกรวมกับคะแนน gold standard 60 รีวิว เพื่อไม่ให้ตัวเลข
+จึงใช้หา edge case เท่านั้นและไม่ถูกรวมกับคะแนนชุดรีวิวจริง 60 รายการ เพื่อไม่ให้ตัวเลข
 ดูดีเกินจริง
 
 ขยายชุดทดสอบให้ใหญ่ขึ้น (น่าเชื่อถือกว่า) ด้วยเครื่องมือช่วยติด label:

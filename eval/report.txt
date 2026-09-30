@@ -2,23 +2,33 @@
   InsightReview — รายงานผลการประเมินโมเดลวิเคราะห์อารมณ์
 ============================================================
   Engine ที่ใช้   : WangchanBERTa
+  ชุดข้อมูล       : Pupen Seafood: 60 real Thai Google Maps reviews, AI-annotated pilot (20/20/20)
   จำนวนตัวอย่าง  : 60 รีวิว
-  Accuracy       : 0.8833  (88.3%)
-  Macro-F1       : 0.8792
-  Weighted-F1    : 0.8792
-  Cohen's Kappa  : 0.8250
+  Accuracy       : 0.7500  (75.0%)
+  Macro-F1       : 0.7182
+  Weighted-F1    : 0.7182
+  Cohen's Kappa  : 0.6250
 
   Precision / Recall / F1 รายคลาส
   --------------------------------------------------------
   class         precision    recall        f1   support
-  positive          0.826     0.950     0.884        20
-  neutral           1.000     0.700     0.824        20
-  negative          0.870     1.000     0.930        20
+  positive          0.760     0.950     0.844        20
+  neutral           1.000     0.350     0.519        20
+  negative          0.679     0.950     0.792        20
 
   Confusion Matrix  (แถว = จริง, คอลัมน์ = ทำนาย)
   --------------------------------------------------------
   true\pred         บวก     กลาง       ลบ
   บวก                19        0        1
-  กลาง                4       14        2
-  ลบ                  0        0       20
+  กลาง                5        7        8
+  ลบ                  1        0       19
 ============================================================
+
+Annotation: AI text-based labels frozen before WangchanBERTa inference; not star-derived
+Human validation: pending; no independent human annotators
+Kappa compares reference labels with model predictions; it is not inter-annotator agreement.
+Evaluated at (UTC): 2026-09-29T05:12:34.196596+00:00
+Dataset SHA-256: ff0841b71eb43fbb9d264598b226ab6c8d9d914e7b5eb7e28949c135e4eda107
+Model: airesearch/wangchanberta-base-att-spm-uncased@finetuned@wisesight_sentiment
+Commit: 0c48b03945f4b1f853f64d017645c43322cf0030
+Fallback: disabled (fail on model errors)

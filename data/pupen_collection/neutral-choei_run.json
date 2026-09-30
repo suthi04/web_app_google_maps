@@ -1,0 +1,25 @@
+{
+  "actor": "compass~google-maps-reviews-scraper",
+  "input": {
+    "startUrls": [
+      {
+        "url": "https://www.google.com/maps/place/Pupen+Seafood/@12.86157,100.8954451,15z/data=!4m5!3m4!1s0x0:0x74db886f251470ae!8m2!3d12.86157!4d100.8954451"
+      }
+    ],
+    "maxReviews": 100,
+    "reviewsSort": "mostRelevant",
+    "language": "th",
+    "reviewsOrigin": "google",
+    "personalData": false,
+    "reviewsFilterString": "เฉย"
+  },
+  "max_total_charge_usd": 0.5,
+  "run_id": "2fWFnxdmoXhEZdm2Z",
+  "dataset_id": "gD0K0EzhFyOggiG04",
+  "requested_at": "2026-09-29T04:45:36.985939+00:00",
+  "status": "SUCCEEDED",
+  "startedAt": "2026-09-29T04:45:36.393Z",
+  "finishedAt": "2026-09-29T04:45:42.854Z",
+  "buildId": "au8TN59FadbDKcMCD",
+  "usageTotalUsd": 0.009049999999999999
+}

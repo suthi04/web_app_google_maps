@@ -1,0 +1,1858 @@
+{
+  "schema_version": 2,
+  "kind": "real_review_sentiment_ai_annotated_pilot",
+  "_comment": "รีวิวจริงจาก Google Maps ของ Pupen Seafood; ป้ายกำกับโดย AI ก่อนรันโมเดล ยังไม่ผ่านผู้ประเมินมนุษย์อิสระ",
+  "meta": {
+    "dataset_name": "Pupen Seafood: 60 real Thai Google Maps reviews, AI-annotated pilot (20/20/20)",
+    "created_at": "2026-09-29T04:51:01.046912+00:00",
+    "store_name": "Pupen Seafood (ร้านอาหารปูเป็น ซีฟู้ด)",
+    "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+    "class_counts": {
+      "positive": 20,
+      "neutral": 20,
+      "negative": 20
+    },
+    "annotation": {
+      "method": "AI text-based labels frozen before WangchanBERTa inference; not star-derived",
+      "annotator": "Codex AI",
+      "human_validation": "pending; no independent human annotators",
+      "inter_annotator_agreement": null,
+      "rules": {
+        "positive": "ความพึงพอใจหรือการชื่นชมเป็นใจความหลัก",
+        "negative": "ความไม่พึงพอใจหรือคำตำหนิเป็นใจความหลัก แม้มีคำชมประกอบ",
+        "neutral": "ข้อเท็จจริง ความรู้สึกเฉยๆ หรือการประเมินระดับปานกลางที่ไม่มีขั้วเด่น; การมีทั้งชมและติไม่ทำให้เป็นกลางอัตโนมัติ"
+      }
+    },
+    "sampling": {
+      "method": "purposive balanced quota selection by review text, not a random sample",
+      "source_sorts": [
+        "mostRelevant",
+        "newest"
+      ],
+      "additional_keyword_searches": [
+        "เฉย",
+        "ธรรมดา",
+        "กลางๆ",
+        "เฉยๆ"
+      ],
+      "returned_records": 1475,
+      "unique_review_ids": 1337,
+      "unique_nonempty_original_thai_reviews": 904,
+      "text_policy": "whole original text copied exactly; no translation, paraphrase or sentence extraction",
+      "selection_policy": "read candidate texts, prioritize interpretable short-to-medium whole reviews; exclude strongly mixed or ambiguous polarity",
+      "cost_usd": 0.8853
+    },
+    "limitations": [
+      "Single restaurant and only 60 purposively selected reviews",
+      "Artificially balanced labels do not estimate natural class frequencies",
+      "Keyword searches and preference for interpretable reviews introduce selection bias",
+      "AI labels require independent human validation; not a human gold standard",
+      "Neutral includes middling/indifferent assessments; boundary judgments may vary"
+    ],
+    "previous_dataset_archive": "data/evaluation_archive/2026-09-29-original"
+  },
+  "reviews": [
+    {
+      "id": "pupen-16434d0e32e3ecc9",
+      "text": "ร้านใหญ่และคนเยอะมากๆ แต่คิวรันเร็วมาก ระบบจัดการของร้านดี พนักงานก็บริการดีมากๆ ส่วนเรื่องอาหารอาจจะต้องรอนานสักนิดนึงตามจำนวนคน แต่พนักงานแจ้งให้ทราบตั้งแต่แรกแล้วเลยรู้สึกโอเคที่จะรอค่ะ พออาหารมาเสิร์ฟคืออร่อย คุ้มค่ากับเวลาที่รอจริงๆ จะกลับมาซ้ำอีกแน่นอนค่ะ",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "สรุปว่าอาหารอร่อย คุ้มค่าที่รอ และจะกลับมาซ้ำ",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT25kdGFWOTFXRGROYWw4MlJuQndhV2x2U1RKbExWRRAB",
+        "review_url": null,
+        "published_at": "2026-06-01T09:14:24.429Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 2,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "3dee9d8f7099ba62721da961e18f057a107f47f9c9e20f33856ce6d7b77ed7f3"
+      }
+    },
+    {
+      "id": "pupen-08e8fb39fad06616",
+      "text": "อาหารอร่อย\nร้านดังในพัทยา คนเยอะตลอด ทั้งนักท่องเที่ยวไทย&ต่างชาติ\nเมนูที่ชอบสุด คือ ปลากระพงทอดผัดฉ่า",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ระบุว่าอาหารอร่อยและมีเมนูที่ชอบ",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2xwdU5YcGhPVFZ2UldSMVdHcG9Uak5NUW5GdVMzYxAB",
+        "review_url": null,
+        "published_at": "2026-05-17T05:34:02.928Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 12,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "a7948aac15756cfe647516ccf6962f0c2b9d4281e07ec0a85cef0004df1945f2"
+      }
+    },
+    {
+      "id": "pupen-0ab8b28e0a33161b",
+      "text": "เป็นร้านดังที่เปิดมากนาน เราไปกัน 3 คน สั่งอาหาร 5 อย่าง ทะเลสดมากเลยค่ะ ยำ ต้มยำ รสชาติจัดจ้าน ผงกะหรี่อาจจะติดหวานนิดนึง แต่รวมๆ อร่อยดีค่ะ ร้านติดชายหาดเลย ขนาดเราไปวันธรรมดาคนยังเยอะมากๆ ที่จอดรถค่อนข้างสะดวก ราคาอาหารกลางๆ เครื่องดื่มอาจจะสูงนิดนึง พนักงานบริการเยอะค่ะ ค่อนข้างแนะนำได้ดี",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมความสดและสรุปว่าโดยรวมอร่อย",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2tGNlJteEJNMU5vTjNGRU9XOHdZMjFmUmxwallrRRAB",
+        "review_url": null,
+        "published_at": "2026-08-06T07:23:37.696Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 13,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "90b00b0ada9abc7ee084a77569cf84cd8710364c0adc328bb0421607102a8611"
+      }
+    },
+    {
+      "id": "pupen-2ba5e0428f4572fc",
+      "text": "รสชาติบอกต่อได้\nเมนูเยอะมากกกจนเลือกไม่ถูก แต่น้องพนักงานดีมากแนะนำให้แบบไม่รำคาญ",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมรสชาติและการแนะนำเมนูของพนักงาน",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT25SUFdVSkNiVGgwVFU1d01IbzVRMGd5YzNoTU4yYxAB",
+        "review_url": null,
+        "published_at": "2026-08-28T13:21:27.476Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 20,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "6492d8e19a62717505eef762e5d97b17d656d8de53e6650a59798fa30d7ffc50"
+      }
+    },
+    {
+      "id": "pupen-c6719700ea854b23",
+      "text": "ร้านใหญ่มากๆค่ะ มีพื้นที่จอดรถเยอะมาก ติดกับทะเลเลย บรรยากาศดีสุดๆ โต้ะให้นั่งเยอะ มาวันธรรมดาเลยรอคิวอาหารไม่นาน แต่วันหยุดไม่แน่ใจค่ะ อาหารอร่อยทุกอย่าง อาหารทะเลสดนะคะ ราคาสมเหตุสมผลกับปริมาณค่ะ มากันสองคนสั่ง5อย่าง ต้องห่อกลับ เพราะเยอะมากๆ หมดนี้ประมาณ1400 ถ้าเทียบกับบางร้านคือถือว่าถูกมาก🩷",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมอาหาร บรรยากาศ และความคุ้มค่า",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2tkQk0xOW5lVTR5Y1hoVFQwcGpZbGhrZUhSRVIyYxAB",
+        "review_url": null,
+        "published_at": "2026-08-26T14:21:28.167Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 21,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "4ff2bc7c5ed9129c7b478a47d8f57b7b9f5f3f2ccab05397ab4de99b5cff6373"
+      }
+    },
+    {
+      "id": "pupen-f94b1188db7c987d",
+      "text": "อาหาร:เสริฟไว รสชาติดี ปริมาณเหมาะสม\nราคา: อาหารราคาน่ารัก เหมาะสมกับปริมาณอาหาร\nบรรยากาศ : ดีมาก ติดวิวทะเล\nพนักงาน: ให้บริการดีมาก มีการกระจายทั่วบริเวณ ยิ้มแย้ม เป็นมิตร",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมอาหาร ราคา บรรยากาศ และบริการทุกด้าน",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT213MFVrdFpiMVU1TkZOaVpraDJjVUZ3UlhoQ1UyYxAB",
+        "review_url": null,
+        "published_at": "2026-05-17T06:43:36.402Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 25,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "0717a139eba491b5dcbe54ed2412bce88db6daba65853c192c197a0f69f24490"
+      }
+    },
+    {
+      "id": "pupen-0327c37e101db748",
+      "text": "ร้านตั้งอยู่ริมทะเล บรรยากาศดี นั่งทานเพลิน ๆ อาหารรสชาติดี โดยเฉพาะอาหารทะเลที่สดและคุณภาพดี\nราคาอาจจะสูงกว่าร้านทั่วไปเล็กน้อย แต่ถือว่าสมกับคุณภาพ ช่วงคนเยอะ เสียงอาจจะดังไปบ้าง\nของหวานมีให้เยอะ โดยเฉพาะไอศกรีมที่เสิร์ฟมาในถ้วยรูปปู พร้อมขนมปังรูปปูตกแต่งมาด้วย น่ารักดี",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมคุณภาพอาหารและยอมรับว่าราคาเหมาะกับคุณภาพ",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2xCSFZFVTJWVXROVlhjM1ltOHhkVU00T1VRMVQwRRAB",
+        "review_url": null,
+        "published_at": "2026-07-17T16:08:36.603Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 26,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "a6d209d9149c4f586cf2df7bda831244399ea6cc28d77b0ec3a6fdb239898757"
+      }
+    },
+    {
+      "id": "pupen-75826e8572c1a588",
+      "text": "- อาหารสด ริมทะเล อาหารรสชาติดีทุกเมนู ไปช่วงเย็นๆ คนเยอะแต่ออเดอร์ออกไว\n- จอดรถได้ภายในร้าน ที่จอดรถเยอะมาก มีพนักงานช่วยโบกรถดีมากๆ",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมความสด รสชาติ ความเร็ว และบริการที่จอดรถ",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT25WNWVqWkpZaTFmVm1wMlpVa3dTVFZXYkZjMVZrRRAB",
+        "review_url": null,
+        "published_at": "2026-04-15T12:14:55.498Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 27,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "fa6fa3e8e45deba2d35dd7917dfeec0f8398a8af6c28b3c5c93bd5f94079c3b5"
+      }
+    },
+    {
+      "id": "pupen-75da25353cfc2632",
+      "text": "อาหารรสชาติดีทุกอย่าง ที่จอดรถเยอะ ร้านติดริมทะเล ลมเย็นสบาย มาพัทยา-จอมเทียน ทุกครั้งต้องมาแวะร้านนี้ ยังประทับอาหารเหมือนเดิม (ร้านรับเฉพาะเงินสด)",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมอาหารและระบุว่ายังประทับใจเมื่อกลับมา",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT25wVVdGZDBVMjVYY1RWa1NtdE5lVEIyUzJVMVNtYxAB",
+        "review_url": null,
+        "published_at": "2026-05-17T14:28:43.652Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 28,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "1f2d1efaad38905301ea7ea0a42b469d23d80bcc296362e15eea1286d6d5df23"
+      }
+    },
+    {
+      "id": "pupen-db7ea1b0df1eea6c",
+      "text": "อาหารรสชาติดี ราคามาตรฐาน ร้านใหญ่ บรรยากาศดี มีห้องส่วนตัวให้บริการ พนักงานบริการดี แนะนำเป็นทางเลือกหนึ่ง",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมอาหาร บรรยากาศ บริการ และแนะนำร้าน",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT25ONWEyWTJkR1l4T1dOSGVESXpVVnBxWHpKSmVsRRAB",
+        "review_url": null,
+        "published_at": "2026-07-24T23:06:52.791Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 4,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 30,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "f5483e5e7304a5e485a933c679355176036cc5fbd4b8003d45adeba919f50a0d"
+      }
+    },
+    {
+      "id": "pupen-4ddecd184612b58e",
+      "text": "ไม่ได้มาทานนานแล้ว อาหารยังสดอยู่ ตอนนี้ร้านใหญ่โตมีโซนเบียร์ กับขนมหวาน วาฟเฟิลอร่อย",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมว่ายังสดและวาฟเฟิลอร่อย",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT21WUVVqSjRVRUUxTUVSWk1VbFlibmwyWDFGUVZIYxAB",
+        "review_url": null,
+        "published_at": "2026-06-30T09:16:02.121Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 4,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 31,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "d7b2510387bfea9ed267348c3176b15e0b4e83c973feda78c0372e86ef33b2bb"
+      }
+    },
+    {
+      "id": "pupen-186e1b538dd7dfdc",
+      "text": "เป็นร้านที่ไปบ่อยมากๆ อาหารอร่อยทุกเมนู อาหารทะเลสดๆ หวานๆ น้ำจิ้มซีฟู้ดคือแซ่บมาก ร้านถูกขยายให้ใหญ่ขึ้นเรื่อยๆ แต่ไม่มีปัญหาเรื่องบริการ เพราะพนักงานเยอะดูแลตามจุด อาหารออกไว ที่จอดรถเยอะมากๆ ห้องน้ำสะอาด แนะนำ",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชื่นชมหลายด้านและแนะนำให้มา",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2t0WVZrNU1RWE5hUTNVek4wVmZNVUpMTURJMmMyYxAB",
+        "review_url": null,
+        "published_at": "2026-03-06T03:28:11.354Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 32,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "97a240885afca168b52e0c23e821b6a3e017435a7ba008133fa05ff92e8887f1"
+      }
+    },
+    {
+      "id": "pupen-a50610163c527f55",
+      "text": "มาหลายครั้งแล้วแต่ไม่เคยรีวิว\nคุณภาพอาหารคุ้มค่าเหมาะสมกับราคา\nถ้าได้มาพัทยาก็จะแวะที่นี่อีก\n\nตินิดเดียว ปลาหมึกย่างเหนียวไปก่อน",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "สรุปว่าคุ้มค่าและจะกลับมา แม้มีข้อติเล็กน้อย",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT25sR1dUbFVNVzV5ZUhwa09FVnlia2hoTTBoMGFIYxAB",
+        "review_url": null,
+        "published_at": "2026-04-19T13:24:44.762Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 39,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "532bdec9b9e76f131249f709a934d987e6b652d1654f551e8ef49043046adba3"
+      }
+    },
+    {
+      "id": "pupen-6abd131bf2e256af",
+      "text": "ดีมากค่ะ อาหารทะเลสดทุกอย่าง อร่อยมาก ได้ไวมากด้วย จานใหญ่ให้เยอะ เราไปทุกปี สั่ง 10 กว่าอย่างทุกครั้ง ร้านโปรดของครอบครัวไปพัทยาทุกครั้ง ต้องกินปูเป็นทุกครั้ง เคยเปลี่ยนไปร้านอื่น ไม่อร่อยเท่าปูเป็นซักร้าน แถมกินไอติมตบท้ายด้วยที่ร้านปูหวาน",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ยกให้เป็นร้านโปรดและชมอาหารกับความคุ้มค่า",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2xsR2JHY3RRMVo2UW1acFNFNVphR1YyYlRoTWNIYxAB",
+        "review_url": null,
+        "published_at": "2026-04-16T13:31:11.865Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 40,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "9e4602679cd1cd427ccf0a32f7e445469ca08870368e4899f28b981c6748ddda"
+      }
+    },
+    {
+      "id": "pupen-9e51b02ae434eb0c",
+      "text": "อาหารที่สั่งอร่อยทกเมนู\nเบียร์สด  IPA,ร้านทำเอง,เบียร์อร่อย\nที่นั่งเยอะ,อาหารได้ไว",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมอาหาร เบียร์ และความเร็ว",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT21aTGN6TnJORlkwVTBSbmNTMUVjWGhLUVdsV04xRRAB",
+        "review_url": null,
+        "published_at": "2026-09-07T04:44:31.690Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 4,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 64,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "f099685525bed3139ddf66057c71200975e4335087c353252070513c58e222fa"
+      }
+    },
+    {
+      "id": "pupen-ec68fc5e7aa32f99",
+      "text": "รสชาติดี อาหารออกไว แม้คนจะล้านแปดนะคะ\nประทับใจ พนักงาน บริการดีมากค่ะ",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมอาหารและระบุว่าประทับใจบริการ",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2pacU0waEVVM2xXU0dScFgxY3lOa1F5VnpSWlFtYxAB",
+        "review_url": null,
+        "published_at": "2026-06-01T12:58:00.800Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 68,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "1d97945b7240a170c5603116366746fd39bb3497642937e10ad87ba9eb418ba9"
+      }
+    },
+    {
+      "id": "pupen-bbadd86480caedc0",
+      "text": "อาหารอร่อยเสมอต้นเสมอปลาย รสชาติดีมาก บรรยากาศดี พนักงานใส่ใจดูแลลูกค้า",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมรสชาติสม่ำเสมอ บรรยากาศ และการดูแล",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT21kVmJrNU9VbEpJU2pka2NtSXlWVzVEYTNSNGExRRAB",
+        "review_url": null,
+        "published_at": "2026-05-07T03:37:03.551Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 80,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "11f1bcbf0ea763a3e6d69710df62bb48c656cfb7992163138458a9ce5dfe46c0"
+      }
+    },
+    {
+      "id": "pupen-399513b200f96f7e",
+      "text": "อร่อย ร้านประจำ บรรยากาศดี คนเยอะแต่อาหารไว",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมว่าอร่อย บรรยากาศดี และอาหารเร็ว",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2xKcVluZzNObUpwWTNOdE5GQnBaWFJFVFdwcFZXYxAB",
+        "review_url": null,
+        "published_at": "2026-07-21T10:14:22.779Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 94,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "94f8eae9734ba1322f22717da60123914085f556e88407a06a16189efbeb61bb"
+      }
+    },
+    {
+      "id": "pupen-163bdadd09408551",
+      "text": "อาหารอร่อยทุกอย่างเลยค่ะ บรรยากาศร้านก็ดี ราคาไม่แรงด้วยค่ะ พาครอบครัวมาบ่อยๆเลยค่ะ",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมอาหาร บรรยากาศ ราคา และกลับมาบ่อย",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2xSSmFVWndPR3RvZEV4eU9FWTNNRFpVV1ZsclltYxAB",
+        "review_url": null,
+        "published_at": "2026-04-09T11:39:23.828Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 118,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "127754b8c92c12912c4392661b7ad6158402b7f17b615c99d2d969c90dd9f9a2"
+      }
+    },
+    {
+      "id": "pupen-4637b5a1a8e639ae",
+      "text": "อาหารอร่อยทุกอย่าง พนักงานบริการดี และอีกอย่างราคาถูกมาก",
+      "label": "positive",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ชมอาหาร บริการ และราคาถูก",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2xSdmRYaENka3RtYWtSRWRIbFVhMEU0WDI5aWVIYxAB",
+        "review_url": null,
+        "published_at": "2026-03-11T18:19:03.496Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 146,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "8cdcdae049e915fd8f62020a8c9cba2c4f3035d31980fd8a04590c9e75b8f9b6"
+      }
+    },
+    {
+      "id": "pupen-900c3db99d3ac4e7",
+      "text": "ร้านอาหารเก่าแก่จนตอนนี้ขยายเป็นร้านใหญ่ รสชาติและคุณภาพอาหาร ตามมาตรฐาน คุณภาพใช้ได้ ไม่ได้โดดเด่น",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ประเมินว่าตามมาตรฐาน ใช้ได้ ไม่โดดเด่น โดยไม่ชมติรุนแรง",
+        "confidence": "medium",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT25aSWJXUkdSVkoxTUV0VVIxUjNjRjlFWHpGSE1GRRAB",
+        "review_url": null,
+        "published_at": "2026-03-08T13:11:19.896Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 4,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 107,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "4342e9b2ff8a6cb252de23c6a67bd0fc545ed2159349dd605ae10317f6452aec"
+      }
+    },
+    {
+      "id": "pupen-ec3c24dc5c9ef94c",
+      "text": "เมื่ิอนานมาแล้ว\nร้านอาหารปูเป็น พัทยา\n\n15 พฤศจิกายน 2561\n\n📲 iPhone 7 Plus\n\n#ร้านอาหารในพัทยา",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "บันทึกสถานที่ วันที่และอุปกรณ์ถ่ายภาพ ไม่มีการประเมินอารมณ์",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2toUWQyb3RWRkU1ZDFneGJYRllSbnBsVnpkNmFIYxAB",
+        "review_url": null,
+        "published_at": "2026-09-01T05:36:03.456Z",
+        "collected_at": "2026-09-29T04:44:00.404Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/newest_reviews.json",
+        "source_index": 140,
+        "apify_run_id": "MU9RZfYlbeszs7ivF",
+        "apify_dataset_id": "CS73DMtvVMgDE1I62",
+        "text_sha256": "70f7e8aaf27e3776bddb59c397c393d49c4fb47e29e1549702ac49d154513dd8"
+      }
+    },
+    {
+      "id": "pupen-dd14f90608754954",
+      "text": "สั่งปลาหมึกย่าง ราคา300 บาท",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "แจ้งชื่อเมนูและราคาโดยไม่แสดงความพอใจหรือไม่พอใจ",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2t3M1JUZHNlVkZpTkc1WFdqUm9ObGM0ZFU5MVNWRRAB",
+        "review_url": null,
+        "published_at": "2026-07-24T13:45:13.932Z",
+        "collected_at": "2026-09-29T04:44:00.404Z",
+        "original_language": "th",
+        "stars": 1,
+        "collection_file": "data/pupen_collection/newest_reviews.json",
+        "source_index": 399,
+        "apify_run_id": "MU9RZfYlbeszs7ivF",
+        "apify_dataset_id": "CS73DMtvVMgDE1I62",
+        "text_sha256": "8993380bf36516723f4eac2308d8fc9b15693094b96cdb190ed2d6f65182cbf2"
+      }
+    },
+    {
+      "id": "pupen-dc0ba5c6d14d8813",
+      "text": "นานๆจะได้มานั่ง",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "บอกความถี่การมานั่ง ไม่มีการชมติ",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2xkVFpGVmxZbXBrZW1JNFgyTnJXVkpTWDBacVgwRRAB",
+        "review_url": null,
+        "published_at": "2026-07-04T14:24:06.387Z",
+        "collected_at": "2026-09-29T04:44:00.404Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/newest_reviews.json",
+        "source_index": 499,
+        "apify_run_id": "MU9RZfYlbeszs7ivF",
+        "apify_dataset_id": "CS73DMtvVMgDE1I62",
+        "text_sha256": "2c8eaac0c73e7eb452b146cbd4648226018b263d77281c0358f04b04a400259d"
+      }
+    },
+    {
+      "id": "pupen-c9c9dc3a563f040b",
+      "text": "ร้านอาหารทะเลเก่าแก่ เปิดขายมานานมาก รสชาติกับราคามาตรฐาน",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "บอกว่าเป็นร้านเก่าแก่และรสชาติกับราคามาตรฐาน",
+        "confidence": "medium",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2xoNWVHSkRlRjh3Y0RkMFZUY3hjVmRyTmxSRk9VRRAB",
+        "review_url": null,
+        "published_at": "2026-07-04T04:16:19.625Z",
+        "collected_at": "2026-09-29T04:44:00.404Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/newest_reviews.json",
+        "source_index": 505,
+        "apify_run_id": "MU9RZfYlbeszs7ivF",
+        "apify_dataset_id": "CS73DMtvVMgDE1I62",
+        "text_sha256": "2683a05a9ac02ada6a5fc2c2be87820b8060877076ab7458bd18bd4605113bc5"
+      }
+    },
+    {
+      "id": "pupen-3dbff2787c1d363f",
+      "text": "ที่จอดรถกว้างขวาง ที่นั่งมีเยอะ ร้านไม่ได้ติดทะเล มีถนนกั้น อาหารรสชาติธรรมดา ไม่แซ่บมาก",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "บรรยายที่จอดรถ ตำแหน่งร้าน และรสชาติธรรมดาไม่จัด",
+        "confidence": "medium",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChZDSUhNMG9nS0VJQ0FnSURHcjRIV0F3EAE",
+        "review_url": null,
+        "published_at": "2021-12-13T14:01:04.568Z",
+        "collected_at": "2026-09-29T04:46:23.873Z",
+        "original_language": "th",
+        "stars": 4,
+        "collection_file": "data/pupen_collection/neutral-thammada_reviews.json",
+        "source_index": 29,
+        "apify_run_id": "O0faNeWGQlJIn7ALu",
+        "apify_dataset_id": "lDQNnnj5GQtcMDlxs",
+        "text_sha256": "7935fe772dc84e514e84a685cf7d99327e15dc698665eef3f01f648777bfd1a4"
+      }
+    },
+    {
+      "id": "pupen-22ccdedd07381b0e",
+      "text": "รสชาติธรรมดา ไม่ได้แย่ แต่ก็ไม่ได้ว้าวอะไรขนาดนั้น",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ระบุชัดว่าไม่แย่และไม่ว้าว",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChdDSUhNMG9nS0VJQ0FnSUROOXFlbW1RRRAB",
+        "review_url": null,
+        "published_at": "2024-01-22T11:23:09.164Z",
+        "collected_at": "2026-09-29T04:46:23.873Z",
+        "original_language": "th",
+        "stars": 4,
+        "collection_file": "data/pupen_collection/neutral-thammada_reviews.json",
+        "source_index": 36,
+        "apify_run_id": "O0faNeWGQlJIn7ALu",
+        "apify_dataset_id": "lDQNnnj5GQtcMDlxs",
+        "text_sha256": "a62840b8a1247e986531b3c7298e2d2febc8378be6eb5c4676f4c7b34a923f57"
+      }
+    },
+    {
+      "id": "pupen-9c58478af962e1f2",
+      "text": "คนเยอะแม้วันธรรมดา",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "แจ้งว่าคนเยอะแม้วันธรรมดา ไม่มีถ้อยคำชมติ",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChdDSUhNMG9nS0VJQ0FnTUNJbloyZmx3RRAB",
+        "review_url": null,
+        "published_at": "2025-04-04T03:05:14.431Z",
+        "collected_at": "2026-09-29T04:46:23.873Z",
+        "original_language": "th",
+        "stars": 4,
+        "collection_file": "data/pupen_collection/neutral-thammada_reviews.json",
+        "source_index": 49,
+        "apify_run_id": "O0faNeWGQlJIn7ALu",
+        "apify_dataset_id": "lDQNnnj5GQtcMDlxs",
+        "text_sha256": "881fccf3288c811106ca2c12d9f888b7beab5c9b78dfa8cae8fe56cc76c9ae3a"
+      }
+    },
+    {
+      "id": "pupen-77aefaaf17a5e337",
+      "text": "ธรรมดาเหมือนร้านอาหารทั่วๆๆไป",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ประเมินว่าธรรมดาเหมือนร้านทั่วไป",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChZDSUhNMG9nS0VJQ0FnSUR5aDdUa2R3EAE",
+        "review_url": null,
+        "published_at": "2021-03-19T12:00:28.487Z",
+        "collected_at": "2026-09-29T04:46:23.873Z",
+        "original_language": "th",
+        "stars": 1,
+        "collection_file": "data/pupen_collection/neutral-thammada_reviews.json",
+        "source_index": 93,
+        "apify_run_id": "O0faNeWGQlJIn7ALu",
+        "apify_dataset_id": "lDQNnnj5GQtcMDlxs",
+        "text_sha256": "9a70be6839ffdbe5d97cd2aa91883ad6ff1fccdd4541f1977348761fac7bd038"
+      }
+    },
+    {
+      "id": "pupen-4e3f715031caa4c3",
+      "text": "อาหารรสชาด ธรรมดา แต่คนเยอะมาก",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ระบุรสชาติธรรมดาและจำนวนคน โดยไม่สรุปพอใจหรือไม่พอใจ",
+        "confidence": "medium",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChdDSUhNMG9nS0VJQ0FnSURnbHNmd3JBRRAB",
+        "review_url": null,
+        "published_at": "2017-06-07T08:44:34.534Z",
+        "collected_at": "2026-09-29T04:46:23.873Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/neutral-thammada_reviews.json",
+        "source_index": 94,
+        "apify_run_id": "O0faNeWGQlJIn7ALu",
+        "apify_dataset_id": "lDQNnnj5GQtcMDlxs",
+        "text_sha256": "5a6e7d6cdfdd8da1473a5fcf8045d65c9fb44e30e11ed961a3a194b3c8e64dda"
+      }
+    },
+    {
+      "id": "pupen-92b3744942f1377d",
+      "text": "อาหารรสชาติธรรมดา",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ระบุเพียงว่ารสชาติธรรมดา",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChdDSUhNMG9nS0VJQ0FnSUNVck9LdHh3RRAB",
+        "review_url": null,
+        "published_at": "2019-07-21T02:31:08.929Z",
+        "collected_at": "2026-09-29T04:46:23.873Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/neutral-thammada_reviews.json",
+        "source_index": 98,
+        "apify_run_id": "O0faNeWGQlJIn7ALu",
+        "apify_dataset_id": "lDQNnnj5GQtcMDlxs",
+        "text_sha256": "707d53d1fc5b41503821cb5865c365bdcefd46f6e2c9c9c580fcc6655bc837f3"
+      }
+    },
+    {
+      "id": "pupen-5b52e7f32cd71c63",
+      "text": "อาหารธรรมดา",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ระบุเพียงว่าอาหารธรรมดา",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChZDSUhNMG9nS0VJQ0FnSUN3d0xTMmJREAE",
+        "review_url": null,
+        "published_at": "2018-04-24T07:31:39.688Z",
+        "collected_at": "2026-09-29T04:46:23.873Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/neutral-thammada_reviews.json",
+        "source_index": 99,
+        "apify_run_id": "O0faNeWGQlJIn7ALu",
+        "apify_dataset_id": "lDQNnnj5GQtcMDlxs",
+        "text_sha256": "2fbe2769e7b11aad3c66b11b9bc856b2cfb1053ebc84b0090a05f2e3ec2a7fa0"
+      }
+    },
+    {
+      "id": "pupen-4ac775257ebf1198",
+      "text": "อาหารรสชาติเฉยๆนะ ราคาปกติทั่วไป",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ระบุรสชาติเฉยๆและราคาปกติ",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChZDSUhNMG9nS0VJQ0FnSURBc05LRUZnEAE",
+        "review_url": null,
+        "published_at": "2017-05-04T02:28:05.037Z",
+        "collected_at": "2026-09-29T04:47:40.164Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/neutral-choeichoei_reviews.json",
+        "source_index": 42,
+        "apify_run_id": "x7FWc2fyeJo0phHfs",
+        "apify_dataset_id": "LpRdGdRYRqGNvrWLY",
+        "text_sha256": "f31cb52d83a979f4d9426a6aaae6c15589ad8e6973bedd189854de69ea998304"
+      }
+    },
+    {
+      "id": "pupen-55e16673d8199818",
+      "text": "ไม่ว๊าวอะ เฉยๆกับรสชาติ",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "แสดงความรู้สึกเฉยๆต่อรสชาติ ไม่มีคำตำหนิชัดเจน",
+        "confidence": "medium",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChdDSUhNMG9nS0VJQ0FnSUNFOWVQWTV3RRAB",
+        "review_url": null,
+        "published_at": "2019-06-17T04:03:13.096Z",
+        "collected_at": "2026-09-29T04:47:40.164Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/neutral-choeichoei_reviews.json",
+        "source_index": 56,
+        "apify_run_id": "x7FWc2fyeJo0phHfs",
+        "apify_dataset_id": "LpRdGdRYRqGNvrWLY",
+        "text_sha256": "538a200e009e25256c4e2241a1eb20a2f1fad5393bee12aa8d3915bcc92fe5ae"
+      }
+    },
+    {
+      "id": "pupen-2a7cf3197859e593",
+      "text": "เฉยๆ",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "แสดงความรู้สึกเฉยๆโดยตรง",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT25kVGVuZHlOVmw1VnpSRFgzZFdWMUJzU25ZMlYyYxAB",
+        "review_url": null,
+        "published_at": "2025-06-20T11:37:19.401Z",
+        "collected_at": "2026-09-29T04:47:40.164Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/neutral-choeichoei_reviews.json",
+        "source_index": 57,
+        "apify_run_id": "x7FWc2fyeJo0phHfs",
+        "apify_dataset_id": "LpRdGdRYRqGNvrWLY",
+        "text_sha256": "15d04f43996ef6299eb809188c569e153838c35ffec6404ab49ed128f122016e"
+      }
+    },
+    {
+      "id": "pupen-bcebfb8538e2b433",
+      "text": "วันนี้คนเยอะหน่อย รสชาติใช้ได้กลางๆ\nไม่จัดจ่านมาก\nใช้สิทธิร่วมรายการ \"เราเที่ยวด้วยกัน\" ลดไป 600 บาท",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "รสชาติกลางๆไม่จัด พร้อมข้อมูลจำนวนคนและส่วนลด",
+        "confidence": "medium",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChdDSUhNMG9nS0VJQ0FnSUNDNS15T3VBRRAB",
+        "review_url": null,
+        "published_at": "2020-09-06T16:37:18.887Z",
+        "collected_at": "2026-09-29T04:46:40.652Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/neutral-klang_reviews.json",
+        "source_index": 66,
+        "apify_run_id": "HRG4S2UZhIq1OGFCT",
+        "apify_dataset_id": "xlCSuxUSNzHftUler",
+        "text_sha256": "600c2ae230f93da18a42686aca47cb7fff06138438dae83a2f2d5770e0d679e6"
+      }
+    },
+    {
+      "id": "pupen-825c6a11150d00b1",
+      "text": "อาหารรสชาด ok ครับ ออกไปทางกลางๆไม่จัดมาก กินง่าย",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ประเมินว่ารสชาติระดับโอเค กลางๆ และไม่จัด",
+        "confidence": "medium",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2xsalkzSlhkVzVIZFhOVGJFODVkVUpVYW1jek0yYxAB",
+        "review_url": null,
+        "published_at": "2025-09-15T01:48:46.223Z",
+        "collected_at": "2026-09-29T04:46:40.652Z",
+        "original_language": "th",
+        "stars": 4,
+        "collection_file": "data/pupen_collection/neutral-klang_reviews.json",
+        "source_index": 94,
+        "apify_run_id": "HRG4S2UZhIq1OGFCT",
+        "apify_dataset_id": "xlCSuxUSNzHftUler",
+        "text_sha256": "13101ab956829e3564ae02940c069c3049134e46497ea1a18ec0d2b6dc06f0b8"
+      }
+    },
+    {
+      "id": "pupen-902453dda889fde6",
+      "text": "📍📍📍 อาหารจานใหญ่ ราคาค่อนข้างสูง บริการกลางๆ\n\n🚗🚗🚗 ที่จอดรถเยอะ ร้านติดหาดนาจอดเทียน",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "บรรยายจานใหญ่ ราคาสูง บริการกลางๆและที่จอดรถ โดยไม่มีขั้วเด่น",
+        "confidence": "medium",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT201MFlsQktaRTFZUkZWdlNIRjJiRE53UWtKQ1ZXYxAB",
+        "review_url": null,
+        "published_at": "2026-01-08T06:32:07.316Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 4,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 163,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "0c1517f8e163cc4b4476c8a4bcb14007b2baa312cc771954cf4dff7862c7a537"
+      }
+    },
+    {
+      "id": "pupen-e1d6115291a750b2",
+      "text": "ธรรมดา แต่ไม่แพงมาก",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ประเมินว่าธรรมดาและราคาไม่แพงมาก ไม่มีความชื่นชมหรือตำหนิเด่น",
+        "confidence": "medium",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChdDSUhNMG9nS0VJQ0FnSUNzdHMtdndBRRAB",
+        "review_url": null,
+        "published_at": "2020-02-01T12:21:47.659Z",
+        "collected_at": "2026-09-29T04:46:23.873Z",
+        "original_language": "th",
+        "stars": 4,
+        "collection_file": "data/pupen_collection/neutral-thammada_reviews.json",
+        "source_index": 96,
+        "apify_run_id": "O0faNeWGQlJIn7ALu",
+        "apify_dataset_id": "lDQNnnj5GQtcMDlxs",
+        "text_sha256": "ab2eb464ec862411ed3dca381d589b4e91c44312f7b233b45876b7425f6e550a"
+      }
+    },
+    {
+      "id": "pupen-951e4cd440cbf5b7",
+      "text": "อาหารพอกินได้ บรรยากาศดี นอกนั้นก็เฉยๆ",
+      "label": "neutral",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "อาหารพอกินได้ ชมบรรยากาศ แต่สรุปด้านอื่นว่าเฉยๆ",
+        "confidence": "medium",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChdDSUhNMG9nS0VJQ0FnSURsd051NDBRRRAB",
+        "review_url": null,
+        "published_at": "2023-11-29T14:43:39.866Z",
+        "collected_at": "2026-09-29T04:47:40.164Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/neutral-choeichoei_reviews.json",
+        "source_index": 35,
+        "apify_run_id": "x7FWc2fyeJo0phHfs",
+        "apify_dataset_id": "LpRdGdRYRqGNvrWLY",
+        "text_sha256": "5af89371740994ff43be3f5afb29edcd4dfbaa9a1afaec84d349b944ef182200"
+      }
+    },
+    {
+      "id": "pupen-03dfa5eba7885d5b",
+      "text": "บรรยากาศร้านเฉยๆ เมื่อเทียบกับราคาของอาหาร  รอคิวนาน พนักงานบริการไม่ทั่วถึง  อาหารทะเลของสดค่ะ แต่รสชาติอาหารธรรมดาไม่ได้ว้าว ราคาค่อนข้างแพงเกินไป ที่จอดรถมีเยอะ",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิการรอ บริการ และราคาแพงเกินไป แม้ชมความสด",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT21KMGVEZDBPWEpQTm5oclp6SlhVbkU1UlU0MVduYxAB",
+        "review_url": null,
+        "published_at": "2026-05-16T06:35:55.567Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 19,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "7854e88f0b6bbc78aae3c833be467362daaf51c48e3b08f36993faa11a991fc4"
+      }
+    },
+    {
+      "id": "pupen-f1b017a8f3438d44",
+      "text": "ไปทานที่ร้านปูเป็น จอมเทียนมา บรรยากาศดีมาก อยู่ติดทะเล นั่งชิลๆ รับลมได้เพลินๆ พนักงานบริการดี ดูแลใส่ใจดีค่ะ\nส่วนอาหารรสชาติถือว่ากลางๆ ไม่ได้โดดเด่นมาก อาหารทะเลบางอย่างรู้สึกว่าไม่ค่อยสดเท่าที่ควร เมื่อเทียบกับราคาแล้วถือว่าค่อนข้างแรงนิดนึงค่ะ\nโดยรวมเหมาะกับการมานั่งเอาบรรยากาศมากกว่าคาดหวังเรื่องอาหารค่ะ",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิความสดและความคุ้มค่า พร้อมลดความคาดหวังเรื่องอาหาร",
+        "confidence": "medium",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT25Ca2JUZEJYM2RIWWpaVWFHbGtOR1JMTVVOVVlrRRAB",
+        "review_url": null,
+        "published_at": "2026-03-23T03:01:46.838Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 22,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "3221fa67c82ca39a9f999b6ad7613f92a9f959f97970bae681c921ff0f9403e9"
+      }
+    },
+    {
+      "id": "pupen-f07193dd2e1be46d",
+      "text": "ของไม่สดสักอย่าง สั่งกรรเชียงปู กุ้งผัดพริกเกลือ ต้มยำปลาเก๋า คุณภาพไม่เหมาะสมกับราคาอย่างแรง รสชาติกลางๆเหมือนหาได้ตามร้านทั่วๆไป ไม่ต้องมากินไกลขนาดนี้ บรรยากาศ ที่นั่งดี คนโบกรถที่ลานจอดบริการดี",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิของไม่สดและคุณภาพไม่เหมาะกับราคาอย่างชัดเจน",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT21WdmRXeENlR1JpVDJWS2FYZHdSV3hNUWpkTFRIYxAB",
+        "review_url": null,
+        "published_at": "2026-05-02T07:30:38.224Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 1,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 84,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "aa12c1a47a3169d77ac8298b6b04e238e02361939608b6b44fbb2bffc6583a03"
+      }
+    },
+    {
+      "id": "pupen-26cd0b0dbd1b779a",
+      "text": "พนักแย่มาก แค่เราขอใบเสร็จอีกใบหนึ่ง เพราะเราลืมแต่ตะโกนบอกเพื่อนร่วมงานว่า ทำไมเราไม่ขอตั้งแต่ที่แรก ทั้งๆที่ ไม่ไกลจากเรา  อาหารอร่อยนะคะ บรรยากาศดี แต่พนักงานควรมี Mindset ในการบริการมากกว่านี้ ฝั่งโต๊ะริมทะเลวิวตอนกลางคืนดีมากเลยค่ะ",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "เล่าประสบการณ์พนักงานปฏิบัติไม่ดีและเรียกร้องให้ปรับปรุง",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2psaFdXNXhURTVsYUhsVmRIZHlOMTkzZVdkQ2EyYxAB",
+        "review_url": null,
+        "published_at": "2026-04-04T15:30:31.951Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 2,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 133,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "2c67f29abecbbc127a826df0b176bb474fec1d263e413338ed59ae5abf7da587"
+      }
+    },
+    {
+      "id": "pupen-ab21bff6a62f541c",
+      "text": "ไข่เจียวเหมือนลืมใส่น้ำปลา แล้วช็อคมาก ข้าวผัดหมูจานละ 390 ได้เป็นหมูสับไม่ใช่หมูชิ้น",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิรสชาติและแสดงความตกใจกับราคาหรือชนิดหมู",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2tZeVEzQklRbEV4WTFKaFIxTnBRblY1VDA1R2QxRRAB",
+        "review_url": null,
+        "published_at": "2026-01-24T07:33:01.664Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 1,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 165,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "91a0967bad9f66542593956f8ccb4483334033e993663e75d51cb1c1216fcdf6"
+      }
+    },
+    {
+      "id": "pupen-b753b3aa28e08c76",
+      "text": "อาหารรสชาติดีแต่ให้น้อยไปหน่อยไม่เหมาะกับราคา",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "แม้ชมรสชาติ แต่สรุปว่าปริมาณไม่เหมาะกับราคา",
+        "confidence": "medium",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2xOQ2JYVnVZaTE2Y1ZwMWVVMDBXbXBWWldSalpWRRAB",
+        "review_url": null,
+        "published_at": "2025-11-06T07:25:11.111Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 5,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 306,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "ff8d262448b91e841fee864768826ff8bf435c39a66092b213b0a9a4edce3072"
+      }
+    },
+    {
+      "id": "pupen-82900c46c5726fc4",
+      "text": "อาหารรสชาติธรรมดามากๆ พอกินได้ ทอดมันกุ้งไม่ควรสั่ง ไม่อร่อยเลย เป็นแป้งและมันหมูเยอะ ไม่ค่อยสัมผัสได้ถึงกุ้ง อย่างอื่นพอรับได้ค่ะ\nพนักงานบริการดีมากๆ ร้านกว้างขวาง แต่ความกว้างนี่แหละทำให้ไม่ค่อยชิลล์\nอาหารออกเร็ว ราคาค่อนข้างสูง",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิอาหารหลักและระบุเมนูที่ไม่ควรสั่ง แม้ชมบริการ",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2pkaFMyMUpZbU0zV2t0V1ltZGpjWGhETWpKQldFRRAB",
+        "review_url": null,
+        "published_at": "2025-07-28T16:04:18.982Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 308,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "9c88a004942a52dfcabb16130aaf00f940400da1d2662ecc4072943eb0d782fa"
+      }
+    },
+    {
+      "id": "pupen-4758c8ef896e95fe",
+      "text": "หักคะแนนอาหารก่อนเลย รสชาติน่ะอร่อย แต่ดูหอยหวานสิ เล็กกว่าช้อนกินข้าวอีก ราคาไม่เหมาะสมเลย\nปูม้านึ่งอีก สดนะ แต่ราคาไม่สมกับอาหารอีก ส่วนหอยตลับผัดโหระพาทรายเต็มเลย สรุปทิ้งทั้งจาน\nแนะนำโรตีหน้าร้านปูเป็นนะ กรอบอร่อย คันที่จอดกลางๆหน่อย",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิขนาด ราคา และทรายในอาหารจนต้องทิ้ง",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChdDSUhNMG9nS0VJQ0FnSUNwdl83QWxnRRAB",
+        "review_url": null,
+        "published_at": "2023-08-13T15:02:29.114Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 315,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "c408e2af397ec37ef57568a5d389e370ee1812a69419f3e1b0cebbc13f0a9949"
+      }
+    },
+    {
+      "id": "pupen-897fd48c20de2a0d",
+      "text": "ไม่มาทานที่นี่นานแล้ว มาครั้งนี้เซอไพรส์มาก อาหารแพงขึ้นเยอะมากกทุกคน แล้วแต่ละจานน้อยมาก อาหารไม่ได้อร่อยไปกว่าเดิมนะ ผิดหวังมาก น่าจะมาครั่งสุดท้ายละ",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ผิดหวังเรื่องราคา ปริมาณ และระบุว่าจะมาครั้งสุดท้าย",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChZDSUhNMG9nS0VJQ0FnSUR5cGJLTkNREAE",
+        "review_url": null,
+        "published_at": "2023-08-14T07:19:13.834Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 391,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "1ff86c6821b7fb3748258bbac0d8a933a3f98dd9c116c05cd5189857dd29755e"
+      }
+    },
+    {
+      "id": "pupen-038f4ee2a2a28ac9",
+      "text": "รสชาติไม่จัดจ้านเหมือนเดิม\nเจอเส้นผมในหม้อไฟเฉยครั้งนี้\n1เส้นพอทน2เส้นพอเลยอวสานมื้อเย็น\nคุณภาพแอบตกต่ำกว่าแต่ก่อนนะ\nมารอบนี้ผิดหวังและคงเป็นครั้งสุดท้าย\nบาย",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "พบเส้นผม ผิดหวัง และระบุว่าจะไม่กลับมา",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT25sVFJuazNaSFZEZHpWSmEwdHNlRzVtVFZkS1dFRRAB",
+        "review_url": null,
+        "published_at": "2026-06-16T14:31:47.195Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 1,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 394,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "3e22631d23e546a24cfdaa3edad183797a5f01e168e6db7162cb5076abbdd648"
+      }
+    },
+    {
+      "id": "pupen-3068561d18f683fc",
+      "text": "อาหารอร่อย ราคาแอบแรงนิดนึง\n\nบริการ ค่อนข้างแย่ เดินเข้ามาในร้านพนักงานไม่หาโต๊ะให้ต้องเดินหาเอง มานั่งเป็น10นาที(พนักงานเสื้อสีเหลือง)มองหน้า แล้วจับกลุ่มคุยกันต่อ ไม่มีคนมารับออเดอร์\n\nวิวสวยเห็นทะเล",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิบริการที่เพิกเฉยต่อการรับออเดอร์ แม้ชมอาหารและวิว",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChdDSUhNMG9nS0VJQ0FnSURMNWZmb3h3RRAB",
+        "review_url": null,
+        "published_at": "2024-06-29T05:41:41.838Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 429,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "7401d48c8ada6855e65d4a06a976d6ab8a51d59a3046aaa4fc77d4f50c1bb745"
+      }
+    },
+    {
+      "id": "pupen-f137484e804d2dca",
+      "text": "ได้มาที่นี่เป็นครั้งแรก ร้านใหญ่โตดี ใกล้ชายทะเล ลูกค้าเยอะมาก การให้บริการไม่ค่อยทั่วถึง ดูพนักงานจะเหนื่อยมาก เวลาตามอาหาร ได้ยินพนักงานบอกให้บริการไม่ทันเพราะตัวเองต้องดูหลายโต๊ะ อาหารโดยรวมก็ทั่วไป ราคาแอบสูง",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิบริการไม่ทั่วถึง การตามอาหาร และราคาสูง",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT214NmJFOXpXREYxTVY4dFp6QkZWVGN5TUhOdGQzYxAB",
+        "review_url": null,
+        "published_at": "2026-03-31T01:45:51.453Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 539,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "08c9650bab73efb3c55efe3ff39932be5c0cab52b94dd09b3776022ce81d1a09"
+      }
+    },
+    {
+      "id": "pupen-601339679f07899c",
+      "text": "อาหารแย่มาก ข้าวผัดปูร้านธรรมดายังอร่อยกว่า หมึกไข่นึ่งมะนาวเย็นและเหนียวตั้งแต่ตอนเสริฟ ต้องรอแอลกอฮอล์เจลมาจุดให้มันร้อนก่อน  พนักงานไม่สนใจที่จะรับ Order ทอดมันกุ้งธรรมดามาก",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิอาหารและบริการหลายประเด็นอย่างชัดเจน",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChZDSUhNMG9nS0VJQ0FnSUNBbVpYMENREAE",
+        "review_url": null,
+        "published_at": "2021-11-16T16:20:39.707Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 1,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 547,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "7c607fedece18457f21fabb052d0dd30a04f0030f1aee2a9dc6f2a4ae89f95a2"
+      }
+    },
+    {
+      "id": "pupen-3aee6bf6363c990c",
+      "text": "ราคาอาหารแพงถ้าเทียบกับปริมาณและคุณภาพ สั่งปูไข่มาไข่แห้งไม่ชุ่มฉ่ำ (ตัวละ 600) สั่งปูม้านึ่งได้ปูม้ามา 2 ตัวมีขนาดเล็กมากถ้าเทียบกับราคา 500 กว่าบาท ส่วนแกงส้มไข่ปลาเรียวเซียว และหอยตลับผัดฉ่าแซ่บมากแต่ราคาแพง",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "เน้นว่าแพงเมื่อเทียบปริมาณและคุณภาพ แม้บางเมนูรสดี",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT25OVlFYQXpOMjVPT1V0Mk5IWmZRblYyYmpCUlIzYxAB",
+        "review_url": null,
+        "published_at": "2026-05-03T15:17:37.821Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 2,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 556,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "858a367fbe1aa253d02fe10e9c4665ba02c8a4ae085bda71ce1065d7cf48f724"
+      }
+    },
+    {
+      "id": "pupen-cbecf366f0798705",
+      "text": "อาหารราคาสูงขึ้นกว่าเดิมมาก ปริมาณเหมือนจะลดลงด้วย ทุกครั้งไปพัทยาไม่เคยพลาดร้านนี้ แต่ไปรอบนี้ตกใจค่ะ",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ไม่พอใจราคาที่สูงขึ้นและปริมาณที่ลดลง",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChdDSUhNMG9nS0VJQ0FnSUNuNE56RnVRRRAB",
+        "review_url": null,
+        "published_at": "2024-09-21T18:01:35.984Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 560,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "4a59041293eb7cf183168817300ff1c7c5c6e2a5b56d94d229fec4a31b640be0"
+      }
+    },
+    {
+      "id": "pupen-77eccd96bc39750f",
+      "text": "รสชาติอาหาร ไม่เปรี้ยว เน้นเค็มแต่พอขอให้แก้รสชาติขอหวานกับเปรี้ยวเพิ่ม บอกจะเอาน้ำตาลกับมะนาวมาให้เราก็รับได้แต่พอถึงเวลาตอนเช็คบิลคิดค่ามะนาวโดยไม่บอก กับราคาอาหารเราไม่woryอยู่แล้วแต่ควรบอกมั้ยว่าคิดค่าไร",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิรสชาติและการคิดค่ามะนาวโดยไม่แจ้ง",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2s5TmNGVlJNV0pSVUVsWlZuQjNPVVJXV1hGSVRYYxAB",
+        "review_url": null,
+        "published_at": "2025-11-21T12:18:26.162Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 1,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 566,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "b320f480d2fc95f465510743a54b25e283a83f56984f7ef9f386b32b30f4a2fc"
+      }
+    },
+    {
+      "id": "pupen-1e6043cbae320066",
+      "text": "รอบนี้รอค่อนข้างนาน แต่เข้าใจได้\nแต่ที่เข้าใจไม่ได้คือ ตามอาหารไป สั่งปลาอินทรีย์ทอดให้เด็ก ตามอาหารบอกทำตามคิว จน ผู้ใหญ่กินเสร็จแล้ว ตามอีกครั้ง บอกว่าคงไม่ได้แล้วแหละพี่ มันน่าหงุดหงิด ถ้าไม่ได้ก็ควรแจ้งลูกค้า ไม่ใช่ให้รอเป็นชัวโมง\nส่วนรสชาติอาหารคือดีเหมือนเดิม",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ไม่พอใจการรอและการไม่แจ้งว่าอาหารไม่ได้ แม้ชมรสชาติ",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChdDSUhNMG9nS0VJQ0FnSURSOEltSTNBRRAB",
+        "review_url": null,
+        "published_at": "2023-04-16T06:44:01.582Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 2,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 579,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "2892fd608ac92f37d3bb2e7d6b2fc61b90c4303c73c8e5249bd8e75416e9d706"
+      }
+    },
+    {
+      "id": "pupen-7c6cac24c196c356",
+      "text": "มาพัทยาก็ต้องกินอาหารทะเล มาร้านนี้เพราะเห็นร้านดูน่าจะอร่อย คนเยอะเชียวครับรอคิวนานมากช่วงเย็นวันหยุด อาหารออกช้า รสชาติกลางๆเช็คบิลแล้วรู้สึกแพงจังว้า hahahaha",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิการรอ ความช้า และราคาแพง",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "ChZDSUhNMG9nS0VJQ0FnSUNDNEltWVVREAE",
+        "review_url": null,
+        "published_at": "2020-08-07T10:02:50.865Z",
+        "collected_at": "2026-09-29T04:42:01.782Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/mostRelevant_reviews.json",
+        "source_index": 594,
+        "apify_run_id": "tpTX0Lao9XlkEsDRL",
+        "apify_dataset_id": "jakXqWa5HBEz6upxg",
+        "text_sha256": "e4b759b99f9db7aed968b714079239f9f9dd0be7ab4228472b70e9fc365fc53e"
+      }
+    },
+    {
+      "id": "pupen-7e2d5a4183d43667",
+      "text": "เหมือนลดคุณภาพอาหารลงจากแต่ก่อน เข้าใจว่าของแพงแต่ก็ขึ้นราคามาแล้วแต่เหมือน คุณภาพวัตถุดิบ อาหารดร๊อปไป เยอะจากที่เคยมา ปีก่อน",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิคุณภาพที่ลดลงแม้ขึ้นราคาแล้ว",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2w5a0xYRnRlWGd0WmtKSU0yRjFaa2RUWjBRM1dVRRAB",
+        "review_url": null,
+        "published_at": "2026-08-22T13:05:35.544Z",
+        "collected_at": "2026-09-29T04:44:00.404Z",
+        "original_language": "th",
+        "stars": 3,
+        "collection_file": "data/pupen_collection/newest_reviews.json",
+        "source_index": 191,
+        "apify_run_id": "MU9RZfYlbeszs7ivF",
+        "apify_dataset_id": "CS73DMtvVMgDE1I62",
+        "text_sha256": "a20cb3dabf99a1351d28dec1ce38847dda68944c70997f48a022b4590c852cea"
+      }
+    },
+    {
+      "id": "pupen-3cdf6594d3ed6b84",
+      "text": "พนักงานไม่สนใจเลย เรียกหลายรอบมากๆ ชูกระดาษจดออเดอร์ก้แล้ว เรียกก้แล้ว แค่เดินมาละบอกว่าเดะมีพนักงานมารับนะคะ งงมาก ไม่ต้องมานะที่นี่ไปกินร้านอื่น",
+      "label": "negative",
+      "annotation": {
+        "annotator": "Codex AI",
+        "method": "text-based AI annotation before model evaluation",
+        "rationale": "ตำหนิพนักงานไม่สนใจและแนะนำให้ไปร้านอื่น",
+        "confidence": "high",
+        "human_validated": false
+      },
+      "source": {
+        "platform": "Google Maps",
+        "store_name": "ร้านอาหารปูเป็น ซีฟู้ด",
+        "place_id": "ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "cid": "8420473939244118190",
+        "place_url": "https://www.google.com/maps/search/?api=1&query=%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%AB%E0%B8%B2%E0%B8%A3%E0%B8%9B%E0%B8%B9%E0%B9%80%E0%B8%9B%E0%B9%87%E0%B8%99%20%E0%B8%8B%E0%B8%B5%E0%B8%9F%E0%B8%B9%E0%B9%89%E0%B8%94&query_place_id=ChIJ6d7RdwSUAjERrnAUJW-I23Q",
+        "review_id": "Ci9DQUlRQUNvZENodHljRjlvT2xwMVlUbEdTMUY1UW1FMlRYWmZaMnBmU1VkM2JuYxAB",
+        "review_url": null,
+        "published_at": "2026-07-26T07:59:22.717Z",
+        "collected_at": "2026-09-29T04:44:00.404Z",
+        "original_language": "th",
+        "stars": 1,
+        "collection_file": "data/pupen_collection/newest_reviews.json",
+        "source_index": 386,
+        "apify_run_id": "MU9RZfYlbeszs7ivF",
+        "apify_dataset_id": "CS73DMtvVMgDE1I62",
+        "text_sha256": "17be2644d6db74615582d4cbb6d29fea5fa912ded2dfad76243d4b950d3546a2"
+      }
+    }
+  ],
+  "dataset_file": "data/labeled_reviews.json",
+  "dataset_sha256": "ff0841b71eb43fbb9d264598b226ab6c8d9d914e7b5eb7e28949c135e4eda107"
+}

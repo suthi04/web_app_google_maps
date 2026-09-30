@@ -1,0 +1,21 @@
+[Unit]
+Description=InsightReview (single-process Waitress server)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/insightreview
+ExecStart=/home/ubuntu/insightreview/.venv/bin/python /home/ubuntu/insightreview/serve.py
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=300
+UMask=0077
+Environment=PYTHONUNBUFFERED=1
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

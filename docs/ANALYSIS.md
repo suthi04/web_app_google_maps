@@ -144,7 +144,7 @@ function ทำงานบน `Phrase` dataclass หนึ่งตัว (อ�
 ### templates/ · static/ · data/ · eval/ · scripts/ · docs/
 - `templates/`: `base.html` (layout+sidebar+modal+toast), `index`, `job`, `dashboard`, `history` (ใช้ซ้ำทั้ง history & saved), `error`
 - `static/css/style.css`, `static/js/`: common/job/dashboard/history
-- `data/`: `sample_reviews.json` (30), `labeled_reviews.json` (60, gold), `settings.json` (สร้างเมื่อ save)
+- `data/`: `sample_reviews.json` (30), `labeled_reviews.json` (60 รีวิวจริง Pupen Seafood; AI ติดป้าย รอตรวจโดยมนุษย์), `settings.json` (สร้างเมื่อ save)
 - `eval/`: sentiment metrics/label tool + phrase queue/schema/label/agreement/adjudication/dataset split/evaluation/error analysis
 - `scripts/compare_engines.py`: เทียบ rule vs LLM (Gemini)
 - `docs/superpowers/`: spec + plan ของฟีเจอร์ (review-insight-phrase-extraction, gemini-extraction-engine, hybrid-keyword-extraction)
@@ -354,7 +354,7 @@ is_saved(0/1, default 0), payload(TEXT = JSON ทั้งก้อน)
 **(ค) lexicon (fallback / baseline)** — `_predict_lexicon` นับ `word_polarity` + เผื่อ substring
 
 **Evaluation** — [eval/evaluate.py](../eval/evaluate.py): คำนวณ Accuracy/P/R/F1/Macro/Weighted/Confusion/Kappa
-เองทั้งหมด ไม่พึ่ง sklearn ผลล่าสุด ([report.txt](../eval/report.txt)): WangchanBERTa Acc 88.3%, Macro-F1 0.879, Kappa 0.825 (60 รีวิว balanced 20/20/20)
+เองทั้งหมด ไม่พึ่ง sklearn ผลวันที่ 2026-09-29 ([report.txt](../eval/report.txt)): WangchanBERTa Acc 75.0%, Macro-F1 0.7182, Kappa 0.6250 (รีวิวจริง Pupen Seafood 60 รายการ 20/20/20; ป้าย AI รอตรวจโดยมนุษย์) ดูวิธีการใน [PUPEN-EVALUATION.md](PUPEN-EVALUATION.md)
 
 ---
 

@@ -1,8 +1,8 @@
 """
 eval/evaluate.py
 ================
-ประเมินความแม่นยำของโมเดลวิเคราะห์อารมณ์ เทียบกับชุดทดสอบที่ติด label มือ
-(data/labeled_reviews.json) — นี่คือหลักฐานเชิงปริมาณสำหรับบทที่ 4 ของวิทยานิพนธ์
+ประเมินโมเดลวิเคราะห์อารมณ์เทียบกับป้ายอ้างอิงใน data/labeled_reviews.json
+ชุดปัจจุบันคือรีวิวจริง Pupen Seafood ที่ AI ติดป้าย และยังรอตรวจโดยมนุษย์
 
 วัดอะไรบ้าง:
   - Accuracy
@@ -13,16 +13,22 @@ eval/evaluate.py
 
 วิธีรัน (จาก root ของโปรเจกต์):
     python eval/evaluate.py                 # ประเมิน engine ปัจจุบัน (demo=lexicon)
-    USE_MODEL=1 python eval/evaluate.py      # ประเมิน WangchanBERTa จริง
+    python -m eval.evaluate --engine model  # โมเดลจริง; fail closed ไม่ fallback
 
 ผลลัพธ์: พิมพ์ออกจอ + บันทึก eval/report.txt และ eval/confusion_matrix.csv
 (ถ้ามี matplotlib จะบันทึกภาพ eval/confusion_matrix.png ให้ด้วย)
 
 หมายเหตุ: คำนวณ metric เองทั้งหมด (ไม่พึ่ง scikit-learn) เพื่อให้รันได้ทุกเครื่อง
 """
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import importlib.metadata
+import importlib.util
 import json
 import math
 import os
+from pathlib import Path
 import sys
 
 # ให้ import core/ และ config ได้เมื่อรันจาก root
@@ -42,14 +48,36 @@ def load_dataset(path=None):
     return [r for r in data["reviews"] if r.get("label") in LABELS]
 
 
-def predict_all(items, use_model=None):
+def load_evaluation_document(path):
+    """Join optional audit metadata only when it matches the actual text/labels."""
+    dataset_path = Path(path)
+    dataset_bytes = dataset_path.read_bytes()
+    document = json.loads(dataset_bytes)
+    provenance_path = dataset_path.with_suffix(".provenance.json")
+    if provenance_path.exists():
+        provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+        if provenance.get("dataset_sha256") != hashlib.sha256(dataset_bytes).hexdigest():
+            raise ValueError("Dataset changed: update its provenance before reporting audited results.")
+        plain = [(r["text"], r["label"]) for r in document["reviews"]]
+        audited = [(r["text"], r["label"]) for r in provenance["reviews"]]
+        if plain != audited:
+            raise ValueError("Provenance text/labels do not match the evaluation dataset.")
+        document = provenance
+    return document
+
+
+def predict_all(items, use_model=None, *, strict_model=False):
     y_true, y_pred = [], []
     for it in items:
         pp = preprocess.preprocess_review(it["text"])
-        pred = sentiment.predict(
-            {"clean": pp["clean"], "tokens": pp["tokens"]},
-            use_model=use_model,
-        )
+        if strict_model:
+            # Research runs must fail rather than silently switch to lexicon.
+            pred = sentiment._predict_model(pp["clean"])
+        else:
+            pred = sentiment.predict(
+                {"clean": pp["clean"], "tokens": pp["tokens"]},
+                use_model=use_model,
+            )
         y_true.append(it["label"])
         y_pred.append(pred)
     return y_true, y_pred
@@ -161,20 +189,63 @@ def save_outputs(report_text, cm, *, prefix=""):
         fig.colorbar(im, fraction=0.046, pad=0.04)
         fig.tight_layout()
         fig.savefig(os.path.join(eval_dir, f"{prefix}confusion_matrix.png"), dpi=150)
+        plt.close(fig)
         return True
     except Exception:
         return False
 
 
 def main():
-    items = load_dataset()
+    parser = argparse.ArgumentParser(description="Evaluate review sentiment with source and prediction evidence.")
+    parser.add_argument("--engine", choices=("current", "model", "rule"), default="current")
+    parser.add_argument("--dataset", default=os.path.join(ROOT, "data", "labeled_reviews.json"))
+    args = parser.parse_args()
+    with open(args.dataset, "rb") as handle:
+        dataset_bytes = handle.read()
+    document = load_evaluation_document(args.dataset)
+    items = [row for row in document["reviews"] if row.get("label") in LABELS]
     if not items:
         print("ไม่พบข้อมูลที่ติด label ใน data/labeled_reviews.json")
         return
-    y_true, y_pred = predict_all(items)
-    report_text, cm = build_report(items, y_true, y_pred)
+    use_model = {"current": None, "model": True, "rule": False}[args.engine]
+    strict_model = use_model is True or (use_model is None and sentiment.config.get_use_model())
+    if strict_model:
+        sentiment._load_model()
+    y_true, y_pred = predict_all(items, use_model, strict_model=strict_model)
+    engine_label = sentiment.engine_name(use_model=use_model)
+    dataset_label = document.get("meta", {}).get("dataset_name")
+    report_text, cm = build_report(items, y_true, y_pred, dataset_label=dataset_label, engine_label=engine_label)
+    evaluated_at = datetime.now(timezone.utc).isoformat()
+    annotation = document.get("meta", {}).get("annotation", {})
+    evidence = {
+        "evaluated_at": evaluated_at,
+        "dataset": os.path.relpath(args.dataset, ROOT).replace("\\", "/"),
+        "dataset_sha256": hashlib.sha256(dataset_bytes).hexdigest(),
+        "engine": engine_label,
+        "model_name": sentiment.config.MODEL_NAME if strict_model else None,
+        "model_revision": sentiment.config.MODEL_REVISION if strict_model else None,
+        "model_commit": sentiment._model_pipe.model.config._commit_hash if strict_model else None,
+        "preprocessing": "core.preprocess.preprocess_review; model receives clean text",
+        "max_length": 512 if strict_model else None,
+        "annotation": annotation,
+        "versions": {name: importlib.metadata.version(name) for name in ("pythainlp", "transformers", "torch") if importlib.util.find_spec(name)},
+        "predictions": [{"id": item.get("id"), "text": item["text"],
+                         "reference_label": truth, "predicted_label": prediction,
+                         "correct": truth == prediction, "source": item.get("source")}
+                        for item, truth, prediction in zip(items, y_true, y_pred)],
+    }
+    if annotation:
+        report_text += "\n\nAnnotation: " + annotation.get("method", "unspecified")
+        report_text += "\nHuman validation: " + str(annotation.get("human_validation", "unspecified"))
+        report_text += "\nKappa compares reference labels with model predictions; it is not inter-annotator agreement."
+    report_text += f"\nEvaluated at (UTC): {evaluated_at}\nDataset SHA-256: {evidence['dataset_sha256']}"
+    if strict_model:
+        report_text += f"\nModel: {evidence['model_name']}@{evidence['model_revision']}\nCommit: {evidence['model_commit']}\nFallback: disabled (fail on model errors)"
     print(report_text)
     has_png = save_outputs(report_text, cm)
+    with open(os.path.join(ROOT, "eval", "predictions.json"), "w", encoding="utf-8") as handle:
+        json.dump(evidence, handle, ensure_ascii=False, indent=2)
+        handle.write("\n")
     print("\nบันทึกแล้ว: eval/report.txt, eval/confusion_matrix.csv"
           + (", eval/confusion_matrix.png" if has_png else " (ติดตั้ง matplotlib เพื่อได้ภาพ heatmap)"))
 
