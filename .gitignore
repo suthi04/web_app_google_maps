@@ -21,3 +21,10 @@ data/phrase_splits/
 .claude/
 .idea/
 .vscode/
+
+# Local research drafts, document previews, and temporary tooling
+/output/
+/tmp/
+/tmp_compare/
+/design-previews/
+/~/

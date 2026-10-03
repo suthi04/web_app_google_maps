@@ -230,7 +230,7 @@ insightreview/
 │   └── label_tool.py      #   เครื่องมือช่วยติด label เพิ่ม (p/u/n/s/q)
 │
 ├── debug_apify.py         # สคริปต์ตรวจการเชื่อมต่อ Apify
-├── docs/superpowers/      # historical archive: spec/plan เก่า ไม่ใช่ source of truth ปัจจุบัน
+├── docs/                 # คู่มือกฎวิเคราะห์ การติดป้ายกำกับ และหลักฐานผลประเมิน
 ├── requirements.txt       # เว็บ production/demo (Flask, Waitress, requests, pythainlp)
 ├── requirements-model.txt # + WangchanBERTa (transformers, torch, ...)
 └── .env.example           # ตัวอย่างค่า config
@@ -405,4 +405,8 @@ python -m eval.phrase_error_analysis data/phrase_gold.json --engine rule
 
 - ฐานข้อมูล `insightreview.db` ถูกสร้างอัตโนมัติเมื่อรันครั้งแรก
 - โหมด demo ออกแบบให้ทดสอบ UI/flow ได้โดยไม่มีค่าใช้จ่ายและไม่ต้องต่อเน็ตหนัก
-- เอกสารออกแบบเชิงลึกของฟีเจอร์สกัดวลีอยู่ที่ `docs/superpowers/` (spec + plan)
+- คู่มือกฎวิเคราะห์: [practical-insights-rulebase.md](docs/practical-insights-rulebase.md) และ [contemporary-thai-lexicon.md](docs/contemporary-thai-lexicon.md)
+- คู่มือติดป้ายกำกับวลี: [PHRASE-ANNOTATION-GUIDE.md](docs/PHRASE-ANNOTATION-GUIDE.md)
+- ที่มาและข้อจำกัดของผลประเมินล่าสุด: [PUPEN-EVALUATION.md](docs/PUPEN-EVALUATION.md)
+- คู่มือติดตั้งบนเซิร์ฟเวอร์: [Oracle A1](deploy/oracle-a1/README.md)
+- ร่างเล่ม เอกสารตรวจงานย้อนหลัง และภาพตรวจการจัดหน้าแยกเก็บนอก repository; ไม่จำเป็นต่อการรันเว็บหรือชุดทดสอบ
